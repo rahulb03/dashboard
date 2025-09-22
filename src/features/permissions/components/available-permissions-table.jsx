@@ -40,12 +40,7 @@ export default function AvailablePermissionsTable({
                                availablePermissions?.data ? availablePermissions.data : 
                                { categories: [], totalPermissions: 0 };
   
-  console.log('🔍 AvailablePermissionsTable Data Structure:', {
-    originalData: availablePermissions,
-    normalizedData: normalizedPermissions,
-    categoriesLength: normalizedPermissions?.categories?.length,
-    totalPermissions: normalizedPermissions?.totalPermissions
-  });
+ 
   const [searchTerm, setSearchTerm] = useState('');
   const [openCategories, setOpenCategories] = useState({});
 

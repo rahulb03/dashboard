@@ -1,5 +1,6 @@
 import { flexRender } from '@tanstack/react-table';
 import * as React from 'react';
+import { setSelectedUser } from '@/redux/permissions/permissionSlice';
 
 import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import {

@@ -14,7 +14,7 @@ export const fetchLoanApplicationsThunk = createAsyncThunk(
     }
   }
 )
-
+  
 // Fetch single loan application
 export const fetchLoanApplicationByIdThunk = createAsyncThunk(
   'loan/fetchById',

@@ -14,7 +14,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import {
   DropdownMenu,
@@ -27,16 +26,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-import { 
-  MoreHorizontal, 
-  Shield, 
+import {ld, 
   Users, 
   UserPlus, 
   UserMinus,
-  Eye,
-  History,
-  Search,
-  RefreshCw
+  RefreshCw , 
+  MoreHorizontal
 } from 'lucide-react';
 
 // Role options for filtering
@@ -53,6 +48,39 @@ const STATUS_OPTIONS = [
   { value: 'inactive', label: 'Inactive' },
   { value: 'suspended', label: 'Suspended' }
 ];
+
+// Component to display permissions with expand/collapse
+function PermissionsDisplay({ permissions }) {
+  const [showAll, setShowAll] = useState(false);
+  const displayLimit = 6;
+  const shouldShowMore = permissions.length > displayLimit;
+  const displayedPermissions = showAll ? permissions : permissions.slice(0, displayLimit);
+  
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-medium">Current Permissions ({permissions.length}):</p>
+        {shouldShowMore && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowAll(!showAll)}
+            className="text-xs h-6 px-2"
+          >
+            {showAll ? 'View less' : `View ${permissions.length - displayLimit} more`}
+          </Button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {displayedPermissions.map((permission) => (
+          <Badge key={permission.id} variant="outline" className="text-xs">
+            {permission.name}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Moved columns inside component to access hooks
 
@@ -76,8 +104,6 @@ export default function UsersPermissionsTable({
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
-  const [grantingPermission, setGrantingPermission] = useState(null); // Store user ID being processed
-  const [revokingPermission, setRevokingPermission] = useState(null); // Store user ID being processed
   const router = useRouter();
   const dispatch = useDispatch();
   
@@ -108,10 +134,21 @@ export default function UsersPermissionsTable({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
+    meta: {
+      variant: 'text',
+      placeholder: 'Filter users...',
+      label: 'Name'
+    },
     cell: ({ row }) => {
       const user = row.original;
       return (
-        <div className="flex items-center space-x-3">
+        <div 
+          className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 p-2 rounded transition-colors"
+          onClick={() => {
+            console.log('🎯 Selecting user from name cell:', user.name);
+            dispatch(setSelectedUser(user));
+          }}
+        >
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback>
@@ -130,9 +167,19 @@ export default function UsersPermissionsTable({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Email" />
     ),
-    cell: ({ row }) => (
-      <div className="text-sm">{row.original.email}</div>
-    )
+    cell: ({ row }) => {
+      const user = row.original;
+      return (
+        <div 
+          className="text-sm cursor-pointer hover:bg-muted/50 p-2 rounded transition-colors"
+          onClick={() => {
+            dispatch(setSelectedUser(user));
+          }}
+        >
+          {user.email}
+        </div>
+      );
+    }
   },
   {
     accessorKey: 'role',
@@ -147,25 +194,10 @@ export default function UsersPermissionsTable({
         </Badge>
       );
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    }
-  },
-  {
-    accessorKey: 'status',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return (
-        <Badge 
-          variant={status === 'active' ? 'default' : status === 'inactive' ? 'secondary' : 'destructive'}
-          className={status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
-        >
-          {status}
-        </Badge>
-      );
+    meta: {
+      variant: 'select',
+      label: 'Role',
+      options: ROLE_OPTIONS
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -176,26 +208,10 @@ export default function UsersPermissionsTable({
     header: 'Permissions',
     cell: ({ row }) => {
       const permissions = row.original.permissions || [];
-      const onUserSelect = row.table?.options?.meta?.onUserSelect;
       return (
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline">
-            {permissions.length} permissions
-          </Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              console.log('Eye button clicked for user:', row.original);
-              if (onUserSelect) {
-                onUserSelect(row.original);
-              }
-            }}
-            title="View permissions"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-        </div>
+        <Badge variant="outline">
+          {permissions.length} permissions
+        </Badge>
       );
     },
     enableSorting: false
@@ -219,22 +235,13 @@ export default function UsersPermissionsTable({
               Copy email
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => row.table?.options?.meta?.onUserSelect?.(user)}>
-              <Eye className="mr-2 h-4 w-4" />
-              View permissions
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => {
-              console.log('🚀 Grant permission clicked for user:', user);
-              dispatch(setSelectedUser(user));
               router.push(`/dashboard/permissions/grant?userId=${user.id}&userName=${encodeURIComponent(user.name)}`);
             }}>
               <UserPlus className="mr-2 h-4 w-4" />
               Grant permission
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
-              console.log('🚀 Revoke permission clicked for user:', user);
-              dispatch(setSelectedUser(user));
               router.push(`/dashboard/permissions/revoke?userId=${user.id}&userName=${encodeURIComponent(user.name)}`);
             }}>
               <UserMinus className="mr-2 h-4 w-4" />
@@ -250,21 +257,7 @@ export default function UsersPermissionsTable({
   ];
   
   // Enhanced debugging
-  console.log('🔍 UsersPermissionsTable Debug:', {
-    'Raw users prop': users,
-    'users type': typeof users,
-    'users isArray': Array.isArray(users),
-    'normalizedUsers': normalizedUsers,
-    'normalizedUsers length': normalizedUsers.length,
-    'finalUsers': finalUsers,
-    'finalUsers length': finalUsers.length,
-    'first normalized user': normalizedUsers[0],
-    'first final user': finalUsers[0],
-    'loading state': loading,
-    'onGrantPermission': onGrantPermission,
-    'onRevokePermission': onRevokePermission,
-    'onUserSelect': onUserSelect
-  });
+
   
 
   const table = useReactTable({
@@ -287,7 +280,9 @@ export default function UsersPermissionsTable({
       onUserSelect,
       selectedUser,
       grantPermission: onGrantPermission,
-      revokePermission: onRevokePermission
+      revokePermission: onRevokePermission,
+      dispatch: dispatch,
+      setSelectedUser: setSelectedUser
     },
     state: {
       sorting,
@@ -343,21 +338,7 @@ export default function UsersPermissionsTable({
           </div>
           
           {selectedUser.permissions && selectedUser.permissions.length > 0 && (
-            <div className="mt-3">
-              <p className="text-sm font-medium mb-2">Current Permissions:</p>
-              <div className="flex flex-wrap gap-1">
-                {selectedUser.permissions.slice(0, 5).map((permission) => (
-                  <Badge key={permission.id} variant="outline" className="text-xs">
-                    {permission.name}
-                  </Badge>
-                ))}
-                {selectedUser.permissions.length > 5 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{selectedUser.permissions.length - 5} more
-                  </Badge>
-                )}
-              </div>
-            </div>
+            <PermissionsDisplay permissions={selectedUser.permissions} />
           )}
         </div>
       )}
@@ -388,26 +369,7 @@ export default function UsersPermissionsTable({
       
       {!loading && finalUsers.length > 0 && (
         <DataTable table={table}>
-          <DataTableToolbar 
-            table={table}
-            filterFields={[
-              {
-                id: 'name',
-                placeholder: 'Filter users...',
-                type: 'text'
-              },
-              {
-                id: 'role',
-                title: 'Role',
-                options: ROLE_OPTIONS
-              },
-              {
-                id: 'status',
-                title: 'Status',
-                options: STATUS_OPTIONS
-              }
-            ]}
-          >
+          <DataTableToolbar table={table}>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm">
                 Export Users

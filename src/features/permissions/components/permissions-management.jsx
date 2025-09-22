@@ -1,23 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import {
   Shield, 
-  Plus, 
   Users, 
   Settings, 
   Activity,
   RefreshCw,
-  Download,
-  UserPlus,
-  UserMinus,
+
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
@@ -29,13 +24,10 @@ import AvailablePermissionsTable from './available-permissions-table';
 import {
   fetchUsersWithPermissions,
   fetchAvailablePermissions,
-  fetchUserPermissionHistory
 } from '@/redux/permissions/permissionThunks';
 import {
   setSelectedUser,
-  setFilters,
-  clearErrors,
-  clearSuccessMessage
+  
 } from '@/redux/permissions/permissionSlice';
 
 export default function PermissionsManagement() {
@@ -48,7 +40,6 @@ export default function PermissionsManagement() {
     loading,
     error,
     successMessage,
-    filters
   } = useSelector((state) => state.permissions);
 
   const [activeTab, setActiveTab] = useState('users');
@@ -77,37 +68,22 @@ export default function PermissionsManagement() {
   };
   
   const handleGrantPermission = (user) => {
-    console.log('🔥 GRANT PERMISSION HANDLER CALLED for user:', user);
-    console.log('🔥 Router:', router);
-    console.log('🔥 Dispatch:', dispatch);
+
     // Store selected user in Redux and navigate to grant page
     dispatch(setSelectedUser(user));
     const url = `/dashboard/permissions/grant?userId=${user.id}&userName=${encodeURIComponent(user.name)}`;
-    console.log('🔥 Navigating to:', url);
     router.push(url);
   };
   
   const handleRevokePermission = (user) => {
-    console.log('🔥 REVOKE PERMISSION HANDLER CALLED for user:', user);
-    console.log('🔥 Router:', router);
-    console.log('🔥 Dispatch:', dispatch);
+  
     // Store selected user in Redux and navigate to revoke page
     dispatch(setSelectedUser(user));
     const url = `/dashboard/permissions/revoke?userId=${user.id}&userName=${encodeURIComponent(user.name)}`;
-    console.log('🔥 Navigating to:', url);
     router.push(url);
   };
   
-  console.log('PermissionsManagement Debug:', {
-    usersCount: users?.length,
-    availablePermissionsCount: availablePermissions?.categories?.length,
-    totalPermissions: availablePermissions?.totalPermissions,
-    loadingState: loading,
-    firstUser: users?.[0],
-    error,
-    API_BASE_URL: 'http://localhost:3000/api/admin/',
-    currentPort: window?.location?.port || 'unknown'
-  });
+
 
 
   // Handle error states
