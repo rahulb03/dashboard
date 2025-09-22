@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,19 +15,19 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
+import { FormProvider } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, { message: 'Current password is required' }),
-  newPassword: z.string().min(6, { message: 'New password must be at least 6 characters' }),
+  oldPassword: z.string().min(8, { message: 'Old password is required (min 8 characters)' }),
+  newPassword: z.string().min(8, { message: 'New password must be at least 8 characters' }),
   confirmNewPassword: z.string().min(1, { message: 'Please confirm your new password' })
 }).refine((data) => data.newPassword === data.confirmNewPassword, {
   message: "Passwords don't match",
@@ -36,12 +37,15 @@ const changePasswordSchema = z.object({
 export default function ChangePasswordDialog({ children }) {
   const [open, setOpen] = useState(false);
   const [loading, startTransition] = useTransition();
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { changePassword } = useAuth();
 
   const form = useForm({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
-      currentPassword: '',
+      oldPassword: '',
       newPassword: '',
       confirmNewPassword: ''
     }
@@ -51,7 +55,7 @@ export default function ChangePasswordDialog({ children }) {
     startTransition(async () => {
       try {
         const result = await changePassword({
-          currentPassword: data.currentPassword,
+          oldPassword: data.oldPassword,
           newPassword: data.newPassword
         });
 
@@ -80,21 +84,36 @@ export default function ChangePasswordDialog({ children }) {
             Enter your current password and choose a new one.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
+        <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="currentPassword"
+              name="oldPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Password</FormLabel>
+                  <FormLabel>Old Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="Enter current password"
-                      disabled={loading}
-                      {...field} 
-                    />
+                    <div className="relative">
+                      <Input 
+                        type={showOldPassword ? "text" : "password"} 
+                        placeholder="Enter old password"
+                        disabled={loading}
+                        className="pr-10"
+                        {...field} 
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3"
+                        onClick={() => setShowOldPassword(!showOldPassword)}
+                        disabled={loading}
+                      >
+                        {showOldPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,12 +126,27 @@ export default function ChangePasswordDialog({ children }) {
                 <FormItem>
                   <FormLabel>New Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="Enter new password"
-                      disabled={loading}
-                      {...field} 
-                    />
+                    <div className="relative">
+                      <Input 
+                        type={showNewPassword ? "text" : "password"} 
+                        placeholder="Enter new password"
+                        disabled={loading}
+                        className="pr-10"
+                        {...field} 
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        disabled={loading}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,12 +159,27 @@ export default function ChangePasswordDialog({ children }) {
                 <FormItem>
                   <FormLabel>Confirm New Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="Confirm new password"
-                      disabled={loading}
-                      {...field} 
-                    />
+                    <div className="relative">
+                      <Input 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        placeholder="Confirm new password"
+                        disabled={loading}
+                        className="pr-10"
+                        {...field} 
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        disabled={loading}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,7 +199,7 @@ export default function ChangePasswordDialog({ children }) {
               </Button>
             </div>
           </form>
-        </Form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Product } from '@/constants/data';
-import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconDotsVertical, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -41,9 +41,14 @@ export const CellAction = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           <DropdownMenuItem
+            onClick={() => router.push(`/dashboard/product/${data.id}?mode=view`)}
+          >
+            <IconEye className='mr-2 h-4 w-4' /> View Details
+          </DropdownMenuItem>
+          <DropdownMenuItem
             onClick={() => router.push(`/dashboard/product/${data.id}`)}
           >
-            <IconEdit className='mr-2 h-4 w-4' /> Update
+            <IconEdit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <IconTrash className='mr-2 h-4 w-4' /> Delete

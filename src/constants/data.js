@@ -45,6 +45,14 @@ export const navItems = [
     shortcut: ['k', 'k'],
     isActive: false,
     items: [] // No child items
+  },
+  {
+    title: 'Permissions',
+    url: '/dashboard/permissions',
+    icon: 'shield',
+    shortcut: ['r', 'r'],
+    isActive: false,
+    items: [] // No child items
   }
 ];
 

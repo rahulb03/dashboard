@@ -121,7 +121,23 @@ const permissionSlice = createSlice({
       })
       .addCase(fetchUsersWithPermissions.fulfilled, (state, action) => {
         state.loading.users = false;
-        state.users = action.payload.users;
+        
+        // Debug: Log what payload we're getting
+        console.log('🚀 Redux Slice Users Fulfilled:', {
+          actionPayload: action.payload,
+          isArray: Array.isArray(action.payload),
+          payloadLength: action.payload?.length,
+          payloadType: typeof action.payload,
+          firstItem: action.payload?.[0]
+        });
+        
+        // The thunk now returns the users array directly
+        if (Array.isArray(action.payload)) {
+          state.users = action.payload;
+        } else {
+          console.warn('⚠️ Expected array but got:', typeof action.payload, action.payload);
+          state.users = [];
+        }
         
         // Update cache metadata
         state.cache.users.lastFetched = Date.now();
@@ -143,6 +159,15 @@ const permissionSlice = createSlice({
       })
       .addCase(fetchAvailablePermissions.fulfilled, (state, action) => {
         state.loading.permissions = false;
+        
+        // Debug: Log what payload we're getting for permissions
+        console.log('🚀 Redux Slice Permissions Fulfilled:', {
+          actionPayload: action.payload,
+          hasCategories: action.payload?.categories ? true : false,
+          categoriesLength: action.payload?.categories?.length,
+          totalPermissions: action.payload?.totalPermissions
+        });
+        
         state.availablePermissions = action.payload;
         
         // Update cache metadata

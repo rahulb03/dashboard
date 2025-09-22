@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Product } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
-import { CheckCircle2, Text, XCircle } from 'lucide-react';
+import { Text } from 'lucide-react';
 import Image from 'next/image';
 import { CellAction } from './cell-action';
 import { CATEGORY_OPTIONS } from './options';
@@ -13,13 +13,21 @@ export const columns = [
     accessorKey: 'photo_url',
     header: 'IMAGE',
     cell: ({ row }) => {
+      const imageUrl = row.getValue('photo_url');
+      const productName = row.getValue('name') || 'Product';
+      
       return (
-        <div className='relative aspect-square'>
+        <div className='relative aspect-square w-16 h-16'>
           <Image
-            src={row.getValue('photo_url')}
-            alt={row.getValue('name')}
+            src={imageUrl || '/placeholder-product.svg'}
+            alt={productName}
             fill
-            className='rounded-lg'
+            className='rounded-lg object-cover'
+            onError={(e) => {
+              e.target.src = '/placeholder-product.svg';
+            }}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+JNqva5wv1jjqpAdPTjbs="
           />
         </div>
       );
@@ -31,7 +39,7 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Name' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue()}</div>,
+    cell: ({ cell }) => <div className="font-medium">{cell.getValue() || 'Unnamed Product'}</div>,
     meta: {
       label: 'Name',
       placeholder: 'Search products...',
@@ -47,13 +55,11 @@ export const columns = [
       <DataTableColumnHeader column={column} title='Category' />
     ),
     cell: ({ cell }) => {
-      const status = cell.getValue();
-      const Icon = status === 'active' ? CheckCircle2 : XCircle;
-
+      const category = cell.getValue();
+      
       return (
         <Badge variant='outline' className='capitalize'>
-          <Icon />
-          {status}
+          {category || 'Unknown'}
         </Badge>
       );
     },
@@ -66,11 +72,27 @@ export const columns = [
   },
   {
     accessorKey: 'price',
-    header: 'PRICE'
+    header: 'PRICE',
+    cell: ({ cell }) => {
+      const price = cell.getValue();
+      return (
+        <div className="font-semibold">
+          {price ? `$${parseFloat(price).toFixed(2)}` : 'Price not set'}
+        </div>
+      );
+    }
   },
   {
     accessorKey: 'description',
-    header: 'DESCRIPTION'
+    header: 'DESCRIPTION',
+    cell: ({ cell }) => {
+      const description = cell.getValue();
+      return (
+        <div className="max-w-[200px] truncate" title={description}>
+          {description || 'No description available'}
+        </div>
+      );
+    }
   },
 
   {

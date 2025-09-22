@@ -1,13 +1,13 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
+import { FormProvider } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
@@ -67,11 +67,8 @@ export default function UserSignupForm() {
 
   return (
     <>
-      <Form
-        form={form}
-        onSubmit={form.handleSubmit(onSubmit)}
-        className='w-full space-y-4'
-      >
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-4'>
         <FormInput
           control={form.control}
           name='name'
@@ -109,7 +106,8 @@ export default function UserSignupForm() {
         >
           {loading ? 'Creating Account...' : 'Create Account'}
         </Button>
-      </Form>
+        </form>
+      </FormProvider>
       
       <div className='text-center'>
         <p className='text-sm text-muted-foreground'>

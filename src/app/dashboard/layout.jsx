@@ -19,13 +19,17 @@ export default async function DashboardLayout({
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
-        <SidebarInset>
-          <Header />
-          {/* page main content */}
-          {children}
-          {/* page main content ends */}
-        </SidebarInset>
+        <div className="flex h-screen w-full">
+          <AppSidebar />
+          <SidebarInset className="flex flex-col overflow-hidden">
+            <Header />
+            {/* page main content */}
+            <div className="flex-1 overflow-auto">
+              {children}
+            </div>
+            {/* page main content ends */}
+          </SidebarInset>
+        </div>
       </SidebarProvider>
     </KBar>
   );

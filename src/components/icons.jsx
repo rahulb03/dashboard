@@ -29,7 +29,8 @@ import {
   IconUserX,
   IconX,
   IconLayoutKanban,
-  IconBrandGithub
+  IconBrandGithub,
+  IconShield
 } from '@tabler/icons-react';
 
 // Icon type: React component that accepts icon props
@@ -65,5 +66,6 @@ export const Icons = {
   laptop: IconDeviceLaptop,
   github: IconBrandGithub,
   twitter: IconBrandTwitter,
-  check: IconCheck
+  check: IconCheck,
+  shield: IconShield
 };

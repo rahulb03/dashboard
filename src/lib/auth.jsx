@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedux } from '@/hooks/useAuthRedux';
 import { useDispatch } from 'react-redux';
-import { loginThunk, registerThunk, logoutThunk, updatePasswordThunk, fetchUserProfileThunk } from '@/redux/auth/authThunks';
+import { login, signup, logout, changePassword, getProfile } from '@/redux/auth/authThunks';
 
 const AuthContext = createContext(undefined);
 
@@ -22,9 +22,9 @@ export function AuthProvider({ children }) {
     }
   }, [isAuthenticated, user]);
 
-  const login = async (email, password) => {
+  const loginUser = async (email, password) => {
     try {
-      await dispatch(loginThunk({ email, password })).unwrap();
+      await dispatch(login({ email, password })).unwrap();
       router.push('/dashboard/overview');
       return { success: true };
     } catch (error) {
@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      await dispatch(registerThunk(userData)).unwrap();
+      await dispatch(signup(userData)).unwrap();
       router.push('/dashboard/overview');
       return { success: true };
     } catch (error) {
@@ -42,9 +42,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = async () => {
+  const logoutUser = async () => {
     try {
-      await dispatch(logoutThunk()).unwrap();
+      await dispatch(logout()).unwrap();
       router.push('/auth/sign-in');
     } catch (error) {
       // Even if logout fails on server, clear local state
@@ -52,9 +52,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const changePassword = async (passwordData) => {
+  const changeUserPassword = async (passwordData) => {
     try {
-      await dispatch(updatePasswordThunk(passwordData)).unwrap();
+      await dispatch(changePassword(passwordData)).unwrap();
       return { success: true, message: 'Password updated successfully' };
     } catch (error) {
       return { success: false, error: error.message || 'Password update failed' };
@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
 
   const fetchProfile = async () => {
     try {
-      await dispatch(fetchUserProfileThunk()).unwrap();
+      await dispatch(getProfile()).unwrap();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message || 'Failed to fetch profile' };
@@ -73,10 +73,10 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ 
       user, 
-      login, 
+      login: loginUser, 
       register,
-      logout, 
-      changePassword,
+      logout: logoutUser, 
+      changePassword: changeUserPassword,
       fetchProfile,
       isLoading: loading, 
       isAuthenticated,
