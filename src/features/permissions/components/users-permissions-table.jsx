@@ -24,13 +24,27 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DataTable } from '@/components/ui/table/data-table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { flexRender } from '@tanstack/react-table';
+import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-import {ld, 
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import FormCardSkeleton from '@/components/form-card-skeleton';
+import {
   Users, 
   UserPlus, 
   UserMinus,
-  RefreshCw , 
+  RefreshCw, 
+  Search,
+  Shield,
   MoreHorizontal
 } from 'lucide-react';
 
@@ -343,45 +357,137 @@ export default function UsersPermissionsTable({
         </div>
       )}
 
-      {/* Add debug info */}
-      {normalizedUsers.length === 0 && !loading && (
-        <div className="flex flex-col items-center justify-center py-8 text-center border rounded-lg">
-          <Users className="h-12 w-12 text-muted-foreground mb-3" />
-          <h3 className="text-lg font-semibold mb-2">No Users Found</h3>
-          <p className="text-muted-foreground text-sm mb-4">
-            There are no users in the system or they failed to load.
-          </p>
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Page
-          </Button>
-        </div>
-      )}
-      
+      {/* Loading State */}
       {loading && (
-        <div className="flex justify-center py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm text-muted-foreground">Loading users...</p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-1 items-center space-x-2">
+              <div className="h-8 w-[250px] bg-muted animate-pulse rounded" />
+              <div className="h-8 w-[150px] bg-muted animate-pulse rounded" />
+              <div className="h-8 w-[150px] bg-muted animate-pulse rounded" />
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-[80px] bg-muted animate-pulse rounded" />
+              <div className="h-8 w-[140px] bg-muted animate-pulse rounded" />
+            </div>
+          </div>
+          <div className="rounded-md border">
+            <div className="h-[400px] animate-pulse bg-muted/50" />
           </div>
         </div>
       )}
       
-      {!loading && finalUsers.length > 0 && (
-        <DataTable table={table}>
-          <DataTableToolbar table={table}>
+      {/* Always show table structure when not loading */}
+      {!loading && (
+        <div className="space-y-4">
+          {/* Header with actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex flex-1 items-center space-x-2">
+              <div className="relative w-64">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search users..."
+                  value={(table.getColumn("name")?.getFilterValue()) ?? ""}
+                  onChange={(event) =>
+                    table.getColumn("name")?.setFilterValue(event.target.value)
+                  }
+                  className="pl-8"
+                />
+              </div>
+              <Select 
+                value={(table.getColumn("role")?.getFilterValue()) ?? "all"}
+                onValueChange={(value) => 
+                  table.getColumn("role")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="MANAGER">Manager</SelectItem>
+                  <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                  <SelectItem value="USER">User</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
               <Button variant="outline" size="sm">
                 Export Users
               </Button>
-              {Object.keys(rowSelection).length > 0 && (
-                <Button variant="outline" size="sm">
-                  Bulk Actions ({Object.keys(rowSelection).length})
-                </Button>
-              )}
             </div>
-          </DataTableToolbar>
-        </DataTable>
+          </div>
+          
+          {/* Custom Table with Shield icon for no results */}
+          <div className='rounded-lg border'>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={table.getAllColumns().length}
+                      className='text-center py-8'
+                    >
+                      <div className="flex flex-col items-center space-y-2">
+                        <Shield className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="text-lg font-semibold">No users found</h3>
+                        <p className="text-muted-foreground">
+                          {finalUsers.length === 0
+                            ? "No users are available for permission management."
+                            : "No users match your current search criteria."
+                          }
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          
+          {/* Pagination */}
+          <DataTablePagination table={table} />
+        </div>
       )}
     </div>
   );

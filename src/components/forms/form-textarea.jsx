@@ -21,7 +21,8 @@ function FormTextarea({
   placeholder,
   config = {},
   disabled,
-  className
+  className,
+  rules = {}
 }) {
   const {
     maxLength,
@@ -34,6 +35,7 @@ function FormTextarea({
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
         <FormItem className={className}>
           {label && (

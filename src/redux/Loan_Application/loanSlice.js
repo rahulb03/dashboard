@@ -7,7 +7,9 @@ import {
   deleteLoanApplicationThunk,
   downloadDocumentThunk,
   updateLoanStatusThunk,
-  updatePaymentStatusThunk
+  updatePaymentStatusThunk,
+  createLoanApplicationWithDocumentsThunk,
+  updateLoanApplicationWithDocumentsThunk
 } from './loanThunks'
 
 const initialState = {
@@ -66,10 +68,27 @@ const loanSlice = createSlice({
       })
       .addCase(fetchLoanApplicationsThunk.fulfilled, (state, action) => {
         state.loading = false
-        state.loanApplications = action.payload
-        loanSlice.caseReducers.updateStats(state)
-        // Update cache metadata
-        state.cache.lastFetched = Date.now()
+        
+        // Only update data if it's not from cache
+        if (!action.payload.cached) {
+          state.loanApplications = action.payload.loanApplications
+          
+          // Use API summary if available, otherwise calculate from data
+          if (action.payload.summary) {
+            state.stats = {
+              total: action.payload.summary.totalApplications,
+              approved: action.payload.summary.approvedApplications,
+              pending: action.payload.summary.pendingApplications,
+              rejected: action.payload.summary.rejectedApplications,
+              processing: action.payload.loanApplications.filter(app => app.applicationStatus === 'PROCESSING').length
+            }
+          } else {
+            loanSlice.caseReducers.updateStats(state)
+          }
+          
+          // Update cache metadata only for fresh data
+          state.cache.lastFetched = Date.now()
+        }
       })
       .addCase(fetchLoanApplicationsThunk.rejected, (state, action) => {
         state.loading = false
@@ -108,6 +127,8 @@ const loanSlice = createSlice({
             state.stats[status] += 1
           }
         }
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
       })
       .addCase(createLoanApplicationThunk.rejected, (state, action) => {
         state.loading = false
@@ -152,6 +173,8 @@ const loanSlice = createSlice({
         if (state.currentLoanApplication?.id === action.payload.id) {
           state.currentLoanApplication = action.payload
         }
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
       })
       .addCase(updateLoanApplicationThunk.rejected, (state, action) => {
         state.loading = false
@@ -184,6 +207,8 @@ const loanSlice = createSlice({
         if (state.currentLoanApplication?.id === action.payload) {
           state.currentLoanApplication = null
         }
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
       })
       .addCase(deleteLoanApplicationThunk.rejected, (state, action) => {
         state.loading = false
@@ -233,6 +258,8 @@ const loanSlice = createSlice({
         if (state.currentLoanApplication?.id === action.payload.id) {
           state.currentLoanApplication = { ...state.currentLoanApplication, ...action.payload }
         }
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
       })
       .addCase(updateLoanStatusThunk.rejected, (state, action) => {
         state.error = action.payload
@@ -255,14 +282,93 @@ const loanSlice = createSlice({
         if (state.currentLoanApplication?.id === action.payload.id) {
           state.currentLoanApplication = action.payload
         }
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
       })
       .addCase(updatePaymentStatusThunk.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+
+      // Create loan application with documents
+      .addCase(createLoanApplicationWithDocumentsThunk.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(createLoanApplicationWithDocumentsThunk.fulfilled, (state, action) => {
+        state.loading = false
+        // The response contains the complete application data with documents
+        const newApplication = action.payload.applicantDetails ? {
+          ...action.payload.applicantDetails,
+          id: action.payload.applicationId,
+          status: action.payload.status,
+          documents: action.payload.documents || [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } : action.payload
+        
+        state.loanApplications.push(newApplication)
+        
+        // Update stats
+        state.stats.total += 1
+        const status = newApplication.applicationStatus || 'pending'
+        const statusKey = status.toLowerCase()
+        if (state.stats[statusKey] !== undefined) {
+          state.stats[statusKey] += 1
+        }
+        
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
+      })
+      .addCase(createLoanApplicationWithDocumentsThunk.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+
+      // Update loan application with documents
+      .addCase(updateLoanApplicationWithDocumentsThunk.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(updateLoanApplicationWithDocumentsThunk.fulfilled, (state, action) => {
+        state.loading = false
+        
+        // Find and update the application
+        const index = state.loanApplications.findIndex(
+          loan => loan.id === action.payload.applicationId
+        )
+        
+        if (index !== -1) {
+          // Update the application with new data
+          const updatedApplication = {
+            ...state.loanApplications[index],
+            ...action.payload.applicantDetails,
+            id: action.payload.applicationId,
+            status: action.payload.status,
+            paymentStatus: action.payload.paymentStatus,
+            documents: action.payload.documents || [],
+            payments: action.payload.payments || [],
+            updatedAt: new Date().toISOString()
+          }
+          
+          state.loanApplications[index] = updatedApplication
+          
+          // Update current application if it's the same one
+          if (state.currentLoanApplication?.id === action.payload.applicationId) {
+            state.currentLoanApplication = updatedApplication
+          }
+        }
+        
+        // Invalidate cache since data changed
+        state.cache.lastFetched = null
+      })
+      .addCase(updateLoanApplicationWithDocumentsThunk.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
       })
   }
 })
 
-export const { clearError, clearCurrentLoanApplication, setCurrentLoanApplication, updateStats } = loanSlice.actions
+export const { clearError, clearCurrentLoanApplication, setCurrentLoanApplication, updateStats, invalidateCache } = loanSlice.actions
 
 export default loanSlice.reducer

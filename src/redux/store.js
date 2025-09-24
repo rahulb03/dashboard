@@ -3,6 +3,8 @@ import authReducer from "./auth/authSlice";
 import loanReducer from "./Loan_Application/loanSlice";
 import memberReducer from "./member/memberSlice";
 import permissionReducer from "./permissions/permissionSlice";
+import paymentConfigReducer from "./payments/paymentConfigSlice";
+import salaryReducer from "./salary/salarySlice";
 import {
   persistStore,
   persistReducer,
@@ -13,34 +15,18 @@ import {
   PURGE,
   REGISTER,
 } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
-
-// Create a noop storage for SSR compatibility
-const createNoopStorage = () => {
-  return {
-    getItem(_key) {
-      return Promise.resolve(null);
-    },
-    setItem(_key, value) {
-      return Promise.resolve(value);
-    },
-    removeItem(_key) {
-      return Promise.resolve();
-    },
-  };
-};
-
-// Use createWebStorage with fallback for SSR
-const storageInstance = typeof window !== 'undefined' 
-  ? createWebStorage('local')
-  : createNoopStorage();
+import storage from '../lib/storage';
 
 const persistConfig = {
   key: 'root',
   version: 1,
-  storage: storageInstance,
+  storage,
   whitelist: ['auth'],
+  debug: process.env.NODE_ENV === 'development',
+  // Add transform to handle auth state properly
+  transforms: [],
+  // Throttle writes to storage
+  throttle: 100,
 };
 
 const rootReducer = combineReducers({
@@ -48,6 +34,8 @@ const rootReducer = combineReducers({
   loan: loanReducer,
   member: memberReducer,
   permissions: permissionReducer,
+  paymentConfig: paymentConfigReducer,
+  salary: salaryReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

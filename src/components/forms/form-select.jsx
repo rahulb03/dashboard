@@ -27,12 +27,14 @@ function FormSelect({
   options,
   placeholder = 'Select an option',
   disabled,
-  className
+  className,
+  rules = {}
 }) {
   return (
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
         <FormItem className={className}>
           {label && (

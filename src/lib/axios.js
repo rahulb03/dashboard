@@ -25,52 +25,24 @@ function attachInterceptors(axiosInstance) {
         config.headers['Content-Type'] = 'application/json';
       }
 
-      // Log request
-      console.log('➡️ Axios Request:', {
-        method: config.method,
-        url: config.url,
-        headers: config.headers,
-        params: config.params,
-        data: config.data,
-      });
 
       return config;
     },
     (error) => {
-      console.error('❌ Axios Request Error:', error);
       return Promise.reject(error);
     }
   );
 
   axiosInstance.interceptors.response.use(
     (response) => {
-      console.log('✅ Axios Response:', {
-        url: response.config.url,
-        status: response.status,
-        data: response.data,
-      });
-
       return response;
     },
     (error) => {
       if (error.response) {
-        console.error('❌ Axios Response Error:', {
-          url: error.config?.url,
-          status: error.response.status,
-          data: error.response.data,
-        });
-
-        // Handle unauthorized responses
+        // Handle unauthorized responses - but don't auto-logout
         if (error.response.status === 401) {
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userdetail');
-            // Redirect to login page
-            window.location.href = '/login';
-          }
+          // Let the application handle this through Redux/auth state
         }
-      } else {
-        console.error('❌ Axios Network/Error:', error.message);
       }
 
       return Promise.reject(error);

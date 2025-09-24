@@ -53,7 +53,11 @@ class DataCacheManager {
       categories: 30 * 60 * 1000,   // 30 minutes
       roles: 30 * 60 * 1000,       // 30 minutes
       settings: 60 * 60 * 1000,    // 1 hour
-      history: 2 * 60 * 1000       // 2 minutes
+      history: 2 * 60 * 1000,      // 2 minutes
+      salary: 5 * 60 * 1000,       // 5 minutes
+      salaries: 5 * 60 * 1000,     // 5 minutes
+      salariesByEmploymentType: 3 * 60 * 1000,  // 3 minutes
+      searchSalaries: 2 * 60 * 1000  // 2 minutes (search results cache shorter)
     };
     
     // Initialize enhanced features

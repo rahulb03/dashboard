@@ -1,6 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance, unauthenticatedAxios } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
+import { storeAuthData, clearStoredAuthData } from '@/lib/auth-utils';
+import { mockAuthService } from '@/lib/mock-auth';
 
 const extractResponse = (data) => {
   const token = data?.data?.token || data?.token;
@@ -12,9 +14,29 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
   try {
     const response = await unauthenticatedAxios.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
     const { token, user } = extractResponse(response.data.data);
+    
     if (!token || !user) throw new Error('Invalid login response');
+    
+    // Persist to localStorage for cross-session persistence
+    storeAuthData(token, user);
+    
     return { token, user };
   } catch (error) {
+    // Try mock auth as fallback in development
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const mockResponse = await mockAuthService.login(email, password);
+        const { token, user } = extractResponse(mockResponse.data);
+        
+        if (token && user) {
+          storeAuthData(token, user);
+          return { token, user };
+        }
+      } catch (mockError) {
+        // Silent fallback failure
+      }
+    }
+    
     const message = error?.response?.data?.message || error.message || 'Login failed';
     return rejectWithValue(message);
   }
@@ -25,8 +47,27 @@ export const signup = createAsyncThunk('auth/signup', async (userData, { rejectW
     const response = await unauthenticatedAxios.post(API_ENDPOINTS.AUTH.SIGN_UP, userData);
     const { token, user } = extractResponse(response.data);
     if (!token || !user) throw new Error('Invalid signup response');
+    
+    // Persist to localStorage for cross-session persistence
+    storeAuthData(token, user);
+    
     return { token, user };
   } catch (error) {
+    // Try mock auth as fallback in development
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const mockResponse = await mockAuthService.signup(userData);
+        const { token, user } = extractResponse(mockResponse.data);
+        
+        if (token && user) {
+          storeAuthData(token, user);
+          return { token, user };
+        }
+      } catch (mockError) {
+        // Silent fallback failure
+      }
+    }
+    
     const message = error?.response?.data?.message || error.message || 'Signup failed';
     return rejectWithValue(message);
   }
@@ -39,6 +80,20 @@ export const getProfile = createAsyncThunk('auth/getProfile', async (_, { reject
     if (!user) throw new Error('No user data found');
     return user;
   } catch (error) {
+    // Try mock auth as fallback in development
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const mockResponse = await mockAuthService.getProfile();
+        const user = mockResponse.data;
+        
+        if (user) {
+          return user;
+        }
+      } catch (mockError) {
+        // Silent fallback failure
+      }
+    }
+    
     const message = error?.response?.data?.message || error.message || 'Failed to fetch profile';
     return rejectWithValue(message);
   }
@@ -70,7 +125,9 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
   try {
     await axiosInstance.get(API_ENDPOINTS.AUTH.LOGOUT);
   } catch (error) {
-    // Don't reject, just log the error and proceed with client-side logout
-    console.warn('Logout request failed, continuing with client-side logout...', error);
+    // Don't reject, just proceed with client-side logout
+  } finally {
+    // Always clear stored auth data on logout
+    clearStoredAuthData();
   }
 });

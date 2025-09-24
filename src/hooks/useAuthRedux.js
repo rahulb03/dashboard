@@ -13,42 +13,7 @@ export const useAuthRedux = () => {
   const router = useRouter();
   const { toast } = useToast();
 
-  // Clear user from localStorage when token changes
-  useEffect(() => {
-    if (!token) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userdetail');
-    } else {
-      localStorage.setItem('token', token);
-      if (user) {
-        localStorage.setItem('userdetail', JSON.stringify(user));
-      }
-    }
-  }, [token, user]);
-
-  // Initialize auth state from localStorage on mount
-  useEffect(() => {
-    const checkAuthState = () => {
-      if (typeof window !== 'undefined' && !user && !loading && !token) {
-        const storedToken = localStorage.getItem('token');
-        const storedUser = localStorage.getItem('userdetail');
-        
-        if (storedToken && storedUser) {
-          try {
-            const parsedUser = JSON.parse(storedUser);
-            // If we have valid stored data, manually set the auth state
-            // The Redux persist will handle this automatically, but we can validate if needed
-          } catch (error) {
-            // If parsing fails, clear stored data
-            localStorage.removeItem('token');
-            localStorage.removeItem('userdetail');
-          }
-        }
-      }
-    };
-
-    checkAuthState();
-  }, [user, loading, token]);
+  // No longer needed - redux-persist handles localStorage automatically
 
   const loginUser = useCallback(async (email, password) => {
     try {

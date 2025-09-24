@@ -86,24 +86,7 @@ export default function PermissionsManagement() {
 
 
 
-  // Handle error states
-  if (error.users && !loading.users) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="text-center">
-          <div className="mb-4 text-red-500">
-            <Shield className="h-12 w-12 mx-auto mb-2" />
-            <h3 className="text-lg font-semibold">Failed to Load Users</h3>
-            <p className="text-sm text-muted-foreground mt-2">{error.users}</p>
-          </div>
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Remove the error state blocking - let the table handle it
 
   return (
     <div className="flex flex-col space-y-6">

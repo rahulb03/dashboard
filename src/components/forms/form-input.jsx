@@ -24,12 +24,16 @@ function FormInput({
   min,
   max,
   disabled,
-  className
+  className,
+  rules = {},
+  maxLength,
+  config = {}
 }) {
   return (
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
         <FormItem className={className}>
           {label && (
@@ -45,14 +49,21 @@ function FormInput({
               step={step}
               min={min}
               max={max}
+              maxLength={maxLength}
               disabled={disabled}
               {...field}
               onChange={(e) => {
+                let value = e.target.value;
+                
+                // Apply transform if provided
+                if (config.transform) {
+                  value = config.transform(value);
+                }
+                
                 if (type === 'number') {
-                  const value = e.target.value;
                   field.onChange(value === '' ? undefined : parseFloat(value));
                 } else {
-                  field.onChange(e.target.value);
+                  field.onChange(value);
                 }
               }}
             />

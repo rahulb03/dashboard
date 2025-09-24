@@ -39,6 +39,14 @@ export const navItems = [
     ]
   },
   {
+    title: 'Payment',
+    url: '/dashboard/payment',
+    icon: 'billing',
+    shortcut: ['p', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
     title: 'Kanban',
     url: '/dashboard/kanban',
     icon: 'kanban',
@@ -53,6 +61,46 @@ export const navItems = [
     shortcut: ['r', 'r'],
     isActive: false,
     items: [] // No child items
+  },
+  {
+    title: 'Members',
+    url: '/dashboard/members',
+    icon: 'users',
+    shortcut: ['m', 'e'],
+    isActive: false,
+    items: [] // No child items - direct link to members
+  },
+  {
+    title: 'Salary Configurations',
+    url: '/dashboard/salary',
+    icon: 'salary',
+    shortcut: ['s', 'c'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Loan Management',
+    url: '/dashboard/loans',
+    icon: 'loan',
+    shortcut: ['l', 'm'],
+    isActive: false,
+    items: [
+      {
+        title: 'Applications',
+        url: '/dashboard/loans/applications',
+        shortcut: ['l', 'a']
+      },
+      {
+        title: 'Documents',
+        url: '/dashboard/loans/documents',
+        shortcut: ['l', 'd']
+      },
+      {
+        title: 'Payments',
+        url: '/dashboard/loans/payments',
+        shortcut: ['l', 'p']
+      }
+    ]
   }
 ];
 

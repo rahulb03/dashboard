@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthRedux } from '@/hooks/useAuthRedux';
+import { useAuthInit } from '@/hooks/useAuthInit';
 import { useDispatch } from 'react-redux';
 import { login, signup, logout, changePassword, getProfile } from '@/redux/auth/authThunks';
 
@@ -11,16 +12,10 @@ export function AuthProvider({ children }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const { user, loading, isAuthenticated, error } = useAuthRedux();
+  
+  // Initialize authentication on app start
+  useAuthInit();
 
-  useEffect(() => {
-    // Set cookie for middleware when user is authenticated
-    if (isAuthenticated && user) {
-      document.cookie = `session=true; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
-    } else {
-      // Remove session cookie when not authenticated
-      document.cookie = 'session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    }
-  }, [isAuthenticated, user]);
 
   const loginUser = async (email, password) => {
     try {
