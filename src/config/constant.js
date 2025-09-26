@@ -28,6 +28,8 @@ export const API_ENDPOINTS = {
     UPDATE_PAYMENT_STATUS: (id) => `loans/${id}/payment-status`,
     CREATE: 'loans',
 
+    
+    
     CREATE_WITH_DOCUMENTS: () => `loans/with-documents`,
     UPDATE_WITH_DOCUMENTS: (id) => `loans/${id}/with-documents`
   },
@@ -100,5 +102,17 @@ export const API_ENDPOINTS = {
     GET_ONE: (id) => `salary/${id}`,
     UPDATE: (id) => `salary/${id}`,
     DELETE: (id) => `salary/${id}`
+  },
+
+  // Tracking Analytics Management
+  TRACKING: {
+    DASHBOARD: 'tracking/dashboard',
+    SESSIONS: 'tracking/sessions',
+    SESSION_DETAILS: (sessionId) => `tracking/session/${sessionId}`,
+    FUNNEL_OPTIMIZED: 'tracking/funnel-optimized',
+    TRENDS: 'tracking/trends',
+    STATS_SUMMARY: 'tracking/stats-summary',
+    HEALTH: 'tracking/health',
+    CALCULATE_STATS: 'tracking/calculate-stats'
   }
 };

@@ -28,16 +28,7 @@ import {
   updateLoanStatusThunk,
   deleteLoanApplicationThunk
 } from '@/redux/Loan_Application/loanThunks';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog';
+import { ConfirmDeleteModal } from '@/components/modal/confirm-delete-modal';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
@@ -413,24 +404,17 @@ export default function LoanApplicationsDataTable({
         </div>
       )}
       
-      {/* DELETE Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the loan application for {selectedApplication?.fullName}. 
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteApplication} className="bg-red-600 hover:bg-red-700">
-              Delete Application
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* DELETE Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteApplication}
+        loading={loading}
+        itemType="Loan Application"
+        itemName={selectedApplication?.fullName}
+        variant="contextual"
+        description="This will permanently delete this loan application and all associated documents and payment records. This action cannot be undone."
+      />
     </div>
   );
 }

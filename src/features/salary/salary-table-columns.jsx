@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
-import { AlertModal } from '@/components/modal/alert-modal';
+import { ConfirmDeleteModal } from '@/components/modal/confirm-delete-modal';
 import { 
   IconDotsVertical, 
   IconEye, 
@@ -22,7 +22,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteSalaryThunk, fetchSalariesThunk } from '@/redux/salary/salaryThunks';
+import { deleteSalaryThunk } from '@/redux/salary/salaryThunks';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -54,8 +54,7 @@ const CellAction = ({ data }) => {
     try {
       await dispatch(deleteSalaryThunk(data.id)).unwrap();
       toast.success('Salary configuration deleted successfully');
-      // Refresh the salary list immediately after delete
-      dispatch(fetchSalariesThunk({ forceRefresh: true }));
+      // Note: No need to manually refresh - deleteSalaryThunk handles optimistic updates
     } catch (error) {
       toast.error(error.message || 'Failed to delete salary configuration');
     } finally {
@@ -66,13 +65,14 @@ const CellAction = ({ data }) => {
 
   return (
     <>
-      <AlertModal
+      <ConfirmDeleteModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         loading={loading}
-        title="Delete Salary Configuration"
-        description="Are you sure you want to delete this salary configuration? This action cannot be undone."
+        itemType="Salary Configuration"
+        itemName={`${data.employmentType} (${formatCurrency(data.minSalary)} - ${data.maxSalary ? formatCurrency(data.maxSalary) : 'No Limit'})`}
+        variant="contextual"
       />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>

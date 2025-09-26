@@ -101,6 +101,35 @@ export const navItems = [
         shortcut: ['l', 'p']
       }
     ]
+  },
+  {
+    title: 'Tracking Analytics',
+    url: '/dashboard/tracking',
+    icon: 'analytics',
+    shortcut: ['t', 'a'],
+    isActive: false,
+    items: [
+      {
+        title: 'Dashboard',
+        url: '/dashboard/tracking/dashboard',
+        shortcut: ['t', 'd']
+      },
+      {
+        title: 'Sessions',
+        url: '/dashboard/tracking/sessions',
+        shortcut: ['t', 's']
+      },
+      {
+        title: 'Analytics',
+        url: '/dashboard/tracking/analytics',
+        shortcut: ['t', 'r']
+      },
+      {
+        title: 'Health',
+        url: '/dashboard/tracking/health',
+        shortcut: ['t', 'h']
+      }
+    ]
   }
 ];
 

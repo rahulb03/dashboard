@@ -192,11 +192,9 @@ const loanSlice = createSlice({
         if (loanToDelete) {
           // Optimized stats update - just decrement total and status count
           state.stats.total = Math.max(0, state.stats.total - 1)
-          if (loanToDelete.status) {
-            const status = loanToDelete.status.toLowerCase()
-            if (status.includes('pending')) {
-              state.stats.pending = Math.max(0, state.stats.pending - 1)
-            } else if (state.stats[status] !== undefined) {
+          if (loanToDelete.applicationStatus) {
+            const status = loanToDelete.applicationStatus.toLowerCase()
+            if (state.stats[status] !== undefined) {
               state.stats[status] = Math.max(0, state.stats[status] - 1)
             }
           }

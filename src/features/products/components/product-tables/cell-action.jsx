@@ -1,5 +1,5 @@
 'use client';
-import { AlertModal } from '@/components/modal/alert-modal';
+import { ConfirmDeleteModal } from '@/components/modal/confirm-delete-modal';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,11 +24,14 @@ export const CellAction = ({ data }) => {
 
   return (
     <>
-      <AlertModal
+      <ConfirmDeleteModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         loading={loading}
+        itemType="Product"
+        itemName={data.name}
+        variant="contextual"
       />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>

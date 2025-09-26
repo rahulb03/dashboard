@@ -57,7 +57,15 @@ class DataCacheManager {
       salary: 5 * 60 * 1000,       // 5 minutes
       salaries: 5 * 60 * 1000,     // 5 minutes
       salariesByEmploymentType: 3 * 60 * 1000,  // 3 minutes
-      searchSalaries: 2 * 60 * 1000  // 2 minutes (search results cache shorter)
+      searchSalaries: 2 * 60 * 1000,  // 2 minutes (search results cache shorter)
+      // Tracking cache expiry times
+      tracking: 2 * 60 * 1000,     // 2 minutes (tracking data changes frequently)
+      trackingSessions: 1 * 60 * 1000,  // 1 minute (sessions are dynamic)
+      sessionDetails: 5 * 60 * 1000,    // 5 minutes (session details change less)
+      funnelAnalytics: 10 * 60 * 1000,  // 10 minutes (analytics can be cached longer)
+      trends: 15 * 60 * 1000,      // 15 minutes
+      statsummary: 5 * 60 * 1000,  // 5 minutes
+      health: 30 * 1000           // 30 seconds (health checks should be frequent)
     };
     
     // Initialize enhanced features

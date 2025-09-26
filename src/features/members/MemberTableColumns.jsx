@@ -13,7 +13,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AlertModal } from '@/components/modal/alert-modal';
+import { ConfirmDeleteModal } from '@/components/modal/confirm-delete-modal';
 import { 
   IconDotsVertical, 
   IconEye, 
@@ -23,7 +23,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteMemberThunk, fetchMembersThunk } from '@/redux/member/memberThunks';
+import { deleteMemberThunk } from '@/redux/member/memberThunks';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -41,8 +41,7 @@ const CellAction = ({ data }) => {
     try {
       await dispatch(deleteMemberThunk(data.id)).unwrap();
       toast.success('Member deleted successfully');
-      // Refresh the member list immediately after delete
-      dispatch(fetchMembersThunk());
+      // Note: No need to manually refresh - deleteMemberThunk handles optimistic updates
     } catch (error) {
       toast.error(error.message || 'Failed to delete member');
     } finally {
@@ -53,11 +52,15 @@ const CellAction = ({ data }) => {
 
   return (
     <>
-      <AlertModal
+      <ConfirmDeleteModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         loading={loading}
+        itemType="Member"
+        itemName={data.name}
+        variant="contextual"
+        description="This will permanently remove this member from the organization. They will lose access to all resources and their data will be deleted."
       />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>

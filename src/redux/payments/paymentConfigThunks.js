@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
-import dataCache from '../../utils/DataCacheManager';
+import dataCache from '../../Utils/DataCacheManager';
 
 // Create Payment Configuration
 export const createPaymentConfigThunk = createAsyncThunk(
