@@ -110,7 +110,7 @@ export const navItems = [
     isActive: false,
     items: [
       {
-        title: 'Dashboard',
+        title: 'Overview',
         url: '/dashboard/tracking/dashboard',
         shortcut: ['t', 'd']
       },

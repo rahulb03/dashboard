@@ -6,6 +6,7 @@ import permissionReducer from "./permissions/permissionSlice";
 import paymentConfigReducer from "./payments/paymentConfigSlice";
 import salaryReducer from "./salary/salarySlice";
 import trackingReducer from "./tracking/trackingSlice";
+import dashboardReducer from "./dashboard/dashboardSlice";
 import {
   persistStore,
   persistReducer,
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   paymentConfig: paymentConfigReducer,
   salary: salaryReducer,
   tracking: trackingReducer,
+  dashboard: dashboardReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

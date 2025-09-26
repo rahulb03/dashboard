@@ -8,21 +8,31 @@ export const fetchTrackingDashboardThunk = createAsyncThunk(
   'tracking/fetchDashboard',
   async ({ forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
-      const cacheKey = 'tracking_dashboard';
-      
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
-        const cached = dataCache.get('tracking', { type: 'dashboard' });
+        const cached = dataCache.get('tracking');
         if (cached.cached) {
           return cached.data;
         }
       }
       
       const response = await axiosInstance.get(API_ENDPOINTS.TRACKING.DASHBOARD);
-      const data = response.data;
+      // Handle the response data structure properly
+      let data = response.data;
+      
+      // If response has success flag and data is nested, extract it
+      if (data.success && data.data) {
+        data = data.data;
+      }
+      // If response data is directly the dashboard data, use it as is
+      else if (data.success && !data.data) {
+        // Remove success flag and other meta fields, keep only dashboard data
+        const { success, ...dashboardData } = data;
+        data = dashboardData;
+      }
       
       // Update cache with new data
-      dataCache.set('tracking', data, { type: 'dashboard' });
+      dataCache.set('tracking', data);
       
       return data;
     } catch (error) {
@@ -239,12 +249,18 @@ export const fetchHealthThunk = createAsyncThunk(
 // Calculate Stats (Admin only)
 export const calculateStatsThunk = createAsyncThunk(
   'tracking/calculateStats',
-  async ({ date = null } = {}, { rejectWithValue }) => {
+  async ({ startDate = null, endDate = null, date = null } = {}, { rejectWithValue }) => {
     try {
-      const payload = date ? { date } : {};
+      const payload = {};
+      if (startDate && endDate) {
+        payload.startDate = startDate;
+        payload.endDate = endDate;
+      } else if (date) {
+        payload.date = date;
+      }
       
       const response = await axiosInstance.post(API_ENDPOINTS.TRACKING.CALCULATE_STATS, payload);
-      const data = response.data;
+      const data = response.data.success ? response.data : response.data;
       
       // Clear relevant caches since we manually calculated stats
       dataCache.invalidateType('tracking');

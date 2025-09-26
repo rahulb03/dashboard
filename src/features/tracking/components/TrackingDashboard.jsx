@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 
 // Calculate Stats Result Modal/Card Component
 const CalculateStatsResult = ({ result, onClose }) => {
-  if (!result) return null;
+  if (!result || !result.data) return null;
   
   const stats = result.data;
   
@@ -48,25 +48,25 @@ const CalculateStatsResult = ({ result, onClose }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="text-center p-3 bg-white/80 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">
-              {stats.totalSessions}
+              {stats?.totalSessions || 0}
             </div>
             <div className="text-sm text-muted-foreground">Total Sessions</div>
           </div>
           <div className="text-center p-3 bg-white/80 rounded-lg">
             <div className="text-2xl font-bold text-green-600">
-              {stats.completedSessions}
+              {stats?.completedSessions || 0}
             </div>
             <div className="text-sm text-muted-foreground">Completed</div>
           </div>
           <div className="text-center p-3 bg-white/80 rounded-lg">
             <div className="text-2xl font-bold text-yellow-600">
-              {stats.conversionRate.toFixed(1)}%
+              {stats?.conversionRate ? stats.conversionRate.toFixed(1) : 0}%
             </div>
             <div className="text-sm text-muted-foreground">Conversion Rate</div>
           </div>
           <div className="text-center p-3 bg-white/80 rounded-lg">
             <div className="text-2xl font-bold text-purple-600">
-              {stats.uniqueUsers}
+              {stats?.uniqueUsers || 0}
             </div>
             <div className="text-sm text-muted-foreground">Unique Users</div>
           </div>
@@ -79,19 +79,19 @@ const CalculateStatsResult = ({ result, onClose }) => {
             <div className="space-y-1">
               <div className="flex justify-between">
                 <span>Completed:</span>
-                <span className="text-green-600">{stats.completedSessions}</span>
+                <span className="text-green-600">{stats?.completedSessions || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span>In Progress:</span>
-                <span className="text-yellow-600">{stats.inProgressSessions}</span>
+                <span className="text-yellow-600">{stats?.inProgressSessions || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span>Abandoned:</span>
-                <span className="text-red-600">{stats.abandonedSessions}</span>
+                <span className="text-red-600">{stats?.abandonedSessions || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span>Avg Duration:</span>
-                <span>{Math.round(stats.averageSessionDuration)}s</span>
+                <span>{Math.round(stats?.averageSessionDuration || 0)}s</span>
               </div>
             </div>
           </div>
@@ -99,20 +99,21 @@ const CalculateStatsResult = ({ result, onClose }) => {
           <div>
             <h5 className="font-medium mb-2">Top Drop-offs</h5>
             <div className="space-y-1">
-              {stats.topDropOffs?.slice(0, 3).map((dropOff, index) => (
-                <div key={index} className="flex justify-between">
-                  <span className="truncate">{dropOff.step}</span>
-                  <Badge variant="outline">{dropOff.count}</Badge>
-                </div>
-              )) || <div className="text-muted-foreground">No drop-offs</div>}
+              {(stats?.topDropOffs && Array.isArray(stats.topDropOffs) && stats.topDropOffs.length > 0) ? 
+                stats.topDropOffs.slice(0, 3).map((dropOff, index) => (
+                  <div key={index} className="flex justify-between">
+                    <span className="truncate">{dropOff.step}</span>
+                    <Badge variant="outline">{dropOff.count}</Badge>
+                  </div>
+                )) : <div className="text-muted-foreground">No drop-offs</div>}
             </div>
           </div>
         </div>
         
         <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
           <div className="flex justify-between items-center">
-            <span>Calculated for: {stats.date}</span>
-            <span>Calculated at: {new Date(result.meta.calculatedAt).toLocaleString()}</span>
+            <span>Calculated for: {stats?.date || 'N/A'}</span>
+            <span>Calculated at: {result?.meta?.calculatedAt ? new Date(result.meta.calculatedAt).toLocaleString() : 'N/A'}</span>
           </div>
         </div>
       </CardContent>
@@ -157,13 +158,13 @@ const RecentActivityCard = ({ activities = [] }) => (
       </CardTitle>
     </CardHeader>
     <CardContent>
-      {activities.length === 0 ? (
+      {(!activities || !Array.isArray(activities) || activities.length === 0) ? (
         <div className="text-center py-6 text-muted-foreground">
           No recent activity
         </div>
       ) : (
         <div className="space-y-4">
-          {activities.map((activity, index) => (
+          {(activities || []).map((activity, index) => (
             <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center space-x-2">
@@ -198,13 +199,13 @@ const TopDropOffsCard = ({ dropOffs = [] }) => (
       </CardTitle>
     </CardHeader>
     <CardContent>
-      {dropOffs.length === 0 ? (
+      {(!dropOffs || !Array.isArray(dropOffs) || dropOffs.length === 0) ? (
         <div className="text-center py-6 text-muted-foreground">
           No drop-offs recorded
         </div>
       ) : (
         <div className="space-y-3">
-          {dropOffs.map((dropOff, index) => (
+          {(dropOffs || []).map((dropOff, index) => (
             <div key={index} className="flex items-center justify-between">
               <span className="text-sm truncate">{dropOff.step}</span>
               <Badge variant="outline">{dropOff.count}</Badge>
@@ -259,6 +260,10 @@ export default function TrackingDashboard() {
     dispatch(clearError());
   };
 
+  // Debug: Log dashboard data to identify the issue (can be removed in production)
+  console.log('Dashboard data:', dashboard);
+  console.log('Dashboard error:', dashboardError);
+
   if (dashboardError) {
     return (
       <div className="space-y-4">
@@ -280,10 +285,20 @@ export default function TrackingDashboard() {
     );
   }
 
-  const metrics = dashboard?.realTimeMetrics;
-  const sessionStats = dashboard?.sessionStats;
-  const recentActivity = dashboard?.recentActivity || [];
-  const topDropOffs = dashboard?.topDropOffs || [];
+  // Make sure all dashboard data is properly initialized with safety checks
+  const metrics = dashboard?.realTimeMetrics || {};
+  const sessionStats = dashboard?.sessionStats || {};
+  
+  // Ensure arrays are always arrays to prevent length errors
+  const recentActivity = (() => {
+    const activity = dashboard?.recentActivity;
+    return (activity && Array.isArray(activity)) ? activity : [];
+  })();
+  
+  const topDropOffs = (() => {
+    const dropOffs = dashboard?.topDropOffs;
+    return (dropOffs && Array.isArray(dropOffs)) ? dropOffs : [];
+  })();
 
   return (
     <div className="space-y-6">
@@ -338,7 +353,7 @@ export default function TrackingDashboard() {
       {/* Loading State */}
       {dashboardLoading && !dashboard && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
+          {Array.from({ length: 4 }, (_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="space-y-0 pb-2">
                 <div className="h-4 bg-muted rounded w-3/4"></div>

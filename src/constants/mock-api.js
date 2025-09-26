@@ -253,3 +253,152 @@ export const fakePayments = {
 
 // Initialize sample payments
 fakePayments.initialize();
+
+// Mock Tracking/Funnel Analytics Data
+const DUMMY_FUNNEL_STEPS = [
+  { stepName: 'welcome', stepIndex: 0, totalEntries: 1500, totalCompletions: 1350, conversionRate: 90.0, errorRate: 2.5 },
+  { stepName: 'phone', stepIndex: 1, totalEntries: 1350, totalCompletions: 1200, conversionRate: 88.9, errorRate: 3.2 },
+  { stepName: 'otp', stepIndex: 2, totalEntries: 1200, totalCompletions: 1050, conversionRate: 87.5, errorRate: 5.1 },
+  { stepName: 'application', stepIndex: 3, totalEntries: 1050, totalCompletions: 900, conversionRate: 85.7, errorRate: 4.8 },
+  { stepName: 'cibil', stepIndex: 4, totalEntries: 900, totalCompletions: 720, conversionRate: 80.0, errorRate: 7.2 },
+  { stepName: 'payment', stepIndex: 5, totalEntries: 720, totalCompletions: 650, conversionRate: 90.3, errorRate: 2.1 },
+  { stepName: 'cibil-otp', stepIndex: 6, totalEntries: 650, totalCompletions: 580, conversionRate: 89.2, errorRate: 3.4 },
+  { stepName: 'loan-amount', stepIndex: 7, totalEntries: 580, totalCompletions: 520, conversionRate: 89.7, errorRate: 2.8 },
+  { stepName: 'apply-for-loan', stepIndex: 8, totalEntries: 520, totalCompletions: 480, conversionRate: 92.3, errorRate: 1.5 },
+  { stepName: 'loan-application-success', stepIndex: 9, totalEntries: 480, totalCompletions: 460, conversionRate: 95.8, errorRate: 0.8 },
+  { stepName: 'document-payment', stepIndex: 10, totalEntries: 460, totalCompletions: 420, conversionRate: 91.3, errorRate: 2.2 },
+  { stepName: 'payment-successfully', stepIndex: 11, totalEntries: 420, totalCompletions: 400, conversionRate: 95.2, errorRate: 1.1 },
+  { stepName: 'upload-documents', stepIndex: 12, totalEntries: 400, totalCompletions: 350, conversionRate: 87.5, errorRate: 4.5 },
+  { stepName: 'document-upload-success', stepIndex: 13, totalEntries: 350, totalCompletions: 320, conversionRate: 91.4, errorRate: 2.8 },
+  { stepName: 'loan-approved', stepIndex: 14, totalEntries: 320, totalCompletions: 280, conversionRate: 87.5, errorRate: 1.2 },
+  { stepName: 'signup', stepIndex: 15, totalEntries: 280, totalCompletions: 250, conversionRate: 89.3, errorRate: 3.1 },
+  { stepName: 'cibil-skip', stepIndex: 16, totalEntries: 150, totalCompletions: 130, conversionRate: 86.7, errorRate: 4.2 }
+];
+
+const DUMMY_TREND_DATA = {
+  welcome: [
+    { date: '2024-01-20', totalEntries: 200, conversionRate: 89.5, errorRate: 2.8 },
+    { date: '2024-01-21', totalEntries: 180, conversionRate: 91.2, errorRate: 2.1 },
+    { date: '2024-01-22', totalEntries: 220, conversionRate: 88.8, errorRate: 3.2 },
+    { date: '2024-01-23', totalEntries: 190, conversionRate: 92.1, errorRate: 1.9 },
+    { date: '2024-01-24', totalEntries: 210, conversionRate: 89.7, errorRate: 2.5 },
+    { date: '2024-01-25', totalEntries: 250, conversionRate: 90.8, errorRate: 2.3 },
+    { date: '2024-01-26', totalEntries: 260, conversionRate: 88.9, errorRate: 2.7 }
+  ],
+  phone: [
+    { date: '2024-01-20', totalEntries: 179, conversionRate: 87.7, errorRate: 3.5 },
+    { date: '2024-01-21', totalEntries: 164, conversionRate: 89.0, errorRate: 3.1 },
+    { date: '2024-01-22', totalEntries: 195, conversionRate: 86.2, errorRate: 4.2 },
+    { date: '2024-01-23', totalEntries: 175, conversionRate: 90.3, errorRate: 2.8 },
+    { date: '2024-01-24', totalEntries: 188, conversionRate: 88.1, errorRate: 3.4 },
+    { date: '2024-01-25', totalEntries: 227, conversionRate: 89.4, errorRate: 3.0 },
+    { date: '2024-01-26', totalEntries: 231, conversionRate: 87.9, errorRate: 3.6 }
+  ],
+  otp: [
+    { date: '2024-01-20', totalEntries: 157, conversionRate: 85.4, errorRate: 5.8 },
+    { date: '2024-01-21', totalEntries: 146, conversionRate: 88.1, errorRate: 4.9 },
+    { date: '2024-01-22', totalEntries: 168, conversionRate: 84.5, errorRate: 6.2 },
+    { date: '2024-01-23', totalEntries: 158, conversionRate: 89.2, errorRate: 4.1 },
+    { date: '2024-01-24', totalEntries: 166, conversionRate: 86.7, errorRate: 5.3 },
+    { date: '2024-01-25', totalEntries: 203, conversionRate: 87.8, errorRate: 4.8 },
+    { date: '2024-01-26', totalEntries: 203, conversionRate: 85.7, errorRate: 5.5 }
+  ],
+  application: [
+    { date: '2024-01-20', totalEntries: 134, conversionRate: 83.6, errorRate: 5.2 },
+    { date: '2024-01-21', totalEntries: 129, conversionRate: 86.0, errorRate: 4.7 },
+    { date: '2024-01-22', totalEntries: 142, conversionRate: 82.4, errorRate: 5.8 },
+    { date: '2024-01-23', totalEntries: 141, conversionRate: 87.2, errorRate: 4.3 },
+    { date: '2024-01-24', totalEntries: 144, conversionRate: 84.7, errorRate: 5.1 },
+    { date: '2024-01-25', totalEntries: 178, conversionRate: 85.9, errorRate: 4.9 },
+    { date: '2024-01-26', totalEntries: 174, conversionRate: 83.9, errorRate: 5.4 }
+  ],
+  cibil: [
+    { date: '2024-01-20', totalEntries: 112, conversionRate: 78.6, errorRate: 7.8 },
+    { date: '2024-01-21', totalEntries: 111, conversionRate: 81.1, errorRate: 6.9 },
+    { date: '2024-01-22', totalEntries: 117, conversionRate: 77.8, errorRate: 8.2 },
+    { date: '2024-01-23', totalEntries: 123, conversionRate: 82.1, errorRate: 6.5 },
+    { date: '2024-01-24', totalEntries: 122, conversionRate: 79.5, errorRate: 7.4 },
+    { date: '2024-01-25', totalEntries: 153, conversionRate: 80.7, errorRate: 7.1 },
+    { date: '2024-01-26', totalEntries: 146, conversionRate: 78.8, errorRate: 7.9 }
+  ],
+  payment: [
+    { date: '2024-01-20', totalEntries: 88, conversionRate: 89.8, errorRate: 2.3 },
+    { date: '2024-01-21', totalEntries: 90, conversionRate: 91.1, errorRate: 1.9 },
+    { date: '2024-01-22', totalEntries: 91, conversionRate: 88.9, errorRate: 2.7 },
+    { date: '2024-01-23', totalEntries: 101, conversionRate: 91.1, errorRate: 1.8 },
+    { date: '2024-01-24', totalEntries: 97, conversionRate: 90.7, errorRate: 2.1 },
+    { date: '2024-01-25', totalEntries: 123, conversionRate: 89.4, errorRate: 2.4 },
+    { date: '2024-01-26', totalEntries: 115, conversionRate: 90.4, errorRate: 2.2 }
+  ]
+};
+
+export const fakeTrackingData = {
+  funnelSteps: [...DUMMY_FUNNEL_STEPS],
+  trendData: { ...DUMMY_TREND_DATA },
+
+  initialize() {
+    this.funnelSteps = [...DUMMY_FUNNEL_STEPS];
+    this.trendData = { ...DUMMY_TREND_DATA };
+    console.log('Initialized with dummy tracking data:', this.funnelSteps.length, 'funnel steps');
+  },
+
+  // Get enhanced funnel analytics
+  async getEnhancedFunnel({ dateRange = '7d' } = {}) {
+    await delay(800);
+    
+    const totalUsers = this.funnelSteps[0]?.totalEntries || 1500;
+    const completedUsers = this.funnelSteps[this.funnelSteps.length - 3]?.totalCompletions || 250; // Use signup step
+    const overallConversion = totalUsers > 0 ? (completedUsers / totalUsers) * 100 : 0;
+    
+    return {
+      success: true,
+      data: {
+        funnel: this.funnelSteps.map(step => ({
+          ...step,
+          totalReached: step.totalEntries,
+          totalCompleted: step.totalCompletions,
+          dropOffCount: step.totalEntries - step.totalCompletions,
+          dropOffRate: 100 - step.conversionRate
+        })),
+        totalUsers,
+        completedUsers,
+        overallConversion: parseFloat(overallConversion.toFixed(2)),
+        dateRange,
+        meta: {
+          generatedAt: new Date().toISOString(),
+          stepCount: this.funnelSteps.length
+        }
+      }
+    };
+  },
+
+  // Get trend analysis
+  async getTrendAnalysis({ period = 'daily', periods = 7 } = {}) {
+    await delay(600);
+    
+    return {
+      success: true,
+      data: {
+        trends: this.trendData,
+        period,
+        periods,
+        summary: {
+          totalSteps: Object.keys(this.trendData).length,
+          dateRange: {
+            start: '2024-01-20',
+            end: '2024-01-26'
+          },
+          avgConversion: 87.2,
+          avgErrorRate: 3.8
+        },
+        meta: {
+          generatedAt: new Date().toISOString(),
+          dataPoints: periods * Object.keys(this.trendData).length
+        }
+      }
+    };
+  }
+};
+
+// Initialize tracking data
+fakeTrackingData.initialize();

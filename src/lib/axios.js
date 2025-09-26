@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { API_BASE_URL } from '@/config/constant';
-// Replace this with your actual backend server URL
+import { API_BASE_URL, SERVER_URL } from '@/config/constant';
+// Using actual backend server
 
 // Helper to get token from localStorage or Redux store
 const getTokenFromStorage = () => {
@@ -14,7 +14,7 @@ const getTokenFromStorage = () => {
 // Attach interceptors to a given axios instance
 function attachInterceptors(axiosInstance) {
   axiosInstance.interceptors.request.use(
-    (config) => {
+    async (config) => {
       const token = getTokenFromStorage();
 
       if (token) {
@@ -24,7 +24,6 @@ function attachInterceptors(axiosInstance) {
       if (!(config.data instanceof FormData)) {
         config.headers['Content-Type'] = 'application/json';
       }
-
 
       return config;
     },
