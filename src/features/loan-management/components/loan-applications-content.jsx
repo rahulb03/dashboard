@@ -1,25 +1,35 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import LoanApplicationsDataTable from './loan-applications-data-table';
-import { fetchLoanApplicationsThunk } from '@/redux/Loan_Application/loanThunks';
+import { useSmartCacheData, useSmartCache } from '@/hooks/useSmartCache';
 
 export default function LoanApplicationsContent() {
-  const dispatch = useDispatch();
-  const { loanApplications, loading } = useSelector((state) => state.loan);
-
-  // Debug logging
+  const { loanApplications, loading: reduxLoading } = useSelector((state) => state.loan);
+  
+  // Use smart caching for loan applications
+  const { data: cachedData, loading: cacheLoading, refetch } = useSmartCacheData(
+    'loanApplications',
+    {},
+    { autoFetch: true }
+  );
+  
+  const { getCacheStats, preloadData } = useSmartCache();
+  
+  // Use cached data if available, fallback to Redux state
+  const applications = cachedData?.loanApplications || loanApplications || [];
+  const loading = cacheLoading || reduxLoading;
+  
+  // Debug logging with cache info
+  const cacheStats = getCacheStats();
   console.log('🔍 Applications Content Debug:', {
-    loanApplications,
+    applications: applications.length,
     loading,
-    applicationsLength: loanApplications?.length
+    cacheHitRate: `${cacheStats.cacheHitRate.toFixed(1)}%`,
+    cacheSize: cacheStats.cacheSize,
+    usingCache: !!cachedData
   });
-
-  useEffect(() => {
-    // Don't force refresh on initial load - use cache if available
-    dispatch(fetchLoanApplicationsThunk({ forceRefresh: false }));
-  }, [dispatch]);
 
   const handleExport = (data) => {
     const csvContent =
@@ -41,14 +51,20 @@ export default function LoanApplicationsContent() {
     document.body.removeChild(link);
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     // Force refresh when user explicitly clicks refresh
-    dispatch(fetchLoanApplicationsThunk({ forceRefresh: true }));
-  };
+    refetch(true); // true = force refresh
+    
+    // Also preload related data that might be needed
+    preloadData([
+      { dataType: 'members' },
+      { dataType: 'paymentConfigs' }
+    ], 'medium');
+  }, [refetch, preloadData]);
 
   return (
     <LoanApplicationsDataTable
-      applications={loanApplications || []}
+      applications={applications}
       loading={loading}
       onRefresh={handleRefresh}
       onExport={handleExport}

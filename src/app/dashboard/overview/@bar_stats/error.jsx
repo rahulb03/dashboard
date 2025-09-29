@@ -6,14 +6,14 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useTransition } from 'react';
-import * as Sentry from '@sentry/nextjs';
 
 export default function StatsError({ error, reset }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    Sentry.captureException(error);
+    // Log error to console for debugging
+    console.error('Bar Stats Error:', error);
   }, [error]);
 
   // the reload fn ensures the refresh is deferred until the next render phase

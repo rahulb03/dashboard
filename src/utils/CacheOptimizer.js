@@ -25,13 +25,14 @@ class CacheOptimizer {
   }
 
   /**
-   * Check if data should be fetched or use cache
+   * Check if data should be fetched or use cache (enhanced with DataCacheManager)
    * @param {string} pageType - Type of page/data (dashboard, tracking, etc.)
    * @param {string} dataKey - Specific data identifier
    * @param {boolean} forceRefresh - Force refresh override
+   * @param {Object} params - Parameters for cache key generation
    * @returns {boolean} - true if should fetch, false if should use cache
    */
-  shouldFetchData(pageType, dataKey, forceRefresh = false) {
+  shouldFetchData(pageType, dataKey, forceRefresh = false, params = {}) {
     // Always fetch if force refresh is requested
     if (forceRefresh) {
       console.log(`🔄 Force refresh requested for ${pageType}:${dataKey}`);
@@ -44,27 +45,36 @@ class CacheOptimizer {
       return true;
     }
 
+    // Use DataCacheManager for advanced caching if available
+    if (dataCache) {
+      const cached = dataCache.get(dataKey, params);
+      if (cached.cached) {
+        console.log(`📦 DataCache HIT for ${dataKey}`);
+        return false;
+      } else {
+        console.log(`🆕 DataCache MISS for ${dataKey}`);
+        return true;
+      }
+    }
+
+    // Fallback to legacy cache system
     const cacheKey = `${pageType}:${dataKey}`;
     const lastFetched = this.globalTimestamps.get(cacheKey);
-
+    
     if (!lastFetched) {
       console.log(`🆕 No cache found for ${cacheKey}, fetching fresh data`);
       return true;
     }
 
-    const ttl = this.cacheTTL[pageType] || 10 * 60 * 1000; // Default 10 minutes
+    const ttl = this.cacheTTL[pageType] || (10 * 60 * 1000); // Default 10 minutes
     const cacheAge = Date.now() - lastFetched;
-
+    
     if (cacheAge > ttl) {
-      console.log(
-        `⏰ Cache expired for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s, ttl: ${Math.round(ttl / 1000)}s)`
-      );
+      console.log(`⏰ Cache expired for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s, ttl: ${Math.round(ttl / 1000)}s)`);
       return true;
     }
 
-    console.log(
-      `📦 Using cached data for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s)`
-    );
+    console.log(`📦 Using cached data for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s)`);
     return false;
   }
 
