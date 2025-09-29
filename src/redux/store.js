@@ -8,6 +8,7 @@ import paymentConfigReducer from "./payments/paymentConfigSlice";
 import paymentsReducer from "./payments/paymentSlice";
 import salaryReducer from "./salary/salarySlice";
 import trackingReducer from "./tracking/trackingSlice";
+import newTrackingReducer from "./tracking/newTrackingSlice";
 import {
   persistStore,
   persistReducer,
@@ -42,6 +43,7 @@ const rootReducer = combineReducers({
   payments: paymentsReducer,
   salary: salaryReducer,
   tracking: trackingReducer,
+  newTracking: newTrackingReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

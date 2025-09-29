@@ -104,7 +104,7 @@ export const API_ENDPOINTS = {
     DELETE: (id) => `salary/${id}`
   },
 
-  // Tracking Analytics Management
+  // Tracking Analytics Management (Legacy)
   TRACKING: {
     DASHBOARD: 'tracking/dashboard',
     SESSIONS: 'tracking/sessions',
@@ -114,8 +114,7 @@ export const API_ENDPOINTS = {
     STATS_SUMMARY: 'tracking/stats-summary',
     HEALTH: 'tracking/health',
     CALCULATE_STATS: 'tracking/calculate-stats'
-  }
-,
+  },
 
   MEMBERSHIP : {
     LIST: 'memberships',

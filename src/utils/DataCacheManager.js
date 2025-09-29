@@ -82,7 +82,25 @@ class DataCacheManager {
       // Payment cache expiry times
       payment: 3 * 60 * 1000, // 3 minutes (individual payments)
       payments: 2 * 60 * 1000, // 2 minutes (payment lists)
-      userPayments: 3 * 60 * 1000 // 3 minutes (user payment history)
+      userPayments: 3 * 60 * 1000, // 3 minutes (user payment history)
+      
+      // New Tracking System cache expiry times
+      newTrackingOverview: 5 * 60 * 1000, // 5 minutes (overview data)
+      newTrackingRealTime: 30 * 1000, // 30 seconds (real-time data)
+      newTrackingPerformance: 10 * 60 * 1000, // 10 minutes (performance metrics)
+      newTrackingUsers: 5 * 60 * 1000, // 5 minutes (user lists)
+      newTrackingUserDetails: 10 * 60 * 1000, // 10 minutes (individual users)
+      newTrackingSessions: 2 * 60 * 1000, // 2 minutes (session lists)
+      newTrackingSessionDetails: 5 * 60 * 1000, // 5 minutes (session details)
+      newTrackingActiveSessions: 30 * 1000, // 30 seconds (active sessions)
+      newTrackingEvents: 3 * 60 * 1000, // 3 minutes (event lists)
+      newTrackingEventAnalytics: 10 * 60 * 1000, // 10 minutes (event analytics)
+      newTrackingPageAnalytics: 15 * 60 * 1000, // 15 minutes (page analytics)
+      newTrackingPopularPages: 20 * 60 * 1000, // 20 minutes (popular pages)
+      newTrackingConversions: 10 * 60 * 1000, // 10 minutes (conversions)
+      newTrackingConversionFunnel: 15 * 60 * 1000, // 15 minutes (conversion funnel)
+      newTrackingCustomReport: 30 * 60 * 1000, // 30 minutes (custom reports)
+      newTrackingExport: 60 * 60 * 1000 // 1 hour (export data)
     };
 
     // Initialize enhanced features

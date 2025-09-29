@@ -1,13 +1,13 @@
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import PaymentListingPage from '@/features/payments/components/payment-listing';
+import PaymentConfigListingPage from '@/features/payments/PaymentConfigListingPage';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Dashboard: Payments'
+  title: 'Dashboard: Payment Configurations'
 };
 
 export default async function Page(props) {
@@ -20,13 +20,13 @@ export default async function Page(props) {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <Heading
-            title='Payments'
-            description='Manage payment configurations (Server side table functionalities.)'
+            title='Payment Configurations'
+            description='Manage payment configurations, fees, and processing settings.'
           />
         </div>
         <Separator />
        
-          <PaymentListingPage />
+          <PaymentConfigListingPage />
       </div>
     </PageContainer>
   );
