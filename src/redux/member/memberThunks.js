@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
 import dataCache from '@/Utils/DataCacheManager';
+
 // Create User
 export const createMemberThunk = createAsyncThunk(
   'member/createMember',

@@ -1,8 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
-import dataCache from '../../Utils/DataCacheManager';
-
+import dataCache from '@/Utils/DataCacheManager';
 // Create Salary Configuration
 export const createSalaryThunk = createAsyncThunk(
   'salary/createSalary',
