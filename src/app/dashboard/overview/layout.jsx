@@ -1,7 +1,3 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import PageContainer from '@/components/layout/page-container';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -12,10 +8,7 @@ import {
   CardAction,
   CardFooter
 } from '@/components/ui/card';
-import { IconTrendingDown, IconTrendingUp, IconRefresh } from '@tabler/icons-react';
-import { Button } from '@/components/ui/button';
-import { fetchAllDashboardDataThunk } from '@/redux/dashboard/dashboardThunks';
-import { FunnelStepAnalysis } from '@/features/overview/components/funnel-step-analysis';
+import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React from 'react';
 
 export default function OverViewLayout({
@@ -24,215 +17,115 @@ export default function OverViewLayout({
   bar_stats,
   area_stats
 }) {
-  const dispatch = useDispatch();
-  const { 
-    overviewStats, 
-    dashboardStats,
-    overviewLoading, 
-    statsLoading,
-    overviewError,
-    statsError,
-    loading
-  } = useSelector((state) => state.dashboard);
-
-  // Fetch dashboard data on component mount
-  useEffect(() => {
-    dispatch(fetchAllDashboardDataThunk());
-  }, [dispatch]);
-
-  // Handle refresh
-  const handleRefresh = () => {
-    dispatch(fetchAllDashboardDataThunk({ forceRefresh: true }));
-  };
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount || 0);
-  };
-
-  // Format number
-  const formatNumber = (num) => {
-    return new Intl.NumberFormat('en-US').format(num || 0);
-  };
-
-  // Calculate percentage change
-  const getPercentageChange = (current, previous) => {
-    if (!previous || previous === 0) return 0;
-    return ((current - previous) / previous * 100).toFixed(1);
-  };
-
-  // Get trend icon and color
-  const getTrendInfo = (change) => {
-    const isPositive = change >= 0;
-    return {
-      icon: isPositive ? IconTrendingUp : IconTrendingDown,
-      color: isPositive ? 'text-green-600' : 'text-red-600',
-      bgColor: isPositive ? 'bg-green-50' : 'bg-red-50',
-      sign: isPositive ? '+' : ''
-    };
-  };
-
   return (
     <PageContainer>
-      <div className="flex flex-1 flex-col space-y-6">
-        {/* Header with refresh button */}
-        <div className="flex items-center justify-between">
+      <div className="flex flex-1 flex-col space-y-2">
+        <div className="flex items-center justify-between space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">
             Hi, Welcome back 👋
           </h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={loading.overview || loading.stats}
-          >
-            <IconRefresh className={`h-4 w-4 mr-2 ${
-              loading.overview || loading.stats ? 'animate-spin' : ''
-            }`} />
-            Refresh
-          </Button>
         </div>
 
-        {/* Error Display */}
-        {(overviewError || statsError) && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            <p className="text-sm">
-              {overviewError || statsError}
-            </p>
-          </div>
-        )}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {/* Active Members Card */}
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4">
           <Card className="@container/card">
             <CardHeader>
-              <CardDescription>Active Members</CardDescription>
+              <CardDescription>Total Revenue</CardDescription>
               <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {overviewLoading ? (
-                  <div className="h-8 bg-muted rounded animate-pulse" />
-                ) : (
-                  formatNumber(dashboardStats.activeMembers)
-                )}
-              </CardTitle>
-              <CardAction>
-                {!overviewLoading && (
-                  <Badge variant="outline">
-                    <IconTrendingUp className="h-3 w-3" />
-                    Active
-                  </Badge>
-                )}
-              </CardAction>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="line-clamp-1 flex gap-2 font-medium">
-                Currently active users
-              </div>
-              <div className="text-muted-foreground">
-                {formatNumber(dashboardStats.totalUsers - dashboardStats.activeMembers)} inactive
-              </div>
-            </CardFooter>
-          </Card>
-
-          {/* New Members Card */}
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Total Members</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {overviewLoading ? (
-                  <div className="h-8 bg-muted rounded animate-pulse" />
-                ) : (
-                  formatNumber(dashboardStats.totalUsers)
-                )}
-              </CardTitle>
-              <CardAction>
-                {!overviewLoading && (
-                  <Badge variant="outline">
-                    <IconTrendingUp className="h-3 w-3" />
-                    +{dashboardStats.monthlyGrowth || 0}%
-                  </Badge>
-                )}
-              </CardAction>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="line-clamp-1 flex gap-2 font-medium">
-                Active members <IconTrendingUp className="size-4" />
-              </div>
-              <div className="text-muted-foreground">
-                Registered users
-              </div>
-            </CardFooter>
-          </Card>
-
-          {/* Total Loan Applications Card */}
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Loan Applications</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {overviewLoading ? (
-                  <div className="h-8 bg-muted rounded animate-pulse" />
-                ) : (
-                  formatNumber(dashboardStats.totalLoans)
-                )}
+                $1,250.00
               </CardTitle>
               <CardAction>
                 <Badge variant="outline">
-                  <IconTrendingUp className="h-3 w-3" />
-                  Active
+                  <IconTrendingUp />
+                  +12.5%
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className="flex-col items-start gap-1.5 text-sm">
               <div className="line-clamp-1 flex gap-2 font-medium">
-                Total applications received
+                Trending up this month <IconTrendingUp className="size-4" />
               </div>
               <div className="text-muted-foreground">
-                {formatNumber(dashboardStats.pendingApplications)} pending review
+                Visitors for the last 6 months
               </div>
             </CardFooter>
           </Card>
 
-          {/* Recent Activity Card */}
           <Card className="@container/card">
             <CardHeader>
-              <CardDescription>Recent Activity</CardDescription>
+              <CardDescription>New Customers</CardDescription>
               <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {overviewLoading ? (
-                  <div className="h-8 bg-muted rounded animate-pulse" />
-                ) : (
-                  formatNumber(dashboardStats.recentTransactions)
-                )}
+                1,234
               </CardTitle>
               <CardAction>
                 <Badge variant="outline">
-                  <IconTrendingUp className="h-3 w-3" />
-                  This Week
+                  <IconTrendingDown />
+                  -20%
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className="flex-col items-start gap-1.5 text-sm">
               <div className="line-clamp-1 flex gap-2 font-medium">
-                New actions this week
+                Down 20% this period <IconTrendingDown className="size-4" />
               </div>
               <div className="text-muted-foreground">
-                Applications and updates
+                Acquisition needs attention
+              </div>
+            </CardFooter>
+          </Card>
+
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription>Active Accounts</CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                45,678
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  <IconTrendingUp />
+                  +12.5%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="line-clamp-1 flex gap-2 font-medium">
+                Strong user retention <IconTrendingUp className="size-4" />
+              </div>
+              <div className="text-muted-foreground">
+                Engagement exceed targets
+              </div>
+            </CardFooter>
+          </Card>
+
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription>Growth Rate</CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                4.5%
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  <IconTrendingUp />
+                  +4.5%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="line-clamp-1 flex gap-2 font-medium">
+                Steady performance increase{' '}
+                <IconTrendingUp className="size-4" />
+              </div>
+              <div className="text-muted-foreground">
+                Meets growth projections
               </div>
             </CardFooter>
           </Card>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="w-full">{bar_stats}</div>
-          <div className="w-full">{pie_stats}</div>
-        </div>
-        
-        {/* Separate Funnel Step Analysis Section */}
-        <div className="w-full">
-          <FunnelStepAnalysis />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <div className="col-span-4">{bar_stats}</div>
+          <div className="col-span-4 md:col-span-3">{sales}</div>
+          <div className="col-span-4">{area_stats}</div>
+          <div className="col-span-4 md:col-span-3">{pie_stats}</div>
         </div>
       </div>
     </PageContainer>

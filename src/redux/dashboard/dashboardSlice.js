@@ -48,7 +48,7 @@ const initialState = {
   // Cache management
   cache: {
     lastFetched: null,
-    ttl: 10 * 60 * 1000, // 10 minutes cache for better performance
+    ttl: 5 * 60 * 1000, // 5 minutes cache
   },
 
   // Loading states for specific components

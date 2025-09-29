@@ -75,7 +75,7 @@ export default function UserAuthForm() {
         />
         <Button
           disabled={loading}
-          className='mt-4 w-full '
+          className='mt-4 w-full'
           type='submit'
         >
           {loading ? 'Signing in...' : 'Sign In'}
@@ -86,13 +86,13 @@ export default function UserAuthForm() {
         <div className='absolute inset-0 flex items-center'>
           <span className='w-full border-t' />
         </div>
-        {/* <div className='relative flex justify-center text-xs uppercase'>
+        <div className='relative flex justify-center text-xs uppercase'>
           <span className='bg-background text-muted-foreground px-2'>
             Or continue with
           </span>
-        </div> */}
+        </div>
       </div>
-      {/* <GithubSignInButton /> */}
+      <GithubSignInButton />
     </>
   );
 }

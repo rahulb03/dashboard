@@ -9,9 +9,10 @@ import {
   CardAction
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AreaGraph } from './area-graph';
 import { BarGraph } from './bar-graph';
 import { PieGraph } from './pie-graph';
-import { FunnelStepAnalysis } from './funnel-step-analysis';
+import { RecentSales } from './recent-sales';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -126,18 +127,19 @@ export default function OverViewPage() {
                 </CardFooter>
               </Card>
             </div>
-            <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
-              <div className='w-full'>
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
+              <div className='col-span-4'>
                 <BarGraph />
               </div>
-              <div className='w-full'>
+              <Card className='col-span-4 md:col-span-3'>
+                <RecentSales />
+              </Card>
+              <div className='col-span-4'>
+                <AreaGraph />
+              </div>
+              <div className='col-span-4 md:col-span-3'>
                 <PieGraph />
               </div>
-            </div>
-            
-            {/* Separate Funnel Step Analysis Section */}
-            <div className='w-full'>
-              <FunnelStepAnalysis />
             </div>
           </TabsContent>
         </Tabs>
