@@ -1,23 +1,25 @@
 /**
- * Cache Optimizer Utility
+ * Enhanced Cache Optimizer Utility
  * Prevents unnecessary API calls by implementing smart cache management
- * across all pages (except product management as requested)
+ * across all pages with deep integration to DataCacheManager
  */
+
+import dataCache from './DataCacheManager';
 
 class CacheOptimizer {
   constructor() {
     this.pageCache = new Map();
     this.globalTimestamps = new Map();
     this.cacheTTL = {
-      dashboard: 10 * 60 * 1000,     // 10 minutes for dashboard data
-      tracking: 5 * 60 * 1000,      // 5 minutes for tracking data
-      members: 15 * 60 * 1000,      // 15 minutes for member data
-      loans: 5 * 60 * 1000,         // 5 minutes for loan applications
-      permissions: 30 * 60 * 1000,  // 30 minutes for permissions
-      payments: 20 * 60 * 1000,     // 20 minutes for payment configs
-      salary: 60 * 60 * 1000,       // 1 hour for salary configs
+      dashboard: 10 * 60 * 1000, // 10 minutes for dashboard data
+      tracking: 5 * 60 * 1000, // 5 minutes for tracking data
+      members: 15 * 60 * 1000, // 15 minutes for member data
+      loans: 5 * 60 * 1000, // 5 minutes for loan applications
+      permissions: 30 * 60 * 1000, // 30 minutes for permissions
+      payments: 20 * 60 * 1000, // 20 minutes for payment configs
+      salary: 60 * 60 * 1000 // 1 hour for salary configs
     };
-    
+
     // Excluded pages that should always refresh
     this.excludedPages = ['product-management', 'products'];
   }
@@ -44,21 +46,25 @@ class CacheOptimizer {
 
     const cacheKey = `${pageType}:${dataKey}`;
     const lastFetched = this.globalTimestamps.get(cacheKey);
-    
+
     if (!lastFetched) {
       console.log(`🆕 No cache found for ${cacheKey}, fetching fresh data`);
       return true;
     }
 
-    const ttl = this.cacheTTL[pageType] || (10 * 60 * 1000); // Default 10 minutes
+    const ttl = this.cacheTTL[pageType] || 10 * 60 * 1000; // Default 10 minutes
     const cacheAge = Date.now() - lastFetched;
-    
+
     if (cacheAge > ttl) {
-      console.log(`⏰ Cache expired for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s, ttl: ${Math.round(ttl / 1000)}s)`);
+      console.log(
+        `⏰ Cache expired for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s, ttl: ${Math.round(ttl / 1000)}s)`
+      );
       return true;
     }
 
-    console.log(`📦 Using cached data for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s)`);
+    console.log(
+      `📦 Using cached data for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s)`
+    );
     return false;
   }
 
@@ -91,8 +97,10 @@ class CacheOptimizer {
           keysToDelete.push(key);
         }
       }
-      keysToDelete.forEach(key => this.globalTimestamps.delete(key));
-      console.log(`🗑️ Invalidated all cache for ${pageType} (${keysToDelete.length} entries)`);
+      keysToDelete.forEach((key) => this.globalTimestamps.delete(key));
+      console.log(
+        `🗑️ Invalidated all cache for ${pageType} (${keysToDelete.length} entries)`
+      );
     }
   }
 
@@ -114,7 +122,7 @@ class CacheOptimizer {
     for (const [key, timestamp] of this.globalTimestamps.entries()) {
       const [pageType] = key.split(':');
       stats.cacheByType[pageType] = (stats.cacheByType[pageType] || 0) + 1;
-      
+
       if (timestamp < oldestTime) {
         oldestTime = timestamp;
         stats.oldestEntry = { key, timestamp };
@@ -147,15 +155,15 @@ class CacheOptimizer {
 
     for (const [key, timestamp] of this.globalTimestamps.entries()) {
       const [pageType] = key.split(':');
-      const ttl = this.cacheTTL[pageType] || (10 * 60 * 1000);
-      
+      const ttl = this.cacheTTL[pageType] || 10 * 60 * 1000;
+
       if (now - timestamp > ttl) {
         keysToDelete.push(key);
       }
     }
 
-    keysToDelete.forEach(key => this.globalTimestamps.delete(key));
-    
+    keysToDelete.forEach((key) => this.globalTimestamps.delete(key));
+
     if (keysToDelete.length > 0) {
       console.log(`🧹 Cleaned ${keysToDelete.length} expired cache entries`);
     }
@@ -176,9 +184,12 @@ class CacheOptimizer {
 const cacheOptimizer = new CacheOptimizer();
 
 // Auto-cleanup expired cache every 5 minutes
-setInterval(() => {
-  cacheOptimizer.cleanExpiredCache();
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    cacheOptimizer.cleanExpiredCache();
+  },
+  5 * 60 * 1000
+);
 
 export default cacheOptimizer;
 
@@ -189,13 +200,22 @@ export default cacheOptimizer;
  * @param {Function} fetchFunction - Function to call when data needs to be fetched
  * @param {Array} dependencies - useEffect dependencies
  */
-export const useCacheOptimizedFetch = (pageType, dataKey, fetchFunction, dependencies = []) => {
+export const useCacheOptimizedFetch = (
+  pageType,
+  dataKey,
+  fetchFunction,
+  dependencies = []
+) => {
   const { useEffect, useRef } = require('react');
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    const shouldFetch = cacheOptimizer.shouldFetchData(pageType, dataKey, false);
-    
+    const shouldFetch = cacheOptimizer.shouldFetchData(
+      pageType,
+      dataKey,
+      false
+    );
+
     if (shouldFetch || !hasFetched.current) {
       fetchFunction();
       cacheOptimizer.markDataFetched(pageType, dataKey);
