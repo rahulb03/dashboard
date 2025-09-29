@@ -18,56 +18,64 @@ export const useSmartFetch = () => {
    * @param {boolean} options.trackUserBehavior - Track user behavior for predictive caching
    * @param {string} options.actionType - Action type for user behavior tracking
    */
-  const smartFetch = useCallback(async (fetchThunk, options = {}) => {
-    const { 
-      forceRefresh = false, 
-      params = {}, 
-      cacheValidator = null,
-      trackUserBehavior = true,
-      actionType = 'smart_fetch'
-    } = options;
+  const smartFetch = useCallback(
+    async (fetchThunk, options = {}) => {
+      const {
+        forceRefresh = false,
+        params = {},
+        cacheValidator = null,
+        trackUserBehavior = true,
+        actionType = 'smart_fetch'
+      } = options;
 
-    // Track user behavior for predictive caching
-    if (trackUserBehavior) {
-      // Import dataCache dynamically to avoid circular imports
-      const { default: dataCache } = await import('../Utils/DataCacheManager');
-      dataCache.trackUserAction(actionType, { 
-        params, 
-        forceRefresh,
-        timestamp: Date.now() 
-      });
-    }
-
-    // Always include forceRefresh in params
-    const finalParams = {
-      ...params,
-      forceRefresh
-    };
-
-    // If custom cache validator exists, use it
-    if (cacheValidator && !forceRefresh) {
-      const shouldFetch = cacheValidator();
-      if (!shouldFetch) {
-        console.log('Cache validation passed, skipping fetch');
-        return;
+      // Track user behavior for predictive caching
+      if (trackUserBehavior) {
+        // Import dataCache dynamically to avoid circular imports
+        const { default: dataCache } = await import(
+          '../utils/DataCacheManager'
+        );
+        dataCache.trackUserAction(actionType, {
+          params,
+          forceRefresh,
+          timestamp: Date.now()
+        });
       }
-    }
 
-    // Dispatch the thunk
-    return dispatch(fetchThunk(finalParams));
-  }, [dispatch]);
+      // Always include forceRefresh in params
+      const finalParams = {
+        ...params,
+        forceRefresh
+      };
+
+      // If custom cache validator exists, use it
+      if (cacheValidator && !forceRefresh) {
+        const shouldFetch = cacheValidator();
+        if (!shouldFetch) {
+          console.log('Cache validation passed, skipping fetch');
+          return;
+        }
+      }
+
+      // Dispatch the thunk
+      return dispatch(fetchThunk(finalParams));
+    },
+    [dispatch]
+  );
 
   /**
    * Batch fetch multiple resources efficiently
    * @param {Array} fetchConfigs - Array of {thunk, options} objects
    */
-  const batchFetch = useCallback(async (fetchConfigs) => {
-    const promises = fetchConfigs.map(({ thunk, options }) => 
-      smartFetch(thunk, options)
-    );
-    
-    return Promise.allSettled(promises);
-  }, [smartFetch]);
+  const batchFetch = useCallback(
+    async (fetchConfigs) => {
+      const promises = fetchConfigs.map(({ thunk, options }) =>
+        smartFetch(thunk, options)
+      );
+
+      return Promise.allSettled(promises);
+    },
+    [smartFetch]
+  );
 
   return {
     smartFetch,

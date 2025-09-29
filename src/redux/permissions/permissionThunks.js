@@ -1,16 +1,19 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
-import dataCache from '@/Utils/DataCacheManager';
-import { OptimisticUpdates } from '../../Utils/OptimisticUpdates';
+import dataCache from '@/utils/DataCacheManager';
+import { OptimisticUpdates } from '../../utils/OptimisticUpdates';
 
 // Fetch all users with their permissions
 export const fetchUsersWithPermissions = createAsyncThunk(
   'permissions/fetchUsers',
-  async ({ search = '', role = '', forceRefresh = false } = {}, { rejectWithValue }) => {
+  async (
+    { search = '', role = '', forceRefresh = false } = {},
+    { rejectWithValue }
+  ) => {
     try {
       const cacheKey = { search, role };
-      
+
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
         const cached = dataCache.get('users', cacheKey);
@@ -18,14 +21,16 @@ export const fetchUsersWithPermissions = createAsyncThunk(
           return cached.data;
         }
       }
-      
+
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (role) params.append('role', role);
-      
-      const response = await axiosInstance.get(`${API_ENDPOINTS.PERMISSIONS.USERS_WITH_PERMISSIONS}?${params}`);
+
+      const response = await axiosInstance.get(
+        `${API_ENDPOINTS.PERMISSIONS.USERS_WITH_PERMISSIONS}?${params}`
+      );
       const apiData = response.data.data;
-      
+
       // Debug: Log the exact API response structure
       console.log('🔍 API Response Debug:', {
         fullResponse: response.data,
@@ -36,17 +41,20 @@ export const fetchUsersWithPermissions = createAsyncThunk(
         usersLength: apiData?.users?.length,
         dataKeys: apiData ? Object.keys(apiData) : 'no keys'
       });
-      
+
       // Extract the users array from the nested structure
       // API returns: { data: { users: [...], total: n, filters: {...} } }
       const data = apiData?.users || apiData || [];
-      
+
       // Update cache with new data
       dataCache.set('users', data, cacheKey);
-      
+
       return data;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to fetch users';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to fetch users';
       return rejectWithValue(message);
     }
   }
@@ -58,7 +66,7 @@ export const fetchAvailablePermissions = createAsyncThunk(
   async ({ forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
       const cacheKey = {};
-      
+
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
         const cached = dataCache.get('permissions', cacheKey);
@@ -66,10 +74,12 @@ export const fetchAvailablePermissions = createAsyncThunk(
           return cached.data;
         }
       }
-      
-      const response = await axiosInstance.get(API_ENDPOINTS.PERMISSIONS.AVAILABLE_PERMISSIONS);
+
+      const response = await axiosInstance.get(
+        API_ENDPOINTS.PERMISSIONS.AVAILABLE_PERMISSIONS
+      );
       const data = response.data.data;
-      
+
       // Debug: Log the exact API response structure for permissions
       console.log('🔍 Permissions API Response Debug:', {
         fullResponse: response.data,
@@ -79,13 +89,16 @@ export const fetchAvailablePermissions = createAsyncThunk(
         categoriesLength: data?.categories?.length,
         totalPermissions: data?.totalPermissions
       });
-      
+
       // Update cache with new data
       dataCache.set('permissions', data, cacheKey);
-      
+
       return data;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to fetch permissions';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to fetch permissions';
       return rejectWithValue(message);
     }
   }
@@ -94,18 +107,24 @@ export const fetchAvailablePermissions = createAsyncThunk(
 // Grant permission to a user
 export const grantPermission = createAsyncThunk(
   'permissions/grant',
-  async ({ userId, permissionId, expiresInDays, reason }, { rejectWithValue }) => {
+  async (
+    { userId, permissionId, expiresInDays, reason },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.post(API_ENDPOINTS.PERMISSIONS.GRANT, {
-        userId,
-        permissionId,
-        expiresInDays,
-        reason
-      });
-      
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.PERMISSIONS.GRANT,
+        {
+          userId,
+          permissionId,
+          expiresInDays,
+          reason
+        }
+      );
+
       // No need for optimistic updates here - they're handled in the component
       // The cache is already updated optimistically before this API call
-      
+
       return response.data;
     } catch (error) {
       // Revert optimistic updates on error by refreshing user cache
@@ -113,10 +132,16 @@ export const grantPermission = createAsyncThunk(
         // Invalidate user cache to trigger fresh fetch
         dataCache.invalidateType('users');
       } catch (cacheError) {
-        console.warn('Failed to invalidate cache after permission grant error:', cacheError);
+        console.warn(
+          'Failed to invalidate cache after permission grant error:',
+          cacheError
+        );
       }
-      
-      const message = error?.response?.data?.message || error.message || 'Failed to grant permission';
+
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to grant permission';
       const validationErrors = error?.response?.data?.data || {};
       return rejectWithValue({ message, validationErrors });
     }
@@ -128,15 +153,18 @@ export const revokePermission = createAsyncThunk(
   'permissions/revoke',
   async ({ userId, permissionId, reason }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(API_ENDPOINTS.PERMISSIONS.REVOKE, {
-        userId,
-        permissionId,
-        reason
-      });
-      
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.PERMISSIONS.REVOKE,
+        {
+          userId,
+          permissionId,
+          reason
+        }
+      );
+
       // No need for optimistic updates here - they're handled in the component
       // The cache is already updated optimistically before this API call
-      
+
       return response.data;
     } catch (error) {
       // Revert optimistic updates on error by refreshing user cache
@@ -144,10 +172,16 @@ export const revokePermission = createAsyncThunk(
         // Invalidate user cache to trigger fresh fetch
         dataCache.invalidateType('users');
       } catch (cacheError) {
-        console.warn('Failed to invalidate cache after permission revoke error:', cacheError);
+        console.warn(
+          'Failed to invalidate cache after permission revoke error:',
+          cacheError
+        );
       }
-      
-      const message = error?.response?.data?.message || error.message || 'Failed to revoke permission';
+
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to revoke permission';
       const validationErrors = error?.response?.data?.data || {};
       return rejectWithValue({ message, validationErrors });
     }
@@ -159,10 +193,15 @@ export const fetchUserPermissionHistory = createAsyncThunk(
   'permissions/fetchHistory',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(API_ENDPOINTS.PERMISSIONS.HISTORY(userId));
+      const response = await axiosInstance.get(
+        API_ENDPOINTS.PERMISSIONS.HISTORY(userId)
+      );
       return response.data.data;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to fetch permission history';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to fetch permission history';
       return rejectWithValue(message);
     }
   }

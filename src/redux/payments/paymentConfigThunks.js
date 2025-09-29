@@ -1,18 +1,23 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
-import dataCache from '@/Utils/DataCacheManager';
+import dataCache from '@/utils/DataCacheManager';
 // Create Payment Configuration
 export const createPaymentConfigThunk = createAsyncThunk(
   'paymentConfig/createPaymentConfig',
   async (paymentConfigData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(API_ENDPOINTS.PAYMENT_CONFIG.CREATE, paymentConfigData);
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.PAYMENT_CONFIG.CREATE,
+        paymentConfigData
+      );
       const newPaymentConfig = response.data.data;
-      
+
       // Add to individual payment config cache
-      dataCache.set('paymentConfig', newPaymentConfig, { paymentConfigId: newPaymentConfig.id });
-      
+      dataCache.set('paymentConfig', newPaymentConfig, {
+        paymentConfigId: newPaymentConfig.id
+      });
+
       // Add to payment configs list cache
       dataCache.optimisticUpdate('paymentConfigs', (cachedConfigs) => {
         if (Array.isArray(cachedConfigs)) {
@@ -20,10 +25,13 @@ export const createPaymentConfigThunk = createAsyncThunk(
         }
         return cachedConfigs;
       });
-      
+
       return newPaymentConfig;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to create payment configuration';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to create payment configuration';
       const validationErrors = error?.response?.data?.data || {};
       return rejectWithValue({ message, validationErrors });
     }
@@ -33,10 +41,13 @@ export const createPaymentConfigThunk = createAsyncThunk(
 // Get All Payment Configurations
 export const fetchPaymentConfigsThunk = createAsyncThunk(
   'paymentConfig/fetchPaymentConfigs',
-  async ({ type = '', isActive = '', forceRefresh = false } = {}, { rejectWithValue }) => {
+  async (
+    { type = '', isActive = '', forceRefresh = false } = {},
+    { rejectWithValue }
+  ) => {
     try {
       const cacheKey = { type, isActive };
-      
+
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
         const cached = dataCache.get('paymentConfigs', cacheKey);
@@ -44,20 +55,25 @@ export const fetchPaymentConfigsThunk = createAsyncThunk(
           return cached.data;
         }
       }
-      
+
       const params = new URLSearchParams();
       if (type) params.append('type', type);
       if (isActive !== '') params.append('isActive', isActive);
-      
-      const response = await axiosInstance.get(`${API_ENDPOINTS.PAYMENT_CONFIG.LIST}?${params}`);
+
+      const response = await axiosInstance.get(
+        `${API_ENDPOINTS.PAYMENT_CONFIG.LIST}?${params}`
+      );
       const data = response.data.data;
-      
+
       // Update cache with new data
       dataCache.set('paymentConfigs', data, cacheKey);
-      
+
       return data;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to fetch payment configurations';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to fetch payment configurations';
       return rejectWithValue(message);
     }
   }
@@ -69,7 +85,7 @@ export const fetchPaymentConfigByIdThunk = createAsyncThunk(
   async ({ paymentConfigId, forceRefresh = false }, { rejectWithValue }) => {
     try {
       const cacheKey = { paymentConfigId };
-      
+
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
         const cached = dataCache.get('paymentConfig', cacheKey);
@@ -77,16 +93,21 @@ export const fetchPaymentConfigByIdThunk = createAsyncThunk(
           return cached.data;
         }
       }
-      
-      const response = await axiosInstance.get(API_ENDPOINTS.PAYMENT_CONFIG.GET_ONE(paymentConfigId));
+
+      const response = await axiosInstance.get(
+        API_ENDPOINTS.PAYMENT_CONFIG.GET_ONE(paymentConfigId)
+      );
       const data = response.data.data;
-      
+
       // Update cache with new data
       dataCache.set('paymentConfig', data, cacheKey);
-      
+
       return data;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to fetch payment configuration';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to fetch payment configuration';
       return rejectWithValue(message);
     }
   }
@@ -97,25 +118,33 @@ export const updatePaymentConfigThunk = createAsyncThunk(
   'paymentConfig/updatePaymentConfig',
   async ({ paymentConfigId, paymentConfigData }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(API_ENDPOINTS.PAYMENT_CONFIG.UPDATE(paymentConfigId), paymentConfigData);
+      const response = await axiosInstance.put(
+        API_ENDPOINTS.PAYMENT_CONFIG.UPDATE(paymentConfigId),
+        paymentConfigData
+      );
       const updatedPaymentConfig = response.data.data;
-      
+
       // Update cache with new payment config data
       dataCache.set('paymentConfig', updatedPaymentConfig, { paymentConfigId });
-      
+
       // Also update the payment config in the payment configs list cache
       dataCache.optimisticUpdate('paymentConfigs', (cachedConfigs) => {
         if (Array.isArray(cachedConfigs)) {
-          return cachedConfigs.map(config => 
-            config.id === parseInt(paymentConfigId) ? { ...config, ...updatedPaymentConfig } : config
+          return cachedConfigs.map((config) =>
+            config.id === parseInt(paymentConfigId)
+              ? { ...config, ...updatedPaymentConfig }
+              : config
           );
         }
         return cachedConfigs;
       });
-      
+
       return updatedPaymentConfig;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to update payment configuration';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to update payment configuration';
       const validationErrors = error?.response?.data?.data || {};
       return rejectWithValue({ message, validationErrors });
     }
@@ -127,22 +156,29 @@ export const deletePaymentConfigThunk = createAsyncThunk(
   'paymentConfig/deletePaymentConfig',
   async (paymentConfigId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(API_ENDPOINTS.PAYMENT_CONFIG.DELETE(paymentConfigId));
-      
+      const response = await axiosInstance.delete(
+        API_ENDPOINTS.PAYMENT_CONFIG.DELETE(paymentConfigId)
+      );
+
       // Remove from individual payment config cache
       dataCache.invalidate('paymentConfig', { paymentConfigId });
-      
+
       // Remove from payment configs list cache
       dataCache.optimisticUpdate('paymentConfigs', (cachedConfigs) => {
         if (Array.isArray(cachedConfigs)) {
-          return cachedConfigs.filter(config => config.id !== parseInt(paymentConfigId));
+          return cachedConfigs.filter(
+            (config) => config.id !== parseInt(paymentConfigId)
+          );
         }
         return cachedConfigs;
       });
-      
+
       return { paymentConfigId, message: response.data.message };
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to delete payment configuration';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to delete payment configuration';
       return rejectWithValue(message);
     }
   }
@@ -153,25 +189,32 @@ export const togglePaymentConfigThunk = createAsyncThunk(
   'paymentConfig/togglePaymentConfig',
   async (paymentConfigId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch(API_ENDPOINTS.PAYMENT_CONFIG.TOGGLE(paymentConfigId));
+      const response = await axiosInstance.patch(
+        API_ENDPOINTS.PAYMENT_CONFIG.TOGGLE(paymentConfigId)
+      );
       const updatedPaymentConfig = response.data.data;
-      
+
       // Update cache
       dataCache.set('paymentConfig', updatedPaymentConfig, { paymentConfigId });
-      
+
       // Also update the payment config in the payment configs list cache
       dataCache.optimisticUpdate('paymentConfigs', (cachedConfigs) => {
         if (Array.isArray(cachedConfigs)) {
-          return cachedConfigs.map(config => 
-            config.id === parseInt(paymentConfigId) ? { ...config, ...updatedPaymentConfig } : config
+          return cachedConfigs.map((config) =>
+            config.id === parseInt(paymentConfigId)
+              ? { ...config, ...updatedPaymentConfig }
+              : config
           );
         }
         return cachedConfigs;
       });
-      
+
       return updatedPaymentConfig;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to toggle payment configuration status';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to toggle payment configuration status';
       return rejectWithValue(message);
     }
   }
@@ -183,7 +226,7 @@ export const fetchActivePaymentConfigsThunk = createAsyncThunk(
   async ({ type = '', forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
       const cacheKey = { type, active: true };
-      
+
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
         const cached = dataCache.get('activePaymentConfigs', cacheKey);
@@ -191,19 +234,24 @@ export const fetchActivePaymentConfigsThunk = createAsyncThunk(
           return cached.data;
         }
       }
-      
+
       const params = new URLSearchParams();
       if (type) params.append('type', type);
-      
-      const response = await axiosInstance.get(`${API_ENDPOINTS.PAYMENT_CONFIG.ACTIVE}?${params}`);
+
+      const response = await axiosInstance.get(
+        `${API_ENDPOINTS.PAYMENT_CONFIG.ACTIVE}?${params}`
+      );
       const data = response.data.data;
-      
+
       // Update cache with new data
       dataCache.set('activePaymentConfigs', data, cacheKey);
-      
+
       return data;
     } catch (error) {
-      const message = error?.response?.data?.message || error.message || 'Failed to fetch active payment configurations';
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to fetch active payment configurations';
       return rejectWithValue(message);
     }
   }

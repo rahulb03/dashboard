@@ -1,11 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import dataCache from '../Utils/DataCacheManager';
+import dataCache from '../utils/DataCacheManager';
 
 /**
  * Enhanced custom hook for using the advanced data cache system
  * Eliminates loading states when data is cached with performance tracking
  */
-export const useDataCache = (type, fetchFunction, params = {}, options = {}) => {
+export const useDataCache = (
+  type,
+  fetchFunction,
+  params = {},
+  options = {}
+) => {
   const {
     enabled = true,
     refetchOnMount = false,
@@ -20,53 +25,64 @@ export const useDataCache = (type, fetchFunction, params = {}, options = {}) => 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isStale, setIsStale] = useState(false);
-  
+
   const mountedRef = useRef(true);
   const lastParamsRef = useRef(params);
 
   // Check if parameters have changed
-  const paramsChanged = JSON.stringify(params) !== JSON.stringify(lastParamsRef.current);
+  const paramsChanged =
+    JSON.stringify(params) !== JSON.stringify(lastParamsRef.current);
   if (paramsChanged) {
     lastParamsRef.current = params;
   }
 
-  const fetchData = useCallback(async (showLoading = true) => {
-    if (!enabled || !fetchFunction) return;
+  const fetchData = useCallback(
+    async (showLoading = true) => {
+      if (!enabled || !fetchFunction) return;
 
-    // Track user behavior for predictive caching
-    if (trackUserBehavior) {
-      dataCache.trackUserAction(`fetch_${type}`, { params, timestamp: Date.now() });
-    }
+      // Track user behavior for predictive caching
+      if (trackUserBehavior) {
+        dataCache.trackUserAction(`fetch_${type}`, {
+          params,
+          timestamp: Date.now()
+        });
+      }
 
-    try {
-      if (showLoading) {
-        setLoading(true);
-      }
-      setError(null);
+      try {
+        if (showLoading) {
+          setLoading(true);
+        }
+        setError(null);
 
-      const result = await dataCache.preload(type, fetchFunction, params);
-      
-      if (mountedRef.current) {
-        setData(result);
-        setIsStale(false);
+        const result = await dataCache.preload(type, fetchFunction, params);
+
+        if (mountedRef.current) {
+          setData(result);
+          setIsStale(false);
+        }
+      } catch (err) {
+        if (mountedRef.current) {
+          setError(err);
+        }
+      } finally {
+        if (mountedRef.current && showLoading) {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      if (mountedRef.current) {
-        setError(err);
-      }
-    } finally {
-      if (mountedRef.current && showLoading) {
-        setLoading(false);
-      }
-    }
-  }, [type, fetchFunction, params, enabled, trackUserBehavior]);
+    },
+    [type, fetchFunction, params, enabled, trackUserBehavior]
+  );
 
   // Background refresh without loading state
   const backgroundFetch = useCallback(async () => {
     if (!enabled || !fetchFunction || !backgroundRefresh) return;
 
     try {
-      const result = await dataCache.backgroundRefresh(type, fetchFunction, params);
+      const result = await dataCache.backgroundRefresh(
+        type,
+        fetchFunction,
+        params
+      );
       if (result && mountedRef.current) {
         setData(result);
         setIsStale(false);
@@ -79,22 +95,25 @@ export const useDataCache = (type, fetchFunction, params = {}, options = {}) => 
   // Initial load and params change
   useEffect(() => {
     const cached = dataCache.get(type, params);
-    
+
     if (cached.cached) {
       // Use cached data immediately
       setData(cached.data);
       setLoading(false);
       setError(null);
-      
+
       // Check if data is stale
-      const cacheAge = Date.now() - (dataCache.lastFetch.get(dataCache.generateCacheKey(type, params)) || 0);
+      const cacheAge =
+        Date.now() -
+        (dataCache.lastFetch.get(dataCache.generateCacheKey(type, params)) ||
+          0);
       setIsStale(cacheAge > staleTime);
-      
+
       // Background refresh if stale and enabled
       if (isStale && backgroundRefresh) {
         backgroundFetch();
       }
-      
+
       // Skip fetching if we don't want to refetch on mount
       if (!refetchOnMount) return;
     }
@@ -138,11 +157,14 @@ export const useDataCache = (type, fetchFunction, params = {}, options = {}) => 
   }, []);
 
   // Manual refetch
-  const refetch = useCallback(async (showLoading = true) => {
-    // Invalidate cache first
-    dataCache.invalidate(type, params);
-    await fetchData(showLoading);
-  }, [fetchData, type, params]);
+  const refetch = useCallback(
+    async (showLoading = true) => {
+      // Invalidate cache first
+      dataCache.invalidate(type, params);
+      await fetchData(showLoading);
+    },
+    [fetchData, type, params]
+  );
 
   // Invalidate cache
   const invalidate = useCallback(() => {
@@ -152,7 +174,7 @@ export const useDataCache = (type, fetchFunction, params = {}, options = {}) => 
   // Get cache performance metrics
   const cacheStats = dataCache.getDetailedStats();
   const cacheKey = dataCache.generateCacheKey(type, params);
-  
+
   return {
     data,
     loading,
@@ -164,7 +186,9 @@ export const useDataCache = (type, fetchFunction, params = {}, options = {}) => 
     // Enhanced features
     cacheHitRate: cacheStats.cacheHitRate,
     isCached: dataCache.isCacheValid(cacheKey),
-    cacheAge: dataCache.lastFetch.get(cacheKey) ? Date.now() - dataCache.lastFetch.get(cacheKey) : 0
+    cacheAge: dataCache.lastFetch.get(cacheKey)
+      ? Date.now() - dataCache.lastFetch.get(cacheKey)
+      : 0
   };
 };
 
@@ -214,7 +238,7 @@ export const useMultipleDataCache = (requests = []) => {
       for (const { key, type, fetchFunction, params = {} } of requests) {
         try {
           const cached = dataCache.get(type, params);
-          
+
           if (cached.cached) {
             newStates[key] = {
               data: cached.data,
@@ -229,12 +253,13 @@ export const useMultipleDataCache = (requests = []) => {
               error: null,
               cached: false
             };
-            
+
             // Start background fetch
-            dataCache.preload(type, fetchFunction, params)
-              .then(data => {
+            dataCache
+              .preload(type, fetchFunction, params)
+              .then((data) => {
                 if (mountedRef.current) {
-                  setStates(prev => ({
+                  setStates((prev) => ({
                     ...prev,
                     [key]: {
                       data,
@@ -245,9 +270,9 @@ export const useMultipleDataCache = (requests = []) => {
                   }));
                 }
               })
-              .catch(error => {
+              .catch((error) => {
                 if (mountedRef.current) {
-                  setStates(prev => ({
+                  setStates((prev) => ({
                     ...prev,
                     [key]: {
                       data: null,
@@ -271,9 +296,11 @@ export const useMultipleDataCache = (requests = []) => {
 
       if (mountedRef.current) {
         setStates(newStates);
-        
+
         // Check if any data is still loading
-        const hasLoading = Object.values(newStates).some(state => state.loading);
+        const hasLoading = Object.values(newStates).some(
+          (state) => state.loading
+        );
         setGlobalLoading(hasLoading);
       }
     };
@@ -287,7 +314,7 @@ export const useMultipleDataCache = (requests = []) => {
 
   // Update global loading when individual states change
   useEffect(() => {
-    const hasLoading = Object.values(states).some(state => state.loading);
+    const hasLoading = Object.values(states).some((state) => state.loading);
     setGlobalLoading(hasLoading);
   }, [states]);
 
@@ -311,42 +338,42 @@ export const useMultipleDataCache = (requests = []) => {
 export const useCacheMonitor = () => {
   const [stats, setStats] = useState(() => dataCache.getDetailedStats());
   const [isMonitoring, setIsMonitoring] = useState(false);
-  
+
   useEffect(() => {
     let interval;
-    
+
     if (isMonitoring) {
       interval = setInterval(() => {
         setStats(dataCache.getDetailedStats());
       }, 1000); // Update every second when monitoring
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [isMonitoring]);
-  
+
   const startMonitoring = useCallback(() => {
     setIsMonitoring(true);
   }, []);
-  
+
   const stopMonitoring = useCallback(() => {
     setIsMonitoring(false);
   }, []);
-  
+
   const refreshStats = useCallback(() => {
     setStats(dataCache.getDetailedStats());
   }, []);
-  
+
   const visualizeCache = useCallback(() => {
     dataCache.visualizeCacheState();
   }, []);
-  
+
   const clearCache = useCallback(() => {
     dataCache.clearAll();
     refreshStats();
   }, [refreshStats]);
-  
+
   return {
     stats,
     isMonitoring,
@@ -364,33 +391,38 @@ export const useCacheMonitor = () => {
 export const useCacheWarmer = (warmingConfig = []) => {
   const [isVisible, setIsVisible] = useState(false);
   const elementRef = useRef();
-  
+
   // Intersection Observer for visibility detection
   useEffect(() => {
     if (!elementRef.current) return;
-    
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
       { threshold: 0.1 }
     );
-    
+
     observer.observe(elementRef.current);
-    
+
     return () => observer.disconnect();
   }, []);
-  
+
   // Warm cache when component becomes visible
   useEffect(() => {
     if (!isVisible || warmingConfig.length === 0) return;
-    
+
     const warmCache = async () => {
-      for (const { type, fetchFunction, params = {}, delay = 0 } of warmingConfig) {
+      for (const {
+        type,
+        fetchFunction,
+        params = {},
+        delay = 0
+      } of warmingConfig) {
         if (delay > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
-        
+
         try {
           await dataCache.preload(type, fetchFunction, params);
         } catch (error) {
@@ -398,11 +430,11 @@ export const useCacheWarmer = (warmingConfig = []) => {
         }
       }
     };
-    
+
     // Small delay to avoid warming immediately
     setTimeout(warmCache, 100);
   }, [isVisible, warmingConfig]);
-  
+
   return {
     elementRef,
     isVisible
