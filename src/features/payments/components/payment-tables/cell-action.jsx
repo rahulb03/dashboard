@@ -65,12 +65,12 @@ export const CellAction = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/payment/${data.id}/view`)}
+            onClick={() => router.push(`/dashboard/payment-configurations/${data.id}/view`)}
           >
             <IconEye className='mr-2 h-4 w-4' /> View Details
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/payment/${data.id}/edit`)}
+            onClick={() => router.push(`/dashboard/payment-configurations/${data.id}/edit`)}
           >
             <IconEdit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>

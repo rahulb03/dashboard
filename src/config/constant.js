@@ -115,4 +115,28 @@ export const API_ENDPOINTS = {
     HEALTH: 'tracking/health',
     CALCULATE_STATS: 'tracking/calculate-stats'
   }
+,
+
+  MEMBERSHIP : {
+    LIST: 'memberships',
+    CREATE: 'memberships',
+    GET_ONE: (id) => `memberships/${id}`,
+    UPDATE: (id) => `memberships/${id}`,
+    DELETE: (id) => `memberships/${id}`,
+    GET_USER_MEMBERSHIP: 'memberships/my-membership',
+    BULK_UPDATE: 'memberships/bulk-update',
+    EXTEND: 'memberships/extend',
+    STATS: 'memberships/stats',
+    UPDATE_EXPIRED: 'memberships/update-expired'
+  },
+
+  // Payment Management
+  PAYMENTS: {
+    LIST: 'payments',
+    GET_ONE: (id) => `payments/${id}`,
+    DELETE: (id) => `payments/${id}`,
+    REFUND: (id) => `payments/${id}/refund`,
+    USER_HISTORY: 'payments/user/history'
+  }
+
 };

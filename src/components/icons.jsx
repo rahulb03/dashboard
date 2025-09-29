@@ -34,7 +34,8 @@ import {
   IconShield,
   IconCoins,
   IconReceipt,
-  IconActivity
+  IconActivity,
+  IconCertificate
 } from '@tabler/icons-react';
 
 // Icon type: React component that accepts icon props
@@ -74,6 +75,8 @@ export const Icons = {
   shield: IconShield,
   loan: IconCoins,
   users: IconUsers,
+  membership: IconCertificate,
   salary: IconReceipt,
-  analytics: IconActivity
+  analytics: IconActivity,
+  payment: IconCreditCard
 };

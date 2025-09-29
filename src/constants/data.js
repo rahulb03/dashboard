@@ -30,18 +30,21 @@ export const navItems = [
         icon: 'userPen',
         shortcut: ['m', 'm']
       },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
+     
     ]
   },
   {
-    title: 'Payment',
-    url: '/dashboard/payment',
-    icon: 'billing',
+    title: 'Payments',
+    url: '/dashboard/payments',
+    icon: 'payment',
+    shortcut: ['p', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Payments configurations',
+    url: '/dashboard/payment-configurations',
+    icon: 'payment',
     shortcut: ['p', 'm'],
     isActive: false,
     items: [] // No child items
@@ -69,6 +72,14 @@ export const navItems = [
     shortcut: ['m', 'e'],
     isActive: false,
     items: [] // No child items - direct link to members
+  },
+  {
+    title: 'Memberships',
+    url: '/dashboard/memberships',
+    icon: 'membership',
+    shortcut: ['m', 's'],
+    isActive: false,
+    items: [] // No child items - direct link to memberships
   },
   {
     title: 'Salary Configurations',

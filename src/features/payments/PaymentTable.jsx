@@ -1,6 +1,6 @@
 'use client';
 
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -11,14 +11,8 @@ import {
 import { flexRender } from '@tanstack/react-table';
 import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPaymentConfigsThunk } from '@/redux/payments/paymentConfigThunks';
-import { IconPlus } from '@tabler/icons-react';
-import { Search, RefreshCw, CreditCard } from 'lucide-react';
-import Link from 'next/link';
+import { fetchPaymentsThunk } from '@/redux/payments/paymentThunks';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -26,23 +20,36 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, CreditCard } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function PaymentTable({ columns }) {
   const dispatch = useDispatch();
-  const { paymentConfigs, loading, error } = useSelector((state) => state.paymentConfig);
+  const router = useRouter();
+  const { payments, loading } = useSelector((state) => state.payments);
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    // Fetch payment configurations from API
-    dispatch(fetchPaymentConfigsThunk());
+    dispatch(fetchPaymentsThunk({}));
   }, [dispatch]);
 
   const table = useReactTable({
-    data: paymentConfigs || [],
+    data: payments || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -60,7 +67,7 @@ export function PaymentTable({ columns }) {
     }
   });
 
-   if (loading) {
+  if (loading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -81,57 +88,47 @@ export function PaymentTable({ columns }) {
     );
   }
 
-  // Always show table structure when not loading
   return (
     <div className="space-y-4">
-      {/* Header with actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-1 items-center space-x-2">
+      {/* Header with filters and add button */}
+      <div className="flex items-center justify-end">
+        <div className="flex items-center gap-2">
+          {/* Search Input */}
           <div className="relative w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search payment configurations..."
-              value={(table.getColumn("description")?.getFilterValue()) ?? ""}
+              placeholder="Search payments..."
+              value={(table.getColumn("name")?.getFilterValue()) ?? ""}
               onChange={(event) =>
-                table.getColumn("description")?.setFilterValue(event.target.value)
+                table.getColumn("name")?.setFilterValue(event.target.value)
               }
               className="pl-8"
             />
           </div>
+          
+          {/* Status Filter */}
           <Select 
-            value={(table.getColumn("type")?.getFilterValue()) ?? "all"}
+            value={(table.getColumn("status")?.getFilterValue()) ?? "all"}
             onValueChange={(value) => 
-              table.getColumn("type")?.setFilterValue(value === "all" ? "" : value)
+              table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="All Types" />
+              <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="LOAN_FEE">Loan Fee</SelectItem>
-              <SelectItem value="MEMBERSHIP">Membership</SelectItem>
-              <SelectItem value="PROCESSING">Processing</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="SUCCESS">Success</SelectItem>
+              <SelectItem value="FAILED">Failed</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="REFUNDED">Refunded</SelectItem>
+              <SelectItem value="CREATED">Created</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center space-x-2">
-          {error && (
-            <Button variant="outline" size="sm" onClick={() => dispatch(fetchPaymentConfigsThunk({ forceRefresh: true }))}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Retry
-            </Button>
-          )}
-          <Button asChild size="sm">
-            <Link href="/dashboard/payment-configurations/new">
-              <IconPlus className="mr-2 h-4 w-4" />
-              Add Configuration
-            </Link>
-          </Button>
-        </div>
       </div>
-      
-      {/* Custom Table with Payment icon for no results */}
+
+      {/* Custom Table with CreditCard icon for no results */}
       <div className='rounded-lg border'>
         <Table>
           <TableHeader>
@@ -178,11 +175,11 @@ export function PaymentTable({ columns }) {
                 >
                   <div className="flex flex-col items-center space-y-2">
                     <CreditCard className="h-12 w-12 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold">No payment configurations found</h3>
+                    <h3 className="text-lg font-semibold">No payments found</h3>
                     <p className="text-muted-foreground">
-                      {error
-                        ? "Unable to load payment configurations. Please try again."
-                        : "No payment configurations have been created yet."
+                      {(payments || []).length === 0
+                        ? "No payments have been processed yet."
+                        : "No payments match your current search criteria."
                       }
                     </p>
                   </div>
@@ -195,9 +192,6 @@ export function PaymentTable({ columns }) {
       
       {/* Pagination */}
       <DataTablePagination table={table} />
-      
-      {/* Show error message in a subtle way */}
-     
     </div>
   );
 }

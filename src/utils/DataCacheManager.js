@@ -73,7 +73,16 @@ class DataCacheManager {
       // Payment configuration cache expiry times
       paymentConfig: 5 * 60 * 1000, // 5 minutes (individual payment configs)
       paymentConfigs: 3 * 60 * 1000, // 3 minutes (payment config lists)
-      activePaymentConfigs: 5 * 60 * 1000 // 5 minutes (active configs don't change often)
+      activePaymentConfigs: 5 * 60 * 1000, // 5 minutes (active configs don't change often)
+      // Membership cache expiry times
+      membership: 5 * 60 * 1000, // 5 minutes (individual memberships)
+      memberships: 3 * 60 * 1000, // 3 minutes (membership lists)
+      userMembership: 5 * 60 * 1000, // 5 minutes (user's own membership)
+      membershipStats: 10 * 60 * 1000, // 10 minutes (membership statistics)
+      // Payment cache expiry times
+      payment: 3 * 60 * 1000, // 3 minutes (individual payments)
+      payments: 2 * 60 * 1000, // 2 minutes (payment lists)
+      userPayments: 3 * 60 * 1000 // 3 minutes (user payment history)
     };
 
     // Initialize enhanced features
@@ -219,8 +228,9 @@ class DataCacheManager {
    */
   areTypesRelated(type1, type2) {
     const relationships = {
-      users: ['permissions', 'roles'],
-      members: ['permissions', 'categories'],
+      users: ['permissions', 'roles', 'memberships'],
+      members: ['permissions', 'categories', 'memberships'],
+      memberships: ['users', 'members'],
       permissions: ['users', 'members'],
       roles: ['users', 'permissions']
     };
@@ -314,6 +324,32 @@ class DataCacheManager {
       this.lastFetch.delete(key);
       this.loadingStates.delete(key);
     });
+  }
+
+  /**
+   * Invalidate all cache entries with a specific prefix
+   */
+  invalidatePrefix(prefix) {
+    const keysToDelete = [];
+
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(prefix)) {
+        keysToDelete.push(key);
+      }
+    }
+
+    keysToDelete.forEach((key) => {
+      this.cache.delete(key);
+      this.lastFetch.delete(key);
+      this.loadingStates.delete(key);
+      this.accessOrder.delete(key);
+    });
+
+    if (this.debugMode) {
+      console.log(`🗑️ Invalidated ${keysToDelete.length} entries with prefix: ${prefix}`);
+    }
+
+    return keysToDelete.length;
   }
 
   /**

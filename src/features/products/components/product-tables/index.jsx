@@ -2,7 +2,7 @@
 
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-import { fakeProducts } from '@/constants/mock-api';
+import { PRODUCTS_DATA } from '@/constants/products-data';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -13,17 +13,11 @@ import {
 import { useState, useEffect } from 'react';
 
 export function ProductTable({ columns }) {
-  const [data, setData] = useState([]);
+  const [data] = useState(PRODUCTS_DATA); // Direct data access, no loading needed
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
-
-  useEffect(() => {
-    // Initialize and get dummy data
-    fakeProducts.initialize();
-    setData(fakeProducts.records);
-  }, []);
 
   const table = useReactTable({
     data,
