@@ -1,9 +1,12 @@
 import {  clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-export default function cn(...inputs) {
+function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
+
+export default cn;
+export { cn };
 
 export function formatBytes(
   bytes,
