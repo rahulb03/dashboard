@@ -3,19 +3,21 @@
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import LoanApplicationsDataTable from './loan-applications-data-table';
-import { useSmartCacheData, useSmartCache } from '@/hooks/useSmartCache';
+import { fetchLoanApplicationsThunk } from '@/redux/Loan_Application/loanThunks';
+import { useSimpleCacheData, useSimpleCache } from '@/hooks/useSimpleCache';
 
 export default function LoanApplicationsContent() {
   const { loanApplications, loading: reduxLoading } = useSelector((state) => state.loan);
   
-  // Use smart caching for loan applications
-  const { data: cachedData, loading: cacheLoading, refetch } = useSmartCacheData(
+  // Use simple smart caching for loan applications
+  const { data: cachedData, loading: cacheLoading, refetch } = useSimpleCacheData(
+    fetchLoanApplicationsThunk,
     'loanApplications',
     {},
     { autoFetch: true }
   );
   
-  const { getCacheStats, preloadData } = useSmartCache();
+  const { getCacheStats } = useSimpleCache();
   
   // Use cached data if available, fallback to Redux state
   const applications = cachedData?.loanApplications || loanApplications || [];
@@ -53,14 +55,8 @@ export default function LoanApplicationsContent() {
 
   const handleRefresh = useCallback(() => {
     // Force refresh when user explicitly clicks refresh
-    refetch(true); // true = force refresh
-    
-    // Also preload related data that might be needed
-    preloadData([
-      { dataType: 'members' },
-      { dataType: 'paymentConfigs' }
-    ], 'medium');
-  }, [refetch, preloadData]);
+    refetch(true);
+  }, [refetch]);
 
   return (
     <LoanApplicationsDataTable

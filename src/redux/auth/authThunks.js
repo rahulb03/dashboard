@@ -3,6 +3,7 @@ import { axiosInstance, unauthenticatedAxios } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
 import { storeAuthData, clearStoredAuthData } from '@/lib/auth-utils';
 import { mockAuthService } from '@/lib/mock-auth';
+import dataCache from '@/utils/DataCacheManager';
 
 const extractResponse = (data) => {
   const token = data?.data?.token || data?.token;
@@ -73,11 +74,25 @@ export const signup = createAsyncThunk('auth/signup', async (userData, { rejectW
   }
 });
 
-export const getProfile = createAsyncThunk('auth/getProfile', async (_, { rejectWithValue }) => {
+export const getProfile = createAsyncThunk('auth/getProfile', async ({ forceRefresh = false } = {}, { rejectWithValue }) => {
   try {
+    const cacheKey = { userId: 'current' };
+    
+    // Check cache first unless force refresh is requested
+    if (!forceRefresh) {
+      const cached = dataCache.get('userProfile', cacheKey);
+      if (cached.cached) {
+        return cached.data;
+      }
+    }
+    
     const response = await axiosInstance.get(API_ENDPOINTS.AUTH.PROFILE);
     const { user } = extractResponse(response.data.data);
     if (!user) throw new Error('No user data found');
+    
+    // Update cache with new data
+    dataCache.set('userProfile', user, cacheKey);
+    
     return user;
   } catch (error) {
     // Try mock auth as fallback in development
@@ -87,6 +102,7 @@ export const getProfile = createAsyncThunk('auth/getProfile', async (_, { reject
         const user = mockResponse.data;
         
         if (user) {
+          dataCache.set('userProfile', user, { userId: 'current' });
           return user;
         }
       } catch (mockError) {
@@ -104,6 +120,10 @@ export const updateProfile = createAsyncThunk('auth/updateProfile', async (profi
     const response = await axiosInstance.post(API_ENDPOINTS.AUTH.UPDATE, profileData);
     const { user } = extractResponse(response.data.data);
     if (!user) throw new Error('Invalid profile update response');
+    
+    // Update cache with new user data
+    dataCache.set('userProfile', user, { userId: 'current' });
+    
     return user;
   } catch (error) {
     const message = error?.response?.data?.message || error.message || 'Failed to update profile';
@@ -129,5 +149,8 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
   } finally {
     // Always clear stored auth data on logout
     clearStoredAuthData();
+    
+    // Clear user profile cache
+    dataCache.invalidate('userProfile', { userId: 'current' });
   }
 });

@@ -7,7 +7,7 @@ import {
   Noto_Sans_Mono
 } from 'next/font/google';
 
-import cn  from './utils';
+import { cn } from './utils';
 
 const fontSans = Geist({
   subsets: ['latin'],

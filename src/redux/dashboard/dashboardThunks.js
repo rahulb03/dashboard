@@ -1,28 +1,30 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
+import dataCache from '@/utils/DataCacheManager';
 
 // Fetch dashboard overview stats (top cards)
 export const fetchDashboardOverviewThunk = createAsyncThunk(
   'dashboard/fetchOverview',
-  async ({ forceRefresh = false } = {}, { rejectWithValue, getState }) => {
+  async ({ forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const { cache } = state.dashboard;
+      const cacheKey = { type: 'overview' };
       
-      // Check cache validity unless force refresh is requested
-      if (!forceRefresh && cache.lastFetched) {
-        const cacheAge = Date.now() - cache.lastFetched;
-        if (cacheAge < cache.ttl) {
-          console.log('📦 Using cached dashboard overview data');
-          return state.dashboard.overviewStats;
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('dashboardOverview', cacheKey);
+        if (cached.cached) {
+          return cached.data;
         }
       }
       
-      console.log('🌐 Fetching fresh dashboard overview data from API');
       const response = await axiosInstance.get(API_ENDPOINTS.DASHBOARD.OVERVIEW);
+      const data = response.data.data;
       
-      return response.data.data;
+      // Update cache with new data
+      dataCache.set('dashboardOverview', data, cacheKey);
+      
+      return data;
     } catch (error) {
       console.error('❌ Dashboard overview fetch error:', error);
       return rejectWithValue(
@@ -37,24 +39,25 @@ export const fetchDashboardOverviewThunk = createAsyncThunk(
 // Fetch comprehensive dashboard stats
 export const fetchDashboardStatsThunk = createAsyncThunk(
   'dashboard/fetchStats',
-  async ({ forceRefresh = false } = {}, { rejectWithValue, getState }) => {
+  async ({ forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const { cache } = state.dashboard;
+      const cacheKey = { type: 'stats' };
       
-      // Check cache validity unless force refresh is requested
-      if (!forceRefresh && cache.lastFetched) {
-        const cacheAge = Date.now() - cache.lastFetched;
-        if (cacheAge < cache.ttl) {
-          console.log('📦 Using cached dashboard stats data');
-          return state.dashboard.dashboardStats;
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('dashboardStats', cacheKey);
+        if (cached.cached) {
+          return cached.data;
         }
       }
       
-      console.log('🌐 Fetching fresh dashboard stats data from API');
       const response = await axiosInstance.get(API_ENDPOINTS.DASHBOARD.STATS);
+      const data = response.data.data;
       
-      return response.data.data;
+      // Update cache with new data
+      dataCache.set('dashboardStats', data, cacheKey);
+      
+      return data;
     } catch (error) {
       console.error('❌ Dashboard stats fetch error:', error);
       return rejectWithValue(
@@ -71,7 +74,15 @@ export const fetchChartDataThunk = createAsyncThunk(
   'dashboard/fetchChartData',
   async ({ chartType = 'all', dateRange = '30d', forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
-      console.log('📊 Fetching dashboard chart data:', { chartType, dateRange });
+      const cacheKey = { type: 'charts', chartType, dateRange };
+      
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('dashboardCharts', cacheKey);
+        if (cached.cached) {
+          return cached.data;
+        }
+      }
       
       const params = new URLSearchParams({
         type: chartType,
@@ -79,8 +90,12 @@ export const fetchChartDataThunk = createAsyncThunk(
       });
       
       const response = await axiosInstance.get(`${API_ENDPOINTS.DASHBOARD.CHARTS}?${params}`);
+      const data = response.data.data;
       
-      return response.data.data;
+      // Update cache with new data
+      dataCache.set('dashboardCharts', data, cacheKey);
+      
+      return data;
     } catch (error) {
       console.error('❌ Dashboard chart data fetch error:', error);
       return rejectWithValue(
@@ -95,29 +110,29 @@ export const fetchChartDataThunk = createAsyncThunk(
 // Fetch recent activities/transactions
 export const fetchRecentActivitiesThunk = createAsyncThunk(
   'dashboard/fetchRecentActivities',
-  async ({ limit = 10, forceRefresh = false } = {}, { rejectWithValue, getState }) => {
+  async ({ limit = 10, forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const { cache } = state.dashboard;
+      const cacheKey = { type: 'activities', limit };
       
-      // Check cache validity unless force refresh is requested
-      if (!forceRefresh && cache.lastFetched) {
-        const cacheAge = Date.now() - cache.lastFetched;
-        if (cacheAge < cache.ttl) {
-          console.log('📦 Using cached recent activities data');
-          return state.dashboard.recentActivities;
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('dashboardActivities', cacheKey);
+        if (cached.cached) {
+          return cached.data;
         }
       }
-      
-      console.log('🌐 Fetching fresh recent activities data from API');
       
       const params = new URLSearchParams({
         limit: limit.toString()
       });
       
       const response = await axiosInstance.get(`${API_ENDPOINTS.DASHBOARD.ACTIVITIES}?${params}`);
+      const data = response.data.data;
       
-      return response.data.data;
+      // Update cache with new data
+      dataCache.set('dashboardActivities', data, cacheKey);
+      
+      return data;
     } catch (error) {
       console.error('❌ Recent activities fetch error:', error);
       return rejectWithValue(
