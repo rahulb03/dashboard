@@ -15,8 +15,14 @@ const createNoopStorage = () => {
 };
 
 // Create storage instance that works with SSR
-const storage = typeof window !== 'undefined' 
-  ? createWebStorage('local') 
-  : createNoopStorage();
+let storage;
+try {
+  storage = typeof window !== 'undefined' 
+    ? createWebStorage('local') 
+    : createNoopStorage();
+} catch (error) {
+  // Fallback to noop storage if createWebStorage fails
+  storage = createNoopStorage();
+}
 
 export default storage;
