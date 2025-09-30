@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @import './theme.css';
+@import '../styles/dashboard.css';
 
 :root {
   --radius: 0.625rem;
@@ -120,6 +121,39 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Hide scrollbars globally but keep scroll functionality */
+  html, body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+  
+  /* Hide scrollbars for all overflow containers */
+  div[class*="overflow-"], 
+  .overflow-auto, 
+  .overflow-scroll, 
+  .overflow-x-auto, 
+  .overflow-y-auto,
+  .overflow-x-scroll,
+  .overflow-y-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  div[class*="overflow-"]::-webkit-scrollbar,
+  .overflow-auto::-webkit-scrollbar,
+  .overflow-scroll::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-x-scroll::-webkit-scrollbar,
+  .overflow-y-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 /* Custom scrollbar utilities */
@@ -132,6 +166,41 @@
   
   .scrollbar-none::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
+  }
+  
+  /* Hide scrollbars for any element with overflow */
+  .hide-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+  
+  /* For elements that need scrolling */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom invisible scrollbar with functionality */
+  .invisible-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  
+  .invisible-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent;
+  }
+  
+  .invisible-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+  
+  .invisible-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
   }
 }
 

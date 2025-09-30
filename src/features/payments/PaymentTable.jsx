@@ -24,7 +24,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, CreditCard } from 'lucide-react';
+import { Search, CreditCard, FileText, Landmark } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function PaymentTable({ columns }) {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ export function PaymentTable({ columns }) {
   const [rowSelection, setRowSelection] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
 
   useEffect(() => {
     dispatch(fetchPaymentsThunk({}));
@@ -67,6 +69,17 @@ export function PaymentTable({ columns }) {
     }
   });
 
+  // Compute payment stats from filtered data
+  const stats = (() => {
+    const filteredRows = table.getFilteredRowModel().rows;
+    const list = filteredRows.map(row => row.original);
+    const totalAmount = list.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const membershipCount = list.filter(p => p.type === 'MEMBERSHIP').length;
+    const documentFeeCount = list.filter(p => p.type === 'DOCUMENT_FEE').length;
+    const loanFeeCount = list.filter(p => p.type === 'LOAN_FEE').length;
+    return { totalAmount, membershipCount, documentFeeCount, loanFeeCount };
+  })();
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -90,6 +103,50 @@ export function PaymentTable({ columns }) {
 
   return (
     <div className="space-y-4">
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${stats.totalAmount.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Sum of all payments</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Memberships</CardTitle>
+            <Landmark className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.membershipCount}</div>
+            <p className="text-xs text-muted-foreground">Total membership payments</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Document Fees</CardTitle>
+            <FileText className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.documentFeeCount}</div>
+            <p className="text-xs text-muted-foreground">Total document fee payments</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Loan Fees</CardTitle>
+            <Landmark className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.loanFeeCount}</div>
+            <p className="text-xs text-muted-foreground">Total loan fee payments</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Header with filters and add button */}
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
@@ -105,6 +162,24 @@ export function PaymentTable({ columns }) {
               className="pl-8"
             />
           </div>
+          
+          {/* Payment Type Filter */}
+          <Select 
+            value={(table.getColumn("type")?.getFilterValue()) ?? "all"}
+            onValueChange={(value) => 
+              table.getColumn("type")?.setFilterValue(value === "all" ? "" : value)
+            }
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="MEMBERSHIP">Membership Fee</SelectItem>
+              <SelectItem value="LOAN_FEE">Loan Fee</SelectItem>
+              <SelectItem value="DOCUMENT_FEE">Document Fee</SelectItem>
+            </SelectContent>
+          </Select>
           
           {/* Status Filter */}
           <Select 

@@ -44,11 +44,11 @@ export const createMemberThunk = createAsyncThunk(
 export const fetchMembersThunk = createAsyncThunk(
   'member/fetchMembers',
   async (
-    { page = 1, limit = 10, search = '', forceRefresh = false } = {},
+    { page = 1, search = '', forceRefresh = false } = {},
     { rejectWithValue }
   ) => {
     try {
-      const cacheKey = { page, limit, search };
+      const cacheKey = { page, search };
 
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
@@ -60,7 +60,6 @@ export const fetchMembersThunk = createAsyncThunk(
 
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: limit.toString(),
         ...(search && { search })
       });
 
@@ -219,17 +218,31 @@ export const assignRoleThunk = createAsyncThunk(
 // Get Users by Role
 export const fetchMembersByRoleThunk = createAsyncThunk(
   'member/fetchMembersByRole',
-  async ({ role, page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+  async ({ role, page = 1, forceRefresh = false } = {}, { rejectWithValue }) => {
     try {
+      const cacheKey = { role, page };
+      
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('membersByRole', cacheKey);
+        if (cached.cached) {
+          return cached.data;
+        }
+      }
+      
       const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString()
+        page: page.toString()
       });
 
       const response = await axiosInstance.get(
         `${API_ENDPOINTS.MEMBER.GET_BY_ROLE(role)}?${params}`
       );
-      return response.data.data;
+      const data = response.data.data;
+      
+      // Update cache with new data
+      dataCache.set('membersByRole', data, cacheKey);
+      
+      return data;
     } catch (error) {
       const message =
         error?.response?.data?.message ||
@@ -271,18 +284,32 @@ export const bulkDeleteMembersThunk = createAsyncThunk(
 // Search Members
 export const searchMembersThunk = createAsyncThunk(
   'member/searchMembers',
-  async ({ query, page = 1, limit = 10 }, { rejectWithValue }) => {
+  async ({ query, page = 1, forceRefresh = false }, { rejectWithValue }) => {
     try {
+      const cacheKey = { query, page };
+      
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('searchMembers', cacheKey);
+        if (cached.cached) {
+          return cached.data;
+        }
+      }
+      
       const params = new URLSearchParams({
         search: query,
-        page: page.toString(),
-        limit: limit.toString()
+        page: page.toString()
       });
 
       const response = await axiosInstance.get(
         `${API_ENDPOINTS.MEMBER.LIST}?${params}`
       );
-      return response.data.data;
+      const data = response.data.data;
+      
+      // Update cache with search results
+      dataCache.set('searchMembers', data, cacheKey);
+      
+      return data;
     } catch (error) {
       const message =
         error?.response?.data?.message ||

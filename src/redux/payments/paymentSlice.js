@@ -35,8 +35,7 @@ const initialState = {
     status: '',
     type: '',
     mobileNumber: '',
-    page: 1,
-    limit: 10
+    page: 1
   }
 };
 
@@ -63,8 +62,7 @@ const paymentSlice = createSlice({
         status: '',
         type: '',
         mobileNumber: '',
-        page: 1,
-        limit: 10
+        page: 1
       };
     },
     updateStats: (state) => {

@@ -1,7 +1,6 @@
 export const API_BASE_URL = 'http://localhost:3000/api/admin/';
 export const IMAGE_URL = 'https://localhost:3000/uploads/';
 
-export const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const WEBSITE_NAME = 'Highfly Global Gateways';
 

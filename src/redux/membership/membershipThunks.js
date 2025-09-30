@@ -52,7 +52,6 @@ export const fetchMembershipsThunk = createAsyncThunk(
   async (
     { 
       page = 1, 
-      limit = 10, 
       search = '', 
       status = '',
       isActive = null,
@@ -69,7 +68,6 @@ export const fetchMembershipsThunk = createAsyncThunk(
     try {
       const cacheKey = { 
         page, 
-        limit, 
         search, 
         status,
         isActive,
@@ -91,7 +89,6 @@ export const fetchMembershipsThunk = createAsyncThunk(
 
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: limit.toString(),
         sortBy,
         sortOrder,
         ...(search && { search }),
@@ -438,19 +435,33 @@ export const updateExpiredMembershipsThunk = createAsyncThunk(
 // Search Memberships
 export const searchMembershipsThunk = createAsyncThunk(
   'membership/searchMemberships',
-  async ({ query, page = 1, limit = 10, status = '' }, { rejectWithValue }) => {
+  async ({ query, page = 1, status = '', forceRefresh = false }, { rejectWithValue }) => {
     try {
+      const cacheKey = { query, page, status };
+      
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('searchMemberships', cacheKey);
+        if (cached.cached) {
+          return cached.data;
+        }
+      }
+      
       const params = new URLSearchParams({
         search: query,
         page: page.toString(),
-        limit: limit.toString(),
         ...(status && { status })
       });
 
       const response = await axiosInstance.get(
         `${API_ENDPOINTS.MEMBERSHIP.LIST}?${params}`
       );
-      return response.data.data;
+      const data = response.data.data;
+      
+      // Update cache with search results
+      dataCache.set('searchMemberships', data, cacheKey);
+      
+      return data;
     } catch (error) {
       const message =
         error?.response?.data?.message ||

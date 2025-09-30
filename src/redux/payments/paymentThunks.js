@@ -9,7 +9,6 @@ export const fetchPaymentsThunk = createAsyncThunk(
   async (
     { 
       page = 1, 
-      limit = 10, 
       status = '',
       type = '',
       mobileNumber = '',
@@ -20,7 +19,6 @@ export const fetchPaymentsThunk = createAsyncThunk(
     try {
       const cacheKey = { 
         page, 
-        limit, 
         status,
         type,
         mobileNumber
@@ -36,7 +34,6 @@ export const fetchPaymentsThunk = createAsyncThunk(
 
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: limit.toString(),
         ...(status && { status }),
         ...(type && { type }),
         ...(mobileNumber && { mobileNumber })
@@ -101,7 +98,6 @@ export const fetchUserPaymentsThunk = createAsyncThunk(
   async (
     { 
       page = 1, 
-      limit = 10, 
       status = '',
       type = '',
       forceRefresh = false 
@@ -112,7 +108,6 @@ export const fetchUserPaymentsThunk = createAsyncThunk(
       const cacheKey = { 
         type: 'user-payments',
         page, 
-        limit, 
         status,
         type
       };
@@ -127,7 +122,6 @@ export const fetchUserPaymentsThunk = createAsyncThunk(
 
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: limit.toString(),
         ...(status && { status }),
         ...(type && { type })
       });
@@ -267,15 +261,236 @@ export const refundPaymentThunk = createAsyncThunk(
   }
 );
 
-// Search Payments
+// Create Payment
+export const createPaymentThunk = createAsyncThunk(
+  'payments/createPayment',
+  async (paymentData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.PAYMENTS.LIST, // Using LIST endpoint for create
+        paymentData
+      );
+      const newPayment = response.data.data;
+
+      // Add to individual payment cache
+      dataCache.set('payment', newPayment, {
+        paymentId: newPayment.id
+      });
+
+      // Add to payments list cache with optimistic update
+      dataCache.optimisticUpdate('payments', (cachedPayments) => {
+        if (Array.isArray(cachedPayments?.data?.payments)) {
+          return {
+            ...cachedPayments,
+            data: {
+              ...cachedPayments.data,
+              payments: [newPayment, ...cachedPayments.data.payments]
+            }
+          };
+        } else if (Array.isArray(cachedPayments)) {
+          return [newPayment, ...cachedPayments];
+        }
+        return cachedPayments;
+      });
+
+      // Also update user payments cache
+      dataCache.optimisticUpdate('userPayments', (cachedUserPayments) => {
+        if (Array.isArray(cachedUserPayments?.data?.payments)) {
+          return {
+            ...cachedUserPayments,
+            data: {
+              ...cachedUserPayments.data,
+              payments: [newPayment, ...cachedUserPayments.data.payments]
+            }
+          };
+        } else if (Array.isArray(cachedUserPayments)) {
+          return [newPayment, ...cachedUserPayments];
+        }
+        return cachedUserPayments;
+      });
+
+      return newPayment;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to create payment';
+      const validationErrors = error?.response?.data?.data || {};
+      return rejectWithValue({ message, validationErrors });
+    }
+  }
+);
+
+// Update Payment
+export const updatePaymentThunk = createAsyncThunk(
+  'payments/updatePayment',
+  async ({ paymentId, paymentData }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        API_ENDPOINTS.PAYMENTS.GET_ONE(paymentId), // Using GET_ONE endpoint for update
+        paymentData
+      );
+      const updatedPayment = response.data.data;
+
+      // Update payment in cache
+      dataCache.set('payment', updatedPayment, { paymentId });
+
+      // Update payments list cache
+      dataCache.optimisticUpdate('payments', (cachedPayments) => {
+        if (Array.isArray(cachedPayments?.data?.payments)) {
+          return {
+            ...cachedPayments,
+            data: {
+              ...cachedPayments.data,
+              payments: cachedPayments.data.payments.map((payment) =>
+                payment.id === paymentId
+                  ? { ...payment, ...updatedPayment }
+                  : payment
+              )
+            }
+          };
+        } else if (Array.isArray(cachedPayments)) {
+          return cachedPayments.map((payment) =>
+            payment.id === paymentId
+              ? { ...payment, ...updatedPayment }
+              : payment
+          );
+        }
+        return cachedPayments;
+      });
+
+      // Update user payments cache
+      dataCache.optimisticUpdate('userPayments', (cachedUserPayments) => {
+        if (Array.isArray(cachedUserPayments?.data?.payments)) {
+          return {
+            ...cachedUserPayments,
+            data: {
+              ...cachedUserPayments.data,
+              payments: cachedUserPayments.data.payments.map((payment) =>
+                payment.id === paymentId
+                  ? { ...payment, ...updatedPayment }
+                  : payment
+              )
+            }
+          };
+        } else if (Array.isArray(cachedUserPayments)) {
+          return cachedUserPayments.map((payment) =>
+            payment.id === paymentId
+              ? { ...payment, ...updatedPayment }
+              : payment
+          );
+        }
+        return cachedUserPayments;
+      });
+
+      return updatedPayment;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to update payment';
+      const validationErrors = error?.response?.data?.data || {};
+      return rejectWithValue({ message, validationErrors });
+    }
+  }
+);
+
+// Update Payment Status
+export const updatePaymentStatusThunk = createAsyncThunk(
+  'payments/updatePaymentStatus',
+  async ({ paymentId, status, reason }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(
+        `${API_ENDPOINTS.PAYMENTS.GET_ONE(paymentId)}/status`,
+        { status, reason }
+      );
+      const updatedPayment = response.data.data;
+
+      // Update payment in cache
+      dataCache.set('payment', updatedPayment, { paymentId });
+
+      // Update payments list cache
+      dataCache.optimisticUpdate('payments', (cachedPayments) => {
+        if (Array.isArray(cachedPayments?.data?.payments)) {
+          return {
+            ...cachedPayments,
+            data: {
+              ...cachedPayments.data,
+              payments: cachedPayments.data.payments.map((payment) =>
+                payment.id === paymentId
+                  ? { ...payment, ...updatedPayment }
+                  : payment
+              )
+            }
+          };
+        } else if (Array.isArray(cachedPayments)) {
+          return cachedPayments.map((payment) =>
+            payment.id === paymentId
+              ? { ...payment, ...updatedPayment }
+              : payment
+          );
+        }
+        return cachedPayments;
+      });
+
+      // Update user payments cache
+      dataCache.optimisticUpdate('userPayments', (cachedUserPayments) => {
+        if (Array.isArray(cachedUserPayments?.data?.payments)) {
+          return {
+            ...cachedUserPayments,
+            data: {
+              ...cachedUserPayments.data,
+              payments: cachedUserPayments.data.payments.map((payment) =>
+                payment.id === paymentId
+                  ? { ...payment, ...updatedPayment }
+                  : payment
+              )
+            }
+          };
+        } else if (Array.isArray(cachedUserPayments)) {
+          return cachedUserPayments.map((payment) =>
+            payment.id === paymentId
+              ? { ...payment, ...updatedPayment }
+              : payment
+          );
+        }
+        return cachedUserPayments;
+      });
+
+      return updatedPayment;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        'Failed to update payment status';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// Search Payments with caching
 export const searchPaymentsThunk = createAsyncThunk(
   'payments/searchPayments',
-  async ({ query, page = 1, limit = 10, status = '', type = '' }, { rejectWithValue }) => {
+  async ({ query, page = 1, status = '', type = '', forceRefresh = false }, { rejectWithValue }) => {
     try {
+      const cacheKey = { 
+        query,
+        page, 
+        status,
+        type
+      };
+
+      // Check cache first unless force refresh is requested
+      if (!forceRefresh) {
+        const cached = dataCache.get('searchPayments', cacheKey);
+        if (cached.cached) {
+          return cached.data;
+        }
+      }
+
       const params = new URLSearchParams({
         mobileNumber: query, // Search by mobile number primarily
         page: page.toString(),
-        limit: limit.toString(),
         ...(status && { status }),
         ...(type && { type })
       });
@@ -283,7 +498,12 @@ export const searchPaymentsThunk = createAsyncThunk(
       const response = await axiosInstance.get(
         `${API_ENDPOINTS.PAYMENTS.LIST}?${params}`
       );
-      return response.data.data;
+      const data = response.data.data;
+
+      // Update cache with new data
+      dataCache.set('searchPayments', data, cacheKey);
+
+      return data;
     } catch (error) {
       const message =
         error?.response?.data?.message ||

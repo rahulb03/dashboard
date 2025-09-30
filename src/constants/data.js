@@ -9,87 +9,17 @@ export const navItems = [
     shortcut: ['d', 'd'],
     items: [] // Empty array as there are no child items for Dashboard
   },
-  {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
+  // {
+  //   title: 'Product',
+  //   url: '/dashboard/product',
+  //   icon: 'product',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
+  
 
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
-      },
-     
-    ]
-  },
-  {
-    title: 'Payments',
-    url: '/dashboard/payments',
-    icon: 'payment',
-    shortcut: ['p', 'm'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Payments configurations',
-    url: '/dashboard/payment-configurations',
-    icon: 'payment',
-    shortcut: ['p', 'm'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Permissions',
-    url: '/dashboard/permissions',
-    icon: 'shield',
-    shortcut: ['r', 'r'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Members',
-    url: '/dashboard/members',
-    icon: 'users',
-    shortcut: ['m', 'e'],
-    isActive: false,
-    items: [] // No child items - direct link to members
-  },
-  {
-    title: 'Memberships',
-    url: '/dashboard/memberships',
-    icon: 'membership',
-    shortcut: ['m', 's'],
-    isActive: false,
-    items: [] // No child items - direct link to memberships
-  },
-  {
-    title: 'Salary Configurations',
-    url: '/dashboard/salary',
-    icon: 'salary',
-    shortcut: ['s', 'c'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
+   {
     title: 'Loan Management',
     url: '/dashboard/loans',
     icon: 'loan',
@@ -112,7 +42,67 @@ export const navItems = [
         shortcut: ['l', 'p']
       }
     ]
+  }, 
+
+   {
+    title: 'Memberships',
+    url: '/dashboard/memberships',
+    icon: 'membership',
+    shortcut: ['m', 's'],
+    isActive: false,
+    items: [] // No child items - direct link to memberships
   },
+
+  {
+    title: 'Payments',
+    url: '/dashboard/payments',
+    icon: 'payment',
+    shortcut: ['p', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Payments configurations',
+    url: '/dashboard/payment-configurations',
+    icon: 'payment',
+    shortcut: ['p', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  // {
+  //   title: 'Kanban',
+  //   url: '/dashboard/kanban',
+  //   icon: 'kanban',
+  //   shortcut: ['k', 'k'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
+  {
+    title: 'Permissions',
+    url: '/dashboard/permissions',
+    icon: 'shield',
+    shortcut: ['r', 'r'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Members',
+    url: '/dashboard/members',
+    icon: 'users',
+    shortcut: ['m', 'e'],
+    isActive: false,
+    items: [] // No child items - direct link to members
+  },
+ 
+  {
+    title: 'Salary Configurations',
+    url: '/dashboard/salary',
+    icon: 'salary',
+    shortcut: ['s', 'c'],
+    isActive: false,
+    items: [] // No child items
+  },
+ 
   {
     title: 'Tracking Analytics',
     url: '/dashboard/tracking',
@@ -141,7 +131,24 @@ export const navItems = [
         shortcut: ['t', 'h']
       }
     ]
-  }
+  } ,
+
+    {
+    title: 'Account',
+    url: '#', // Placeholder as there is no direct link for the parent
+    icon: 'billing',
+    isActive: true,
+
+    items: [
+      {
+        title: 'Profile',
+        url: '/dashboard/profile',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+     
+    ]
+  },
 ];
 
 

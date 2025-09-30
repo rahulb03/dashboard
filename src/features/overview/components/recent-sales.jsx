@@ -1,70 +1,99 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription
-} from '@/components/ui/card';
+'use client';
 
-const salesData = [
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+const mockApplicationsData = [
   {
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'OM',
-    amount: '+$1,999.00'
+    name: 'Rajesh Kumar',
+    email: 'rajesh.kumar@email.com',
+    fallback: 'RK',
+    status: 'APPROVED',
+    amount: '₹5,00,000',
+    type: 'Personal Loan'
   },
   {
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'JL',
-    amount: '+$39.00'
+    name: 'Priya Sharma',
+    email: 'priya.sharma@email.com', 
+    fallback: 'PS',
+    status: 'PROCESSING',
+    amount: '₹2,50,000',
+    type: 'Home Loan'
   },
   {
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'IN',
-    amount: '+$299.00'
+    name: 'Amit Patel',
+    email: 'amit.patel@email.com',
+    fallback: 'AP', 
+    status: 'PENDING',
+    amount: '₹1,50,000',
+    type: 'Car Loan'
   },
   {
-    name: 'William Kim',
-    email: 'will@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'WK',
-    amount: '+$99.00'
+    name: 'Sneha Gupta',
+    email: 'sneha.gupta@email.com',
+    fallback: 'SG',
+    status: 'APPROVED',
+    amount: '₹3,00,000',
+    type: 'Business Loan'
   },
   {
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'SD',
-    amount: '+$39.00'
+    name: 'Vikram Singh',
+    email: 'vikram.singh@email.com',
+    fallback: 'VS',
+    status: 'REJECTED',
+    amount: '₹75,000',
+    type: 'Personal Loan'
   }
 ];
 
 export function RecentSales() {
+  const { loanApplications, loading } = useSelector((state) => state.loan);
+  
+  // Get recent loan applications
+  const recentApplications = React.useMemo(() => {
+    if (!loanApplications?.length) return mockApplicationsData;
+    
+    // Create a copy of the array to avoid mutating read-only array
+    return [...loanApplications]
+      .sort((a, b) => new Date(b.createdAt || b.updatedAt) - new Date(a.createdAt || a.updatedAt))
+      .slice(0, 5)
+      .map(app => ({
+        name: app.fullName || app.applicantName || 'Unknown Applicant',
+        email: app.email || app.mobileNumber || 'No Contact',
+        fallback: (app.fullName || app.applicantName || 'U').substring(0, 2).toUpperCase(),
+        status: app.applicationStatus || 'PENDING',
+        amount: `₹${parseFloat(app.loanAmount || 0).toLocaleString('en-IN')}`,
+        type: app.loanType || 'Personal Loan'
+      }));
+  }, [loanApplications]);
+  
+  const totalRecentApplications = recentApplications.length;
+  
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
+        <CardTitle>Recent Applications</CardTitle>
+        <CardDescription>
+          {loading ? 'Loading...' : `${totalRecentApplications} recent loan applications.`}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-8'>
-          {salesData.map((sale, index) => (
+          {recentApplications.map((application, index) => (
             <div key={index} className='flex items-center'>
               <Avatar className='h-9 w-9'>
-                <AvatarImage src={sale.avatar} alt='Avatar' />
-                <AvatarFallback>{sale.fallback}</AvatarFallback>
+                <AvatarFallback>{application.fallback}</AvatarFallback>
               </Avatar>
               <div className='ml-4 space-y-1'>
-                <p className='text-sm leading-none font-medium'>{sale.name}</p>
-                <p className='text-muted-foreground text-sm'>{sale.email}</p>
+                <p className='text-sm leading-none font-medium'>{application.name}</p>
+                <p className='text-muted-foreground text-sm'>{application.type}</p>
               </div>
-              <div className='ml-auto font-medium'>{sale.amount}</div>
+              <div className='ml-auto text-right'>
+                <div className='font-medium'>{application.amount}</div>
+                <div className='text-muted-foreground text-sm'>{application.status}</div>
+              </div>
             </div>
           ))}
         </div>

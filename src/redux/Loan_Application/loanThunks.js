@@ -353,8 +353,25 @@ export const updateLoanStatusThunk = createAsyncThunk(
         API_ENDPOINTS.LOAN_APPLICATION.UPDATE_STATUS(id),
         { applicationStatus: status }
       );
+      const updatedLoan = response.data.data;
+      
+      // Update individual loan cache
+      dataCache.set('loanApplication', updatedLoan, { loanId: id });
+      
+      // Update loan applications list cache
+      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
+        if (cachedData?.loanApplications) {
+          return {
+            ...cachedData,
+            loanApplications: cachedData.loanApplications.map((loan) =>
+              loan.id === parseInt(id) ? { ...loan, ...updatedLoan } : loan
+            )
+          };
+        }
+        return cachedData;
+      });
 
-      return response.data.data;
+      return updatedLoan;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || 'Failed to update loan status'
@@ -372,7 +389,25 @@ export const updatePaymentStatusThunk = createAsyncThunk(
         API_ENDPOINTS.LOAN_APPLICATION.UPDATE_PAYMENT_STATUS(id),
         { paymentStatus }
       );
-      return response.data.data;
+      const updatedLoan = response.data.data;
+      
+      // Update individual loan cache
+      dataCache.set('loanApplication', updatedLoan, { loanId: id });
+      
+      // Update loan applications list cache
+      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
+        if (cachedData?.loanApplications) {
+          return {
+            ...cachedData,
+            loanApplications: cachedData.loanApplications.map((loan) =>
+              loan.id === parseInt(id) ? { ...loan, ...updatedLoan } : loan
+            )
+          };
+        }
+        return cachedData;
+      });
+      
+      return updatedLoan;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || 'Failed to update payment status'

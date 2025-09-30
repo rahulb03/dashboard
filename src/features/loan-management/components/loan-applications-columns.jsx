@@ -214,6 +214,28 @@ export const columns = [
     }
   },
   {
+    accessorKey: 'desiredLoanAmount',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Desired Amount" />
+    ),
+    cell: ({ row }) => {
+      const application = row.original;
+      return (
+        <div className="flex flex-col">
+          <div className="font-medium">
+            {formatCurrency(application.desiredLoanAmount)}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Requested amount
+          </div>
+        </div>
+      );
+    },
+    meta: {
+      title: 'Desired Loan Amount'
+    }
+  },
+  {
     accessorKey: 'loanAmount',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Loan Details" />
