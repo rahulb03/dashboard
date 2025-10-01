@@ -95,6 +95,7 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Applicant" />
     ),
+    size: 200,
     cell: ({ row }) => {
       const application = row.original;
       return (
@@ -119,6 +120,7 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Contact" />
     ),
+    size: 250,
     cell: ({ row }) => {
       const application = row.original;
       return (
@@ -196,6 +198,7 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Employment" />
     ),
+    size: 180,
     cell: ({ row }) => {
       const application = row.original;
       return (
@@ -218,6 +221,7 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Desired Amount" />
     ),
+    size: 160,
     cell: ({ row }) => {
       const application = row.original;
       return (
@@ -377,7 +381,10 @@ export const columns = [
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="text-red-600"
-              onClick={() => onDeleteApplication?.(application)}
+              onSelect={(e) => {
+                e.preventDefault();
+                onDeleteApplication?.(application);
+              }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete

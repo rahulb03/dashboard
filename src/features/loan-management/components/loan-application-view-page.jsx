@@ -23,7 +23,7 @@ export default function LoanApplicationViewPage({ applicationId, mode }) {
       
       if (!hasCorrectApplication) {
         console.log('🔄 Fetching loan application:', applicationId);
-        dispatch(fetchLoanApplicationByIdThunk(applicationId));
+        dispatch(fetchLoanApplicationByIdThunk({ id: applicationId }));
         hasFetched.current.add(applicationId); // Mark as fetched
       } else {
         console.log('📦 Using existing loan application:', currentLoanApplication.id);

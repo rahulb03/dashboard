@@ -41,7 +41,6 @@ export const fetchTrackingSessionsThunk = createAsyncThunk(
   'tracking/fetchSessions',
   async (
     {
-      limit = 50,
       offset = 0,
       status = 'all',
       dateRange = '7d',
@@ -53,7 +52,6 @@ export const fetchTrackingSessionsThunk = createAsyncThunk(
   ) => {
     try {
       const cacheKey = {
-        limit,
         offset,
         status,
         dateRange,
@@ -70,7 +68,6 @@ export const fetchTrackingSessionsThunk = createAsyncThunk(
       }
 
       const params = new URLSearchParams({
-        limit: limit.toString(),
         offset: offset.toString(),
         status,
         dateRange,
@@ -325,7 +322,6 @@ export const exportSessionsThunk = createAsyncThunk(
     try {
       // First fetch all sessions with current filters
       const params = new URLSearchParams({
-        limit: '1000', // Large limit for export
         offset: '0',
         includeSteps: 'true', // Include step details for export
         ...filters

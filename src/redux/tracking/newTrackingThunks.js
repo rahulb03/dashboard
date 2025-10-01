@@ -99,14 +99,13 @@ export const fetchUsersThunk = createAsyncThunk(
   'newTracking/fetchUsers',
   async ({ 
     page = 1, 
-    limit = 50, 
     search = '', 
     status = 'all',
     dateRange = '30d',
     forceRefresh = false 
   } = {}, { rejectWithValue }) => {
     try {
-      const cacheKey = { page, limit, search, status, dateRange };
+      const cacheKey = { page, search, status, dateRange };
 
       if (!forceRefresh) {
         const cached = dataCache.get('newTrackingUsers', cacheKey);
@@ -116,8 +115,7 @@ export const fetchUsersThunk = createAsyncThunk(
       }
 
       const params = new URLSearchParams({
-        limit: limit.toString(),
-        offset: ((page - 1) * limit).toString(),
+        offset: ((page - 1) * 50).toString(),
         status,
         dateRange,
         includeSteps: 'false',
@@ -178,7 +176,7 @@ export const fetchUsersThunk = createAsyncThunk(
       const result = {
         users,
         totalUsers: data.pagination?.total || users.length,
-        totalPages: Math.ceil((data.pagination?.total || users.length) / limit),
+        totalPages: Math.ceil((data.pagination?.total || users.length) / 50),
         currentPage: page,
         pagination: data.pagination || {},
         summary: data.summary || {},
@@ -209,7 +207,7 @@ export const fetchUserDetailsThunk = createAsyncThunk(
       }
 
       // Use sessions API to get user details by filtering sessions for this user
-      const response = await axiosInstance.get(`${API_ENDPOINTS.TRACKING.SESSIONS}?phoneNumber=${userId}&includeSteps=true&limit=10`);
+      const response = await axiosInstance.get(`${API_ENDPOINTS.TRACKING.SESSIONS}?phoneNumber=${userId}&includeSteps=true`);
       const data = response.data;
 
       dataCache.set('newTrackingUserDetails', data, cacheKey);
@@ -228,7 +226,6 @@ export const fetchNewSessionsThunk = createAsyncThunk(
   'newTracking/fetchSessions',
   async ({ 
     page = 1, 
-    limit = 50, 
     offset = 0,
     status = 'all',
     dateRange = '7d',
@@ -237,7 +234,7 @@ export const fetchNewSessionsThunk = createAsyncThunk(
     forceRefresh = false 
   } = {}, { rejectWithValue }) => {
     try {
-      const cacheKey = { page, limit, offset, status, dateRange, phoneNumber, includeSteps };
+      const cacheKey = { page, offset, status, dateRange, phoneNumber, includeSteps };
 
       if (!forceRefresh) {
         const cached = dataCache.get('newTrackingSessions', cacheKey);
@@ -247,8 +244,7 @@ export const fetchNewSessionsThunk = createAsyncThunk(
       }
 
       const params = new URLSearchParams({
-        limit: limit.toString(),
-        offset: ((page - 1) * limit).toString(),
+        offset: ((page - 1) * 50).toString(),
         status,
         dateRange,
         includeSteps: includeSteps.toString(),
@@ -310,7 +306,7 @@ export const fetchActiveSessionsThunk = createAsyncThunk(
       }
 
       // Use REAL sessions API with active status filter from tracking.js
-      const response = await axiosInstance.get(`${API_ENDPOINTS.TRACKING.SESSIONS}?status=active&limit=100`);
+      const response = await axiosInstance.get(`${API_ENDPOINTS.TRACKING.SESSIONS}?status=active`);
       const data = response.data;
 
       // Extract active sessions data from the response

@@ -82,21 +82,7 @@ export const createLoanApplicationThunk = createAsyncThunk(
         loanData
       );
       const newLoan = response.data.data;
-
-      // Add to individual loan cache
-      dataCache.set('loanApplication', newLoan, { loanId: newLoan.id });
-
-      // Update loan applications list cache optimistically
-      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
-        if (cachedData?.loanApplications) {
-          return {
-            ...cachedData,
-            loanApplications: [newLoan, ...cachedData.loanApplications]
-          };
-        }
-        return cachedData;
-      });
-
+      // Redux state handles the update now - no cache manipulation
       return newLoan;
     } catch (error) {
       return rejectWithValue(
@@ -116,23 +102,7 @@ export const updateLoanApplicationThunk = createAsyncThunk(
         loanData
       );
       const updatedLoan = response.data.data;
-
-      // Update individual loan cache
-      dataCache.set('loanApplication', updatedLoan, { loanId: id });
-
-      // Update loan applications list cache optimistically
-      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
-        if (cachedData?.loanApplications) {
-          return {
-            ...cachedData,
-            loanApplications: cachedData.loanApplications.map((loan) =>
-              loan.id === parseInt(id) ? { ...loan, ...updatedLoan } : loan
-            )
-          };
-        }
-        return cachedData;
-      });
-
+      // Redux state handles the update now - no cache manipulation
       return updatedLoan;
     } catch (error) {
       return rejectWithValue(
@@ -148,23 +118,7 @@ export const deleteLoanApplicationThunk = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await axiosInstance.delete(API_ENDPOINTS.LOAN_APPLICATION.DELETE(id));
-
-      // Remove from individual loan cache
-      dataCache.invalidate('loanApplication', { loanId: id });
-
-      // Remove from loan applications list cache
-      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
-        if (cachedData?.loanApplications) {
-          return {
-            ...cachedData,
-            loanApplications: cachedData.loanApplications.filter(
-              (loan) => loan.id !== parseInt(id)
-            )
-          };
-        }
-        return cachedData;
-      });
-
+      // Redux state handles the update now - no cache manipulation
       return id;
     } catch (error) {
       return rejectWithValue(
@@ -347,30 +301,14 @@ export const downloadDocumentThunk = createAsyncThunk(
 // Update loan status
 export const updateLoanStatusThunk = createAsyncThunk(
   'loan/updateStatus',
-  async ({ id, status }, { rejectWithValue, dispatch }) => {
+  async ({ id, status }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.patch(
         API_ENDPOINTS.LOAN_APPLICATION.UPDATE_STATUS(id),
         { applicationStatus: status }
       );
       const updatedLoan = response.data.data;
-      
-      // Update individual loan cache
-      dataCache.set('loanApplication', updatedLoan, { loanId: id });
-      
-      // Update loan applications list cache
-      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
-        if (cachedData?.loanApplications) {
-          return {
-            ...cachedData,
-            loanApplications: cachedData.loanApplications.map((loan) =>
-              loan.id === parseInt(id) ? { ...loan, ...updatedLoan } : loan
-            )
-          };
-        }
-        return cachedData;
-      });
-
+      // Redux state handles the update now - no cache manipulation
       return updatedLoan;
     } catch (error) {
       return rejectWithValue(
@@ -390,23 +328,7 @@ export const updatePaymentStatusThunk = createAsyncThunk(
         { paymentStatus }
       );
       const updatedLoan = response.data.data;
-      
-      // Update individual loan cache
-      dataCache.set('loanApplication', updatedLoan, { loanId: id });
-      
-      // Update loan applications list cache
-      dataCache.optimisticUpdate('loanApplications', (cachedData) => {
-        if (cachedData?.loanApplications) {
-          return {
-            ...cachedData,
-            loanApplications: cachedData.loanApplications.map((loan) =>
-              loan.id === parseInt(id) ? { ...loan, ...updatedLoan } : loan
-            )
-          };
-        }
-        return cachedData;
-      });
-      
+      // Redux state handles the update now - no cache manipulation
       return updatedLoan;
     } catch (error) {
       return rejectWithValue(

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -44,8 +44,6 @@ const employmentTypeOptions = [
   { label: 'All Types', value: 'all' },
   { label: 'Salaried', value: 'salaried' },
   { label: 'Self Employed', value: 'self_employed' },
-  { label: 'Business', value: 'business' },
-  { label: 'Freelancer', value: 'freelancer' }
 ];
 
 export default function LoanApplicationsDataTable({ 
@@ -75,6 +73,7 @@ export default function LoanApplicationsDataTable({
   const [updatingStatus, setUpdatingStatus] = useState(new Set());
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filter applications based on filters
   const filteredApplications = useMemo(() => {
@@ -96,28 +95,40 @@ export default function LoanApplicationsDataTable({
 
 
   // Handle delete application
-  const handleDeleteApplication = async () => {
-    if (!selectedApplication) return;
+  const handleDeleteApplication = useCallback(async () => {
+    if (!selectedApplication || isDeleting) return;
+    
+    console.log('🗑️ Starting delete for application:', selectedApplication.id);
+    setIsDeleting(true);
     
     try {
       await dispatch(deleteLoanApplicationThunk(selectedApplication.id)).unwrap();
+      console.log('✅ Delete successful');
+      
+      // Close modal and clear state
       setIsDeleteDialogOpen(false);
       setSelectedApplication(null);
+      
+      // Show toast
       toast({
         title: 'Success',
         description: 'Application deleted successfully',
       });
+      console.log('✅ Delete handler completed - NO navigation should happen');
     } catch (error) {
+      console.error('❌ Delete error:', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete application',
         variant: 'destructive',
       });
+    } finally {
+      setIsDeleting(false);
     }
-  };
+  }, [selectedApplication, dispatch, toast, isDeleting]);
 
   // Handle status update
-  const handleStatusUpdate = async (applicationId, newStatus) => {
+  const handleStatusUpdate = useCallback(async (applicationId, newStatus) => {
     setUpdatingStatus(prev => new Set([...prev, applicationId]));
     try {
       await dispatch(updateLoanStatusThunk({ id: applicationId, status: newStatus })).unwrap();
@@ -138,7 +149,7 @@ export default function LoanApplicationsDataTable({
         return newSet;
       });
     }
-  };
+  }, [dispatch, toast]);
 
   // Enhanced columns with status update functionality
   const enhancedColumns = useMemo(() => {
@@ -173,7 +184,7 @@ export default function LoanApplicationsDataTable({
       }
       return column;
     });
-  }, [columns, updatingStatus, handleStatusUpdate]);
+  }, [updatingStatus]);
 
   // Create table instance
   const table = useReactTable({
@@ -206,14 +217,14 @@ export default function LoanApplicationsDataTable({
     }
   });
 
-  const handleExportData = () => {
+  const handleExportData = useCallback(() => {
     if (onExport) {
       onExport(filteredApplications);
     }
-  };
+  }, [onExport, filteredApplications]);
 
   // Bulk status update
-  const handleBulkStatusUpdate = async (status) => {
+  const handleBulkStatusUpdate = useCallback(async (status) => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     if (selectedRows.length === 0) return;
 
@@ -238,7 +249,7 @@ export default function LoanApplicationsDataTable({
         variant: 'destructive',
       });
     }
-  };
+  }, [table, dispatch, toast]);
 
   const ActionBar = () => {
     const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
@@ -296,7 +307,7 @@ export default function LoanApplicationsDataTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-x-auto">
       {/* Filters and Actions */}
       <div className="flex items-center justify-between">
         <div className="flex flex-1 items-center space-x-2">
@@ -407,9 +418,14 @@ export default function LoanApplicationsDataTable({
       {/* DELETE Confirmation Modal */}
       <ConfirmDeleteModal
         isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteDialogOpen(false);
+            setSelectedApplication(null);
+          }
+        }}
         onConfirm={handleDeleteApplication}
-        loading={loading}
+        loading={isDeleting}
         itemType="Loan Application"
         itemName={selectedApplication?.fullName}
         variant="contextual"

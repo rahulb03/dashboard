@@ -23,25 +23,16 @@ import {
 /**
  * @param {DataTableProps} props
  */
-export function DataTable({
+export const DataTable = React.memo(function DataTable({
   table,
   actionBar,
   children
 }) {
-  // DEBUG: Log what's happening with the table
-  console.log('🐛 DataTable Debug:', {
-    rowModelRows: table.getRowModel().rows?.length,
-    originalData: table.options.data?.length,
-    columns: table.getAllColumns()?.length,
-    firstRow: table.getRowModel().rows?.[0],
-    tableState: table.getState()
-  });
-  
   return (
-    <div className='flex flex-1 flex-col space-y-4'>
+    <div className='flex flex-1 flex-col space-y-4' style={{ minWidth: 0 }}>
       {children}
-      <div className='rounded-lg border'>
-        <Table>
+      <div className='overflow-x-scroll rounded-lg border max-w-full' style={{ WebkitOverflowScrolling: 'touch' }}>
+        <Table style={{ minWidth: '100%', width: 'max-content' }}>
           <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
@@ -99,4 +90,4 @@ export function DataTable({
       </div>
     </div>
   );
-}
+});

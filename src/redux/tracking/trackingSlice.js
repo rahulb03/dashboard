@@ -173,7 +173,17 @@ const trackingSlice = createSlice({
       })
       .addCase(fetchTrackingSessionsThunk.fulfilled, (state, action) => {
         state.sessionsLoading = false;
-        const { data, pagination, filters } = action.payload;
+        const payload = action.payload;
+        
+        // Extract data and pagination from the API response
+        const data = payload.data || [];
+        const pagination = {
+          total: payload.summary?.totalSessions || data.length,
+          limit: 50,
+          offset: 0,
+          hasMore: false
+        };
+        const filters = payload.filters || {};
         
         // Handle pagination - append or replace
         if (pagination.offset === 0) {

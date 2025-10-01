@@ -82,7 +82,7 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
         const result = await dispatch(createPaymentConfigThunk(values)).unwrap();
         toast.success('Payment configuration created successfully!');
       }
-      router.push('/dashboard/payment');
+      router.push('/dashboard/payment-configurations');
     } catch (error) {
       toast.error(error.message || 'An error occurred');
     } finally {

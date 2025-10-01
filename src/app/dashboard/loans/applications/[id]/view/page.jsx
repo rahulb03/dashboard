@@ -11,7 +11,7 @@ export const metadata = {
 export default function Page({ params }) {
   return (
     <PageContainer scrollable={false}>
-      <div className="flex flex-1 flex-col space-y-4">
+      <div className="flex flex-1 flex-col space-y-4 overflow-x-auto">
         <Suspense
           fallback={
             <DataTableSkeleton columnCount={1} rowCount={8} filterCount={0} />

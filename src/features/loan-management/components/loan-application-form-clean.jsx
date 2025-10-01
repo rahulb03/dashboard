@@ -9,8 +9,6 @@ import { useDispatch } from 'react-redux';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
-  createLoanApplicationThunk, 
-  updateLoanApplicationThunk,
   createLoanApplicationWithDocumentsThunk,
   updateLoanApplicationWithDocumentsThunk
 } from '@/redux/Loan_Application/loanThunks';
@@ -101,11 +99,6 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
            (typeof value === 'number' && isNaN(value))) {
           delete submitData[key];
         }
-        
-        // For updates, don't send loanAmount - backend calculates it
-        if (initialData && key === 'loanAmount') {
-          delete submitData[key];
-        }
       });
       
       console.log('🚀 Final submitData with proper types:', submitData);
@@ -118,34 +111,48 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
       const hasNewDocuments = documents && documents.length > 0;
 
       if (initialData) {
+        // Always use with-documents endpoint for updates
         await dispatch(updateLoanApplicationWithDocumentsThunk({ 
           id: initialData.id,
           loanData: submitData,
-          documents: documents || [],
+          documents: documents,
           replaceExistingDocuments: false
         })).unwrap();
         
         toast.dismiss(processingToast);
-        toast.success(
-          hasNewDocuments 
-            ? `✅ Successfully updated ${submitData.fullName ? submitData.fullName + "'s" : 'the'} loan application and uploaded ${documents.length} document${documents.length !== 1 ? 's' : ''}.`
-            : `✅ Successfully updated ${submitData.fullName ? submitData.fullName + "'s" : 'the'} loan application.`
-        );
-      } else {
         if (hasNewDocuments) {
-          await dispatch(createLoanApplicationWithDocumentsThunk({ loanData: submitData, documents })).unwrap();
-          toast.dismiss(processingToast);
+          toast.success(
+            `✅ Successfully updated ${submitData.fullName ? submitData.fullName + "'s" : 'the'} loan application and uploaded ${documents.length} document${documents.length !== 1 ? 's' : ''}.`
+          );
+        } else {
+          toast.success(
+            `✅ Successfully updated ${submitData.fullName ? submitData.fullName + "'s" : 'the'} loan application.`
+          );
+        }
+        
+        // Navigate back to list after update
+        console.log('🔄 Navigating back to applications list after update in 1.5s...');
+        setTimeout(() => {
+          console.log('➡️ Executing navigation now');
+          router.push('/dashboard/loans/applications');
+        }, 1500);
+      } else {
+        // Always use with-documents endpoint for creation
+        await dispatch(createLoanApplicationWithDocumentsThunk({ loanData: submitData, documents })).unwrap();
+        toast.dismiss(processingToast);
+        if (hasNewDocuments) {
           toast.success(`✨ Created loan application for ${submitData.fullName || 'applicant'} with ${documents.length} document${documents.length !== 1 ? 's' : ''} uploaded!`);
         } else {
-          await dispatch(createLoanApplicationThunk(submitData)).unwrap();
-          toast.dismiss(processingToast);
           toast.success(`✨ Created loan application for ${submitData.fullName || 'applicant'} successfully!`);
         }
+        
+        // Navigate back to list after creation
+        console.log('🔄 Navigating back to applications list in 1.5s...');
+        setTimeout(() => {
+          console.log('➡️ Executing navigation now');
+          router.push('/dashboard/loans/applications');
+        }, 1500);
       }
-      
-      setTimeout(() => {
-        router.push('/dashboard/loans/applications');
-      }, 1500);
       
     } catch (error) {
       console.error('Form submission error:', error);
@@ -372,24 +379,21 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Loan Amount {initialData ? '(Auto-calculated)' : '*'}
-                  </label>
+                  <label className="text-sm font-medium">Loan Amount *</label>
                   <input 
                     type="number" 
-                    placeholder={initialData ? "Auto-calculated based on salary & CIBIL" : "Enter desired loan amount"}
+                    placeholder="Enter loan amount"
                     min="10000"
                     step="1000"
-                    disabled={initialData}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    {...form.register('loanAmount', !initialData ? { 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...form.register('loanAmount', { 
                       required: 'Loan amount is required',
                       valueAsNumber: true,
                       min: {
                         value: 10000,
                         message: 'Loan amount must be at least ₹10,000'
                       }
-                    } : { valueAsNumber: true })}
+                    })}
                   />
                   {form.formState.errors.loanAmount && (
                     <p className="text-sm text-red-500">{form.formState.errors.loanAmount.message}</p>
@@ -422,14 +426,6 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
                   )}
                 </div>
 
-                {/* Info note for edit mode */}
-                {initialData && (
-                  <div className="col-span-full">
-                    <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 rounded p-3">
-                      <strong>Note:</strong> Loan amount is automatically calculated based on your salary, employment type, and CIBIL score when updating an application.
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 

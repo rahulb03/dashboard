@@ -45,7 +45,13 @@ export function MembershipTable({ columns }) {
   const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    dispatch(fetchMembershipsThunk({}));
+    // Only fetch if we don't have memberships data
+    if (!memberships || memberships.length === 0) {
+      console.log('📡 Fetching memberships on mount');
+      dispatch(fetchMembershipsThunk({}));
+    } else {
+      console.log('✅ Already have', memberships.length, 'memberships - skipping fetch');
+    }
   }, [dispatch]);
 
   const table = useReactTable({

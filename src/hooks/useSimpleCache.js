@@ -94,7 +94,8 @@ export const useSimpleCacheData = (thunkFunction, cacheType, cacheKey = {}, opti
     if (autoFetch) {
       smartFetch(thunkFunction, cacheKey, { cacheKey, cacheType });
     }
-  }, [smartFetch, thunkFunction, JSON.stringify(cacheKey), autoFetch, cacheType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFetch, cacheType]);
   
   // Set up refresh interval if specified
   useEffect(() => {
@@ -105,7 +106,8 @@ export const useSimpleCacheData = (thunkFunction, cacheType, cacheKey = {}, opti
       
       return () => clearInterval(interval);
     }
-  }, [refreshInterval, smartFetch, thunkFunction, JSON.stringify(cacheKey), cacheType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshInterval, cacheType]);
   
   const refetch = useCallback((force = false) => {
     return smartFetch(thunkFunction, cacheKey, { cacheKey, cacheType, forceRefresh: force });
