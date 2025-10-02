@@ -1,46 +1,24 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Edit } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import LoanApplicationSkeleton from '@/components/loan-application-skeleton';
 
 export default function LoanApplicationView({ application }) {
-  const router = useRouter();
-
   if (!application) {
     return <LoanApplicationSkeleton />;
   }
 
   return (
     <div className="space-y-4">
-      {/* Header with Back and Edit buttons */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={() => router.push('/dashboard/loans/applications')}
-          className="flex items-center space-x-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Applications</span>
-        </Button>
-        <Button
-          onClick={() => router.push(`/dashboard/loans/applications/${application.id}`)}
-          className="flex items-center space-x-2"
-        >
-          <Edit className="h-4 w-4" />
-          <span>Edit Application</span>
-        </Button>
-      </div>
+      <PageHeader
+        title={`View Application - ${application.fullName}`}
+        description={`View detailed information for loan application #${application.id}`}
+        backUrl="/dashboard/loans/applications"
+      />
       
       <Card className="mx-auto w-full">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            Application Details - {application.fullName}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-8">
+        <CardContent className="space-y-8 pt-6">
           
           {/* Personal Information Section */}
           <div className="space-y-4">

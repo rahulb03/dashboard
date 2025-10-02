@@ -4,7 +4,8 @@ import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -90,30 +91,28 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
     }
   }
 
+  const getHeaderTitle = () => {
+    if (isNewMode) return 'Create Payment Configuration';
+    if (isViewMode) return 'Payment Configuration Details';
+    return 'Edit Payment Configuration';
+  };
+
+  const getHeaderDescription = () => {
+    if (isNewMode) return 'Create a new payment configuration';
+    if (isViewMode) return 'View payment configuration details';
+    return 'Update payment configuration settings';
+  };
+
   return (
     <div className="space-y-4">
-      {/* Back button and edit toggle for view mode */}
-      {isViewMode && (
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/dashboard/payment')}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Payments</span>
-          </Button>
-         
-        </div>
-      )}
+      <PageHeader
+        title={getHeaderTitle()}
+        description={getHeaderDescription()}
+        backUrl="/dashboard/payment-configurations"
+      />
       
       <Card className="mx-auto w-full">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            {isViewMode ? `Payment Details - ${paymentData?.type || 'Payment'}` : localPageTitle}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Form form={form} onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormSelect

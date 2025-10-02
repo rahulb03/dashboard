@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   createLoanApplicationWithDocumentsThunk,
@@ -164,15 +165,30 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
     }
   }
 
+  const getHeaderTitle = () => {
+    if (initialData) {
+      return `Edit Application - ${initialData.fullName || 'Loading...'}`;
+    }
+    return 'Create New Loan Application';
+  };
+
+  const getHeaderDescription = () => {
+    if (initialData) {
+      return `Update loan application details for ${initialData.fullName || 'applicant'}`;
+    }
+    return 'Fill in the details below to create a new loan application';
+  };
+
   return (
     <div className="space-y-4">
+      <PageHeader
+        title={getHeaderTitle()}
+        description={getHeaderDescription()}
+        backUrl="/dashboard/loans/applications"
+      />
+      
       <Card className="mx-auto w-full relative">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            {pageTitle}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Personal Information Section */}
             <div className="space-y-4">

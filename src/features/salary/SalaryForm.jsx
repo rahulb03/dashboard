@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, ArrowLeft, Save, Edit } from 'lucide-react';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
@@ -164,8 +165,26 @@ const SalaryForm = ({ salaryId, mode = 'edit' }) => {
     return <FormCardSkeleton />;
   }
 
+  const getHeaderTitle = () => {
+    if (isCreateMode) return 'Create Salary Configuration';
+    if (isViewMode) return 'Salary Configuration Details';
+    return 'Edit Salary Configuration';
+  };
+
+  const getHeaderDescription = () => {
+    if (isCreateMode) return 'Create a new salary configuration for loan eligibility';
+    if (isViewMode) return 'View salary configuration details';
+    return 'Update salary configuration for loan eligibility';
+  };
+
   return (
     <div className="space-y-4">
+      <PageHeader
+        title={getHeaderTitle()}
+        description={getHeaderDescription()}
+        backUrl="/dashboard/salary"
+      />
+      
       {/* Error Alert */}
       {error && (
         <Alert variant="destructive">
@@ -175,19 +194,7 @@ const SalaryForm = ({ salaryId, mode = 'edit' }) => {
 
       {/* Form Card */}
       <Card className="mx-auto w-full">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            {isCreateMode ? 'Create Salary Configuration' : 
-             isViewMode ? 'Salary Configuration Details' : 'Edit Salary Configuration'}
-            {currentSalary && (
-              <Badge variant={currentSalary.employmentType === 'salaried' ? 'default' : 'secondary'} className="ml-2">
-                {currentSalary.employmentType}
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent>
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
               {/* Employment Type */}
               <div className="space-y-2">

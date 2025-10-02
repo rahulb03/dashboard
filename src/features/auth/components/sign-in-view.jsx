@@ -44,21 +44,15 @@ export default function SignInViewPage({ stars }) {
       <div className='flex h-full items-center justify-center p-4 lg:p-8'>
         <div className='flex w-full max-w-md flex-col items-center justify-center space-y-6'>
           {/* github link  */}
-          <Link
-            className={cn('group inline-flex hover:text-yellow-200')}
-            target='_blank'
-            href={'https://github.com/kiranism/next-shadcn-dashboard-starter'}
+          <div
           >
             <div className='flex items-center'>
-              <span className='ml-1 inline'>One Gred Dashboard</span>
+              <span className='ml-1 text-2xl font-bold inline'>One Gred Dashboard</span>
             </div>
             <div className='ml-2 flex items-center gap-1 text-sm md:flex'>
-              <IconStar
-                className='size-4 text-gray-500 transition-all duration-300 group-hover:text-yellow-300'
-                fill='currentColor'
-              />
+              
             </div>
-          </Link>
+          </div>
           
           <div className='w-full'>
             <h1 className='text-2xl font-semibold tracking-tight text-center mb-6'>

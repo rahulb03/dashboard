@@ -1,6 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -110,16 +111,28 @@ export default function MemberForm({ memberId, mode = 'edit' }) {
     return <FormCardSkeleton />;
   }
   
+  const getHeaderTitle = () => {
+    if (isCreateMode) return 'Create New Member';
+    if (isViewMode) return 'Member Details';
+    return 'Edit Member';
+  };
+
+  const getHeaderDescription = () => {
+    if (isCreateMode) return 'Add a new member to the system';
+    if (isViewMode) return 'View member details and information';
+    return 'Update member information and role';
+  };
+  
   return (
     <div className="space-y-4">
+      <PageHeader
+        title={getHeaderTitle()}
+        description={getHeaderDescription()}
+        backUrl="/dashboard/members"
+      />
       
       <Card className="mx-auto w-full">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            {isCreateMode ? 'Create New Member' : isViewMode ? 'Member Details' : 'Edit Member'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">

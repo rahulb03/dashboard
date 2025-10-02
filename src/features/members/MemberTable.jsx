@@ -45,7 +45,10 @@ export function MemberTable({ columns }) {
   const [roleFilter, setRoleFilter] = useState('all');
 
   useEffect(() => {
-    dispatch(fetchMembersThunk({}));
+    // Only fetch if we don't have members data
+    if (!members || members.length === 0) {
+      dispatch(fetchMembersThunk({}));
+    }
   }, [dispatch]);
 
   const table = useReactTable({

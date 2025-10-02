@@ -8,7 +8,8 @@ import {
   updateMembershipThunk,
 } from "@/redux/membership/membershipThunks";
 import { fetchMembersThunk as fetchAllMembers } from "@/redux/member/memberThunks";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +25,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { IconArrowLeft, IconCertificate, IconUser, IconCalendar, IconCheck, IconX } from "@tabler/icons-react";
+import { IconCertificate, IconUser, IconCalendar, IconCheck, IconX } from "@tabler/icons-react";
 
 export default function MembershipForm({ membershipId, mode = "create" }) {
   const dispatch = useDispatch();
@@ -150,40 +151,28 @@ export default function MembershipForm({ membershipId, mode = "create" }) {
     );
   }
 
+  const getHeaderTitle = () => {
+    if (isCreateMode) return "Create Membership";
+    if (isViewMode) return "View Membership";
+    return "Edit Membership";
+  };
+
+  const getHeaderDescription = () => {
+    if (isCreateMode) return "Create a new membership for a user";
+    if (isViewMode) return "View membership details";
+    return "Edit membership information";
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push("/dashboard/memberships")}
-        >
-          <IconArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {isCreateMode ? "Create Membership" : isViewMode ? "View Membership" : "Edit Membership"}
-          </h1>
-          <p className="text-muted-foreground">
-            {isCreateMode 
-              ? "Create a new membership for a user" 
-              : isViewMode 
-              ? "View membership details" 
-              : "Edit membership information"
-            }
-          </p>
-        </div>
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title={getHeaderTitle()}
+        description={getHeaderDescription()}
+        backUrl="/dashboard/memberships"
+      />
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <IconCertificate className="h-5 w-5" />
-            <span>Membership Details</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* User Selection/Display */}
             {isCreateMode ? (
