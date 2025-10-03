@@ -141,6 +141,30 @@ export const changePassword = createAsyncThunk('auth/changePassword', async ({ o
   }
 });
 
+export const updateProfilePhoto = createAsyncThunk('auth/updateProfilePhoto', async (file, { rejectWithValue }) => {
+  try {
+    const formData = new FormData();
+    formData.append('profilePhoto', file);
+    
+    const response = await axiosInstance.patch(API_ENDPOINTS.AUTH.PHOTO, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    const { user } = extractResponse(response.data.data);
+    if (!user) throw new Error('Invalid profile photo update response');
+    
+    // Update cache with new user data
+    dataCache.set('userProfile', user, { userId: 'current' });
+    
+    return user;
+  } catch (error) {
+    const message = error?.response?.data?.message || error.message || 'Failed to update profile photo';
+    return rejectWithValue(message);
+  }
+});
+
 export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await axiosInstance.get(API_ENDPOINTS.AUTH.LOGOUT);

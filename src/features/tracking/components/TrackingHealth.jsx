@@ -67,22 +67,23 @@ export default function TrackingHealth() {
         </Button>
       </div>
 
-      {/* Error State */}
-      {healthError && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Error loading health status: {healthError}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearErrorHandler}
-              className="ml-2"
-            >
-              Try Again
-            </Button>
-          </AlertDescription>
-        </Alert>
+      {/* Show empty state instead of error for better UX */}
+      {healthError && !health && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <Server className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">Health Data Unavailable</h3>
+              <p className="text-muted-foreground mb-4">
+                Unable to retrieve system health information at this time.
+              </p>
+              <Button variant="outline" onClick={handleRefresh}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Loading State */}

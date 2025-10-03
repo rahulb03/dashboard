@@ -46,6 +46,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
 import { OrgSwitcher } from '../org-switcher';
+import { IMAGE_URL } from '@/config/constant';
 export const company = {
   name: 'Acme Inc',
   logo: IconPhotoUp,
@@ -68,6 +69,28 @@ export default function AppSidebar() {
   };
 
   const activeTenant = tenants[0];
+
+  const getProfilePhotoUrl = () => {
+    if (user?.profilePhoto) {
+      // Check if it's already a full URL
+      if (user.profilePhoto.startsWith('http')) {
+        return user.profilePhoto;
+      }
+      // Otherwise, prepend the base URL
+      return `${IMAGE_URL}${user.profilePhoto}`;
+    }
+    return null;
+  };
+
+  const getUserInitials = () => {
+    if (!user?.name) return 'U';
+    return user.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   React.useEffect(() => {
     // Side effects based on sidebar state changes
@@ -153,15 +176,10 @@ export default function AppSidebar() {
                 >
                   {user && (
                     <>
-                      <Avatar className='h-8 w-8 rounded-lg'>
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                      <Avatar className='h-8 w-8 rounded-full'>
+                        <AvatarImage src={getProfilePhotoUrl()} alt={user.name} />
                         <AvatarFallback>
-                          {user.name
-                            ?.split(' ')
-                            .map((name) => name[0])
-                            .join('')
-                            .toUpperCase()
-                            .slice(0, 2) || 'U'}
+                          {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
                       <div className='grid flex-1 text-left text-sm leading-tight'>
@@ -185,15 +203,10 @@ export default function AppSidebar() {
                   <div className='px-1 py-1.5'>
                     {user && (
                       <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
-                        <Avatar className='h-8 w-8 rounded-lg'>
-                          <AvatarImage src={user.avatar} alt={user.name} />
+                        <Avatar className='h-8 w-8 rounded-full'>
+                          <AvatarImage src={getProfilePhotoUrl()} alt={user.name} />
                           <AvatarFallback>
-                            {user.name
-                              ?.split(' ')
-                              .map((name) => name[0])
-                              .join('')
-                              .toUpperCase()
-                              .slice(0, 2) || 'U'}
+                            {getUserInitials()}
                           </AvatarFallback>
                         </Avatar>
                         <div className='grid flex-1'>
@@ -217,14 +230,14 @@ export default function AppSidebar() {
                     <IconUserCircle className='mr-2 h-4 w-4' />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  {/* <DropdownMenuItem>
                     <IconCreditCard className='mr-2 h-4 w-4' />
                     Billing
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <IconBell className='mr-2 h-4 w-4' />
                     Notifications
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>

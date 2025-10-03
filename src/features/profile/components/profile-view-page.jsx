@@ -7,29 +7,38 @@ import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import ChangePasswordDialog from './change-password-dialog';
+import ProfilePhotoUpload from './profile-photo-upload';
+import { IMAGE_URL } from '@/config/constant';
 
 export default function ProfileViewPage() {
   const { user, fetchProfile, isLoading } = useAuth();
   const [profileLoading, setProfileLoading] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   
   useEffect(() => {
     const loadProfile = async () => {
-      if (user && !user.mobile) { // Only fetch if we don't have complete data
+      // Only fetch if we don't have complete data and haven't loaded yet
+      if (user && !user.mobile && !initialLoadComplete) {
         setProfileLoading(true);
         try {
           await fetchProfile();
+          setInitialLoadComplete(true);
         } catch (error) {
           console.error('Failed to fetch profile:', error);
         } finally {
           setProfileLoading(false);
         }
+      } else if (user && user.mobile) {
+        // Mark as complete if we already have mobile data
+        setInitialLoadComplete(true);
       }
     };
     
     loadProfile();
-  }, [user, fetchProfile]);
+  }, [user?.id, user?.mobile, fetchProfile, initialLoadComplete]); // Only depend on id and mobile, not entire user object
   
-  const loading = isLoading || profileLoading;
+  // Separate loading state for personal info - don't show loading when just updating photo
+  const personalInfoLoading = profileLoading; // Only show loading for profile fetch, not photo upload
   
   if (!user) {
     return (
@@ -46,18 +55,35 @@ export default function ProfileViewPage() {
     );
   }
 
+  const getProfilePhotoUrl = () => {
+    if (user?.profilePhoto) {
+      // Check if it's already a full URL
+      if (user.profilePhoto.startsWith('http')) {
+        return user.profilePhoto;
+      }
+      // Otherwise, prepend the base URL
+      return `${IMAGE_URL}${user.profilePhoto}`;
+    }
+    return null;
+  };
+
+  const getUserInitials = () => {
+    if (!user?.name) return 'U';
+    return user.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div className='flex w-full flex-col p-4 space-y-6'>
       <div className='flex items-center space-x-4'>
         <Avatar className='h-20 w-20'>
-          <AvatarImage src={user.avatar} alt={user.name} />
+          <AvatarImage src={getProfilePhotoUrl()} alt={user.name} />
           <AvatarFallback className='text-lg'>
-            {user.name
-              ?.split(' ')
-              .map((name) => name[0])
-              .join('')
-              .toUpperCase()
-              .slice(0, 2) || 'U'}
+            {getUserInitials()}
           </AvatarFallback>
         </Avatar>
         <div>
@@ -80,7 +106,7 @@ export default function ProfileViewPage() {
             <CardTitle>Personal Information</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {loading && (
+            {personalInfoLoading && (
               <div className='space-y-4'>
                 <Skeleton className='h-4 w-full' />
                 <Skeleton className='h-4 w-full' />
@@ -88,7 +114,7 @@ export default function ProfileViewPage() {
                 <Skeleton className='h-4 w-1/2' />
               </div>
             )}
-            {!loading && (
+            {!personalInfoLoading && (
               <>
                 <div>
                   <label className='text-sm font-medium text-muted-foreground'>Full Name</label>
@@ -117,6 +143,15 @@ export default function ProfileViewPage() {
         
         <Card>
           <CardHeader>
+            <CardTitle>Profile Photo</CardTitle>
+          </CardHeader>
+          <CardContent className='flex justify-center py-6'>
+            <ProfilePhotoUpload user={user} />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
             <CardTitle>Account Settings</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
@@ -129,12 +164,9 @@ export default function ProfileViewPage() {
               variant='outline' 
               className='w-full'
               onClick={() => fetchProfile()}
-              disabled={loading}
+              disabled={personalInfoLoading}
             >
-              {loading ? 'Refreshing...' : 'Refresh Profile'}
-            </Button>
-            <Button variant='outline' className='w-full'>
-              Update Profile Picture
+              {personalInfoLoading ? 'Refreshing...' : 'Refresh Profile'}
             </Button>
             <Button variant='outline' className='w-full'>
               Notification Settings

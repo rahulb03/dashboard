@@ -1,8 +1,7 @@
 'use client';
 
-import { PaymentTable } from './PaymentTable';
-import { columns } from './PaymentTableColumns';
+import PaymentsContent from './PaymentsContent';
 
 export default function PaymentListingPage() {
-  return <PaymentTable columns={columns} />;
+  return <PaymentsContent />;
 }

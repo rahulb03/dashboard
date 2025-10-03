@@ -1,8 +1,8 @@
 export const API_BASE_URL = 'http://localhost:3000/api/admin/';
-export const IMAGE_URL = 'https://localhost:3000/uploads/';
+export const IMAGE_URL = 'http://localhost:3000/';
 
 
-export const WEBSITE_NAME = 'Highfly Global Gateways';
+export const WEBSITE_NAME = 'One Gred Dashboard';
 
 export const API_ENDPOINTS = {
   AUTH: {
@@ -11,7 +11,9 @@ export const API_ENDPOINTS = {
     PROFILE: 'auth/profile',
     LOGOUT: 'auth/signout',
     UPDATE: 'auth/profile',
-    CHANGE_PASSWORD: 'auth/changepassword'
+    CHANGE_PASSWORD: 'auth/changepassword' ,
+    PHOTO : 'auth/profile/photo'
+    
   },
 
   LOAN_APPLICATION: {

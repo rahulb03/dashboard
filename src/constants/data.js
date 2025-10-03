@@ -126,6 +126,11 @@ export const navItems = [
         shortcut: ['t', 'r']
       },
       {
+        title: 'Trends',
+        url: '/dashboard/tracking/trends',
+        shortcut: ['t', 't']
+      },
+      {
         title: 'Health',
         url: '/dashboard/tracking/health',
         shortcut: ['t', 'h']

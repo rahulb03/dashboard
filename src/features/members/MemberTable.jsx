@@ -24,7 +24,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Users } from 'lucide-react';
+import { Plus, Search, Users, UserCog, Briefcase, Shield } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function MemberTable({ columns }) {
   const dispatch = useDispatch();
@@ -43,6 +44,14 @@ export function MemberTable({ columns }) {
   const [rowSelection, setRowSelection] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+
+  // Calculate member statistics
+  const memberStats = {
+    total: members?.length || 0,
+    admin: members?.filter(m => m.role === 'ADMIN').length || 0,
+    manager: members?.filter(m => m.role === 'MANAGER').length || 0,
+    employee: members?.filter(m => m.role === 'EMPLOYEE').length || 0,
+  };
 
   useEffect(() => {
     // Only fetch if we don't have members data
@@ -93,6 +102,67 @@ export function MemberTable({ columns }) {
 
   return (
     <div className="space-y-4">
+      {/* Member Statistics Cards */}
+      {members && members.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Total Members Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{memberStats.total}</div>
+              <p className="text-xs text-muted-foreground">
+                All members
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Admin Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Admins</CardTitle>
+              <Shield className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{memberStats.admin}</div>
+              <p className="text-xs text-muted-foreground">
+                Administrator role
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Manager Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Managers</CardTitle>
+              <UserCog className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{memberStats.manager}</div>
+              <p className="text-xs text-muted-foreground">
+                Manager role
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Employee Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Employees</CardTitle>
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{memberStats.employee}</div>
+              <p className="text-xs text-muted-foreground">
+                Employee role
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Header with filters and add button */}
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">

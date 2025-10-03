@@ -1,25 +1,24 @@
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import TrackingSessions from '@/features/tracking/components/TrackingSessions';
+import TrackingTrends from '@/features/tracking/components/TrackingTrends';
 
 export const metadata = {
-  title: 'Dashboard: User Sessions'
+  title: 'Dashboard: Performance Trends'
 };
 
-export default function TrackingSessionsPage() {
-
+export default function TrackingTrendsPage() {
   return (
-    <PageContainer >
+    <PageContainer scrollable>
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <Heading
-            title='User Sessions'
-            description='Monitor and analyze individual user sessions'
+            title='Performance Trends & Timeline'
+            description='Track daily performance metrics and identify trends over time'
           />
         </div>
         <Separator />
-        <TrackingSessions />
+        <TrackingTrends />
       </div>
     </PageContainer>
   );

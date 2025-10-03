@@ -24,7 +24,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, CreditCard, FileText, Landmark } from 'lucide-react';
+import { Search, CreditCard, FileText, Landmark, Download, RefreshCw } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export function PaymentTable({ columns }) {
+export function PaymentTable({ columns, onExport, onRefresh }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const { payments, loading } = useSelector((state) => state.payments);
@@ -45,10 +45,6 @@ export function PaymentTable({ columns }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-
-  useEffect(() => {
-    dispatch(fetchPaymentsThunk({}));
-  }, [dispatch]);
 
   const table = useReactTable({
     data: payments || [],
@@ -111,14 +107,14 @@ export function PaymentTable({ columns }) {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalAmount.toFixed(2)}</div>
+            <div className="text-2xl font-bold">₹{stats.totalAmount.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Sum of all payments</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Memberships</CardTitle>
-            <Landmark className="h-4 w-4 text-blue-600" />
+            <Landmark className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.membershipCount}</div>
@@ -128,7 +124,7 @@ export function PaymentTable({ columns }) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Document Fees</CardTitle>
-            <FileText className="h-4 w-4 text-orange-600" />
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.documentFeeCount}</div>
@@ -138,7 +134,7 @@ export function PaymentTable({ columns }) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Loan Fees</CardTitle>
-            <Landmark className="h-4 w-4 text-green-600" />
+            <Landmark className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.loanFeeCount}</div>
@@ -147,8 +143,8 @@ export function PaymentTable({ columns }) {
         </Card>
       </div>
 
-      {/* Header with filters and add button */}
-      <div className="flex items-center justify-end">
+      {/* Header with filters and action buttons */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {/* Search Input */}
           <div className="relative w-64">
@@ -200,6 +196,28 @@ export function PaymentTable({ columns }) {
               <SelectItem value="CREATED">Created</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onRefresh}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => onExport && onExport(table.getFilteredRowModel().rows.map(row => row.original))}
+            disabled={!payments || payments.length === 0}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
       </div>
 

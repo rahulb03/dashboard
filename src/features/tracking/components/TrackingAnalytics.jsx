@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -18,6 +19,14 @@ import {
   Users,
   Activity
 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   fetchEnhancedFunnelThunk,
   fetchTrendAnalysisThunk
@@ -33,13 +42,10 @@ import {
 } from '@/components/ui/select';
 
 const FunnelStep = ({ step, index, totalSteps }) => {
-  const conversionColor = step.conversionRate >= 80 ? 'text-green-600' : 
-                         step.conversionRate >= 60 ? 'text-yellow-600' : 'text-red-600';
-  
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg">
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-foreground text-sm font-medium">
           {index + 1}
         </div>
         <div>
@@ -50,7 +56,7 @@ const FunnelStep = ({ step, index, totalSteps }) => {
         </div>
       </div>
       <div className="text-right">
-        <div className={`text-lg font-bold ${conversionColor}`}>
+        <div className="text-lg font-bold">
           {step.conversionRate}%
         </div>
         <div className="text-sm text-muted-foreground">
@@ -133,6 +139,26 @@ const UniversalTrendVisualization = ({ trendData }) => {
   
   if (dailyAnalysis.length === 0) return null;
   
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(new Set(dailyAnalysis.map((_, index) => index)));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+  
+  const handleSelectRow = (index, checked) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(index);
+    } else {
+      newSelected.delete(index);
+    }
+    setSelectedRows(newSelected);
+  };
+  
   const maxEntries = Math.max(...dailyAnalysis.map(d => d.totalEntries));
   const totalPeriodEntries = dailyAnalysis.reduce((sum, d) => sum + d.totalEntries, 0);
   const avgDailyConversion = dailyAnalysis.reduce((sum, d) => sum + d.avgConversionRate, 0) / dailyAnalysis.length;
@@ -150,140 +176,191 @@ const UniversalTrendVisualization = ({ trendData }) => {
     <div className="space-y-6">
       {/* Summary Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="text-center p-4 bg-card border border-border rounded-lg">
-          <div className="text-2xl font-bold text-foreground">{totalPeriodEntries}</div>
-          <div className="text-sm text-muted-foreground">Total Activity</div>
-        </div>
-        <div className="text-center p-4 bg-card border border-border rounded-lg">
-          <div className="text-2xl font-bold text-foreground">{avgDailyConversion.toFixed(1)}%</div>
-          <div className="text-sm text-muted-foreground">Avg Conversion</div>
-        </div>
-        <div className="text-center p-4 bg-card border border-border rounded-lg">
-          <div className="text-2xl font-bold text-foreground">{avgDailyErrors.toFixed(1)}%</div>
-          <div className="text-sm text-muted-foreground">Avg Error Rate</div>
-        </div>
-        <div className="text-center p-4 bg-card border border-border rounded-lg">
-          <div className="text-2xl font-bold text-foreground">
-            {trendDirection === 'increasing' ? '↗' : trendDirection === 'decreasing' ? '↘' : '→'}
-          </div>
-          <div className="text-sm text-muted-foreground">Trend</div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Activity</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalPeriodEntries}</div>
+            <p className="text-xs text-muted-foreground">Total user entries</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Conversion</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{avgDailyConversion.toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground">Average rate</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Error Rate</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{avgDailyErrors.toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground">Error percentage</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Trend</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {trendDirection === 'increasing' ? '↗' : trendDirection === 'decreasing' ? '↘' : '→'}
+            </div>
+            <p className="text-xs text-muted-foreground">{trendDirection}</p>
+          </CardContent>
+        </Card>
       </div>
       
       {/* Daily Timeline */}
       <div className="space-y-4">
-        <h5 className="font-semibold flex items-center gap-2">
-          <Clock className="h-4 w-4" />
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Clock className="h-5 w-5" />
           Daily Performance Timeline
-        </h5>
+        </h3>
         
-        <div className="space-y-3">
-          {dailyAnalysis.map((day, index) => {
-            const barWidth = maxEntries > 0 ? (day.totalEntries / maxEntries) * 100 : 0;
-            const isToday = new Date(day.date).toDateString() === new Date().toDateString();
-            const dayOfWeek = new Date(day.date).toLocaleDateString('en', { weekday: 'short' });
-            const dayMonth = new Date(day.date).toLocaleDateString('en', { month: 'short', day: 'numeric' });
-            
-            const prevDay = dailyAnalysis[index - 1];
-            const dailyChange = prevDay && prevDay.totalEntries > 0 
-              ? ((day.totalEntries - prevDay.totalEntries) / prevDay.totalEntries) * 100 
-              : 0;
-            
-            return (
-              <div key={day.date} className={`p-4 bg-card border border-border rounded-lg ${
-                isToday ? 'ring-2 ring-primary' : ''
-              } hover:bg-accent/50 transition-colors`}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="text-sm font-medium">
-                      {dayOfWeek}, {dayMonth}
-                      {isToday && <Badge className="ml-2 text-xs">Today</Badge>}
-                    </div>
-                    {Math.abs(dailyChange) > 5 && (
-                      <div className={`flex items-center text-xs ${
-                        dailyChange > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {dailyChange > 0 ? <ArrowUpIcon className="h-3 w-3" /> : <ArrowDownIcon className="h-3 w-3" />}
-                        {Math.abs(dailyChange).toFixed(0)}%
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold">{day.totalEntries} users</div>
-                    <div className="text-xs text-muted-foreground">{day.activeSteps} active steps</div>
-                  </div>
-                </div>
-                
-                {/* Visual Activity Bar */}
-                <div className="w-full bg-muted rounded-full h-2 mb-3">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${barWidth}%` }}
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px] px-4">
+                  <Checkbox
+                    checked={selectedRows.size === dailyAnalysis.length && dailyAnalysis.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                    className="translate-y-[2px]"
                   />
-                </div>
+                </TableHead>
+                <TableHead className="w-[180px] px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Date</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Users</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Active Steps</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Conversion</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Error Rate</span></TableHead>
+                <TableHead className="px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Activity</span></TableHead>
+                <TableHead className="px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Top Steps</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {dailyAnalysis.map((day, index) => {
+                const barWidth = maxEntries > 0 ? (day.totalEntries / maxEntries) * 100 : 0;
+                const isToday = new Date(day.date).toDateString() === new Date().toDateString();
+                const dayOfWeek = new Date(day.date).toLocaleDateString('en', { weekday: 'short' });
+                const dayMonth = new Date(day.date).toLocaleDateString('en', { month: 'short', day: 'numeric' });
                 
-                {/* Performance Metrics */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Conversion:</span>
-                    <span className="ml-2 font-medium text-foreground">
-                      {day.avgConversionRate.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Errors:</span>
-                    <span className="ml-2 font-medium text-foreground">
-                      {day.errorRate.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
+                const prevDay = dailyAnalysis[index - 1];
+                const dailyChange = prevDay && prevDay.totalEntries > 0 
+                  ? ((day.totalEntries - prevDay.totalEntries) / prevDay.totalEntries) * 100 
+                  : 0;
                 
-                {/* Top Steps for the Day */}
-                {day.stepActivity.length > 0 && (
-                  <div className="mt-3 pt-3 border-t">
-                    <div className="text-xs text-muted-foreground mb-2">Most Active Steps:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {day.stepActivity.slice(0, 3).map((step) => (
-                        <Badge key={step.stepName} variant="outline" className="text-xs">
-                          {step.stepName} ({step.entries})
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                return (
+                  <TableRow key={day.date}>
+                    <TableCell className="px-4">
+                      <Checkbox
+                        checked={selectedRows.has(index)}
+                        onCheckedChange={(checked) => handleSelectRow(index, checked)}
+                        aria-label="Select row"
+                        className="translate-y-[2px]"
+                      />
+                    </TableCell>
+                    <TableCell className="px-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">
+                          {dayOfWeek}, {dayMonth}
+                        </span>
+                        {isToday && <Badge className="text-xs">Today</Badge>}
+                        {Math.abs(dailyChange) > 5 && (
+                          <span className="flex items-center text-xs text-muted-foreground">
+                            {dailyChange > 0 ? <ArrowUpIcon className="h-3 w-3" /> : <ArrowDownIcon className="h-3 w-3" />}
+                            {Math.abs(dailyChange).toFixed(0)}%
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span className="font-bold">{day.totalEntries}</span>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span>{day.activeSteps}</span>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span className="font-medium">{day.avgConversionRate.toFixed(1)}%</span>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span>{day.errorRate.toFixed(1)}%</span>
+                    </TableCell>
+                    <TableCell className="px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-muted rounded-full h-2 min-w-[80px]">
+                          <div 
+                            className="bg-foreground h-2 rounded-full"
+                            style={{ width: `${barWidth}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {barWidth.toFixed(0)}%
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4">
+                      {day.stepActivity.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {day.stepActivity.slice(0, 2).map((step) => (
+                            <Badge key={step.stepName} variant="outline" className="text-xs">
+                              {step.stepName.split(' ')[0]} ({step.entries})
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">No activity</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       </div>
       
       {/* Trend Insights */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h5 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
-          <TrendingUp className="h-5 w-5" />
-          Trend Analysis
-        </h5>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <h6 className="font-medium mb-2 text-foreground">Activity Trend</h6>
-            <p className="text-muted-foreground">
-              User activity is {trendDirection}
-              {trendPercentage > 1 && ` by ${trendPercentage.toFixed(0)}%`} 
-              over the recent period compared to earlier days.
-            </p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Trend Analysis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div>
+              <h6 className="font-medium mb-2">Activity Trend</h6>
+              <p className="text-muted-foreground">
+                User activity is {trendDirection}
+                {trendPercentage > 1 && ` by ${trendPercentage.toFixed(0)}%`} 
+                over the recent period compared to earlier days.
+              </p>
+            </div>
+            <div>
+              <h6 className="font-medium mb-2">Performance Insight</h6>
+              <p className="text-muted-foreground">
+                {avgDailyConversion > 80 
+                  ? 'Excellent conversion rates across the funnel' 
+                  : avgDailyConversion > 60 
+                  ? 'Good conversion performance with room for improvement'
+                  : 'Conversion rates need attention - consider optimizing key steps'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h6 className="font-medium mb-2 text-foreground">Performance Insight</h6>
-            <p className="text-muted-foreground">
-              {avgDailyConversion > 80 
-                ? 'Excellent conversion rates across the funnel' 
-                : avgDailyConversion > 60 
-                ? 'Good conversion performance with room for improvement'
-                : 'Conversion rates need attention - consider optimizing key steps'}
-            </p>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -520,152 +597,181 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
     dateRange: funnelData.dateRange
   });
   
+  const [selectedFunnelRows, setSelectedFunnelRows] = useState(new Set());
+  
+  const handleSelectAllFunnel = (checked) => {
+    if (checked) {
+      setSelectedFunnelRows(new Set(stepInsights.map((_, index) => index)));
+    } else {
+      setSelectedFunnelRows(new Set());
+    }
+  };
+  
+  const handleSelectFunnelRow = (index, checked) => {
+    const newSelected = new Set(selectedFunnelRows);
+    if (checked) {
+      newSelected.add(index);
+    } else {
+      newSelected.delete(index);
+    }
+    setSelectedFunnelRows(newSelected);
+  };
+  
   return (
     <div className="space-y-8">
       {/* Simple Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-foreground">{totalUsers.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Total Users</div>
-            </div>
-            <Users className="h-8 w-8 text-muted-foreground" />
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalUsers.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Entered funnel</p>
+          </CardContent>
+        </Card>
         
-        <div className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-foreground">{totalConversions.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Total Conversions</div>
-            </div>
-            <Target className="h-8 w-8 text-muted-foreground" />
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Conversions</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalConversions.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Completed funnel</p>
+          </CardContent>
+        </Card>
         
-        <div className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-foreground">{overallConversion.toFixed(1)}%</div>
-              <div className="text-sm text-muted-foreground">Overall Conversion Rate</div>
-            </div>
-            <TrendingUp className="h-8 w-8 text-muted-foreground" />
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{overallConversion.toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground">Overall success rate</p>
+          </CardContent>
+        </Card>
       </div>
       
       {/* Funnel Performance Overview */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-foreground">Funnel Performance Overview</h3>
+          <h3 className="text-lg font-semibold">Funnel Performance Overview</h3>
           <div className="text-sm text-muted-foreground">
             {stepInsights.length} steps • {totalUsers.toLocaleString()} users
           </div>
         </div>
         
-        {/* Step List */}
-        <div className="space-y-4">
-          {stepInsights.map((step, index) => {
-            const conversionRate = step.conversionRate;
-            const isHighError = step.errorRate > 10;
-            const nextStep = stepInsights[index + 1];
-            const dropoffRate = nextStep ? step.conversionRate - nextStep.conversionRate : 0;
-            
-            return (
-              <div key={step.originalName} className="bg-card border rounded-lg p-4">
-                <div className="flex items-center gap-4">
-                  {/* Step Number */}
-                  <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center text-sm font-medium">
-                    {index + 1}
-                  </div>
-                  
-                  {/* Step Details */}
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                    {/* Step Name */}
-                    <div>
-                      <h4 className="font-medium text-foreground text-sm mb-1">
-                        {step.stepName}
-                      </h4>
-                      {isHighError && (
-                        <div className="text-xs text-muted-foreground">
-                          High error rate ({step.errorRate.toFixed(1)}%)
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Metrics */}
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-foreground">
-                        {conversionRate.toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-muted-foreground">Conversion</div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">
-                        {step.totalEntries.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Entered</div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">
-                        {step.totalCompletions.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Completed</div>
-                    </div>
-                  </div>
-                </div>
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px] px-4">
+                  <Checkbox
+                    checked={selectedFunnelRows.size === stepInsights.length && stepInsights.length > 0}
+                    onCheckedChange={handleSelectAllFunnel}
+                    aria-label="Select all"
+                    className="translate-y-[2px]"
+                  />
+                </TableHead>
+                <TableHead className="w-[200px] px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Step Name</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Conversion</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Entered</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Completed</span></TableHead>
+                <TableHead className="text-center px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Error Rate</span></TableHead>
+                <TableHead className="px-4"><span className="text-xs font-medium text-muted-foreground uppercase">Activity</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stepInsights.map((step, index) => {
+                const conversionRate = step.conversionRate;
+                const isHighError = step.errorRate > 10;
+                const activityPercent = maxEntries > 0 ? (step.totalEntries / maxEntries) * 100 : 0;
                 
-                {/* Progress Bar */}
-                <div className="mt-3 pt-3 border-t">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                    <span>Activity: {((step.totalEntries / maxEntries) * 100).toFixed(0)}% of peak</span>
-                    {dropoffRate > 0 && index < stepInsights.length - 1 && (
-                      <span>{dropoffRate.toFixed(1)}% drop to next step</span>
-                    )}
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-1.5">
-                    <div 
-                      className="h-1.5 rounded-full bg-foreground"
-                      style={{ width: `${maxEntries > 0 ? (step.totalEntries / maxEntries) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Compact Flow Summary */}
-        <div className="bg-card border border-border rounded-lg p-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-            <div className="text-center">
-              <div className="text-lg font-bold text-foreground">{stepInsights.length}</div>
-              <div className="text-xs text-muted-foreground">Steps</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-foreground">
-                {stepInsights.filter(s => s.conversionRate >= 60).length}
-              </div>
-              <div className="text-xs text-muted-foreground">Good</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-foreground">
-                {stepInsights.filter(s => s.conversionRate < 40).length}
-              </div>
-              <div className="text-xs text-muted-foreground">Poor</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-foreground">
-                {stepInsights.filter(s => s.errorRate > 10).length}
-              </div>
-              <div className="text-xs text-muted-foreground">Errors</div>
-            </div>
-          </div>
+                return (
+                  <TableRow key={step.originalName}>
+                    <TableCell className="px-4">
+                      <Checkbox
+                        checked={selectedFunnelRows.has(index)}
+                        onCheckedChange={(checked) => handleSelectFunnelRow(index, checked)}
+                        aria-label="Select row"
+                        className="translate-y-[2px]"
+                      />
+                    </TableCell>
+                    <TableCell className="px-4">
+                      <div>
+                        <span className="font-medium">{step.stepName}</span>
+                        {isHighError && (
+                          <div className="text-xs text-muted-foreground">
+                            High error rate
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span className="font-bold">{conversionRate.toFixed(1)}%</span>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span className="font-medium">{step.totalEntries.toLocaleString()}</span>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span className="font-medium">{step.totalCompletions.toLocaleString()}</span>
+                    </TableCell>
+                    <TableCell className="text-center px-4">
+                      <span>{step.errorRate.toFixed(1)}%</span>
+                    </TableCell>
+                    <TableCell className="px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-muted rounded-full h-2 min-w-[100px]">
+                          <div 
+                            className="h-2 rounded-full bg-foreground"
+                            style={{ width: `${activityPercent}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {activityPercent.toFixed(0)}%
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       </div>
+      
+      {/* Compact Flow Summary */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold">{stepInsights.length}</div>
+              <div className="text-xs text-muted-foreground">Total Steps</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">
+                {stepInsights.filter(s => s.conversionRate >= 60).length}
+              </div>
+              <div className="text-xs text-muted-foreground">High Performance</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">
+                {stepInsights.filter(s => s.conversionRate < 40).length}
+              </div>
+              <div className="text-xs text-muted-foreground">Needs Improvement</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">
+                {stepInsights.filter(s => s.errorRate > 10).length}
+              </div>
+              <div className="text-xs text-muted-foreground">High Error Rate</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -675,29 +781,18 @@ export default function TrackingAnalytics() {
   const {
     enhancedFunnel,
     enhancedFunnelLoading,
-    enhancedFunnelError,
-    trendAnalysis,
-    trendAnalysisLoading,
-    trendAnalysisError
+    enhancedFunnelError
   } = useSelector((state) => state.tracking);
 
-
   const [funnelDateRange, setFunnelDateRange] = useState('7d');
-  const [trendPeriod, setTrendPeriod] = useState('daily');
-  const [trendPeriods, setTrendPeriods] = useState(7);
 
   useEffect(() => {
     // Fetch analytics data on mount
     dispatch(fetchEnhancedFunnelThunk({ dateRange: funnelDateRange }));
-    dispatch(fetchTrendAnalysisThunk({ period: trendPeriod, periods: trendPeriods }));
-  }, [dispatch, funnelDateRange, trendPeriod, trendPeriods]);
+  }, [dispatch, funnelDateRange]);
 
   const handleRefreshFunnel = () => {
     dispatch(fetchEnhancedFunnelThunk({ dateRange: funnelDateRange, forceRefresh: true }));
-  };
-
-  const handleRefreshTrends = () => {
-    dispatch(fetchTrendAnalysisThunk({ period: trendPeriod, periods: trendPeriods, forceRefresh: true }));
   };
 
   const clearErrorHandler = () => {
@@ -706,126 +801,56 @@ export default function TrackingAnalytics() {
 
   return (
     <div className="space-y-6">
-      {/* Error State */}
-      {(enhancedFunnelError || trendAnalysisError) && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Error loading analytics: {enhancedFunnelError || trendAnalysisError}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearErrorHandler}
-              className="ml-2"
-            >
-              Try Again
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
 
 
       {/* Enhanced Funnel Analytics - Full Width */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Conversion Funnel Analysis
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Select value={funnelDateRange} onValueChange={setFunnelDateRange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1d">Today</SelectItem>
-                  <SelectItem value="7d">7 Days</SelectItem>
-                  <SelectItem value="30d">30 Days</SelectItem>
-                  <SelectItem value="all">All Time</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefreshFunnel}
-                disabled={enhancedFunnelLoading}
-              >
-                <RefreshCw className={`h-4 w-4 ${enhancedFunnelLoading ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <BarChart3 className="h-6 w-6" />
+            Conversion Funnel Analysis
+          </h2>
+          <div className="flex items-center gap-2">
+            <Select value={funnelDateRange} onValueChange={setFunnelDateRange}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1d">Today</SelectItem>
+                <SelectItem value="7d">7 Days</SelectItem>
+                <SelectItem value="30d">30 Days</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefreshFunnel}
+              disabled={enhancedFunnelLoading}
+            >
+              <RefreshCw className={`h-4 w-4 ${enhancedFunnelLoading ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          {enhancedFunnelLoading && !enhancedFunnel ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="h-32 bg-muted rounded-lg"></div>
-                </div>
-              ))}
-            </div>
-          ) : enhancedFunnel ? (
-            <UniversalFunnelVisualization funnelData={enhancedFunnel} />
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No Funnel Data Available</h3>
-              <p className="text-sm">Waiting for API response or configure your funnel tracking...</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Trend Analysis - Full Width */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Performance Trends & Timeline
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Select value={trendPeriod} onValueChange={setTrendPeriod}>
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefreshTrends}
-                disabled={trendAnalysisLoading}
-              >
-                <RefreshCw className={`h-4 w-4 ${trendAnalysisLoading ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
+        </div>
+        
+        {enhancedFunnelLoading && !enhancedFunnel ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-32 bg-muted rounded-lg"></div>
+              </div>
+            ))}
           </div>
-        </CardHeader>
-        <CardContent>
-          {trendAnalysisLoading && !trendAnalysis ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="h-8 bg-muted rounded"></div>
-                </div>
-              ))}
-            </div>
-          ) : trendAnalysis ? (
-            <UniversalTrendVisualization trendData={trendAnalysis} />
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <TrendingUp className="h-16 w-16 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No Trend Data Available</h3>
-              <p className="text-sm">Waiting for API response or enable trend tracking...</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        ) : enhancedFunnel ? (
+          <UniversalFunnelVisualization funnelData={enhancedFunnel} />
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-semibold mb-2">No Funnel Data Available</h3>
+            <p className="text-sm">Waiting for API response or configure your funnel tracking...</p>
+          </div>
+        )}
+      </div>
 
       {/* Goal Tracking - Future Enhancement */}
       <Card>

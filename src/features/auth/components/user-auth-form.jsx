@@ -57,37 +57,58 @@ export default function UserAuthForm() {
   return (
     <>
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-4'>
-        <FormInput
-          control={form.control}
-          name='email'
-          label='Email'
-          placeholder='Enter your email...'
-          disabled={loading}
-        />
-        <FormInput
-          control={form.control}
-          name='password'
-          label='Password'
-          placeholder='Enter your password...'
-          type='password'
-          disabled={loading}
-        />
-        <Button
-          disabled={loading}
-          className='mt-4 w-full'
-          type='submit'
-        >
-          {loading ? 'Signing in...' : 'Sign In'}
-        </Button>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+          <FormInput
+            control={form.control}
+            name='email'
+            label='Email Address'
+            placeholder='name@example.com'
+            disabled={loading}
+            className='text-base'
+          />
+          <FormInput
+            control={form.control}
+            name='password'
+            label='Password'
+            placeholder='Enter your password'
+            type='password'
+            disabled={loading}
+            className='text-base'
+          />
+          
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center space-x-2'>
+              <input
+                type='checkbox'
+                id='remember'
+                className='h-4 w-4 rounded border-gray-300 text-[#1D92FF] focus:ring-[#1D92FF]'
+              />
+              <label
+                htmlFor='remember'
+                className='text-sm text-gray-600 cursor-pointer'
+              >
+                Remember me
+              </label>
+            </div>
+            <a
+              href='#'
+              className='text-sm font-medium hover:text-[#1D92FF] transition-colors'
+              style={{ color: '#1D92FF' }}
+            >
+              Forgot password?
+            </a>
+          </div>
+
+          <Button
+            disabled={loading}
+            className='mt-6 w-full h-11 text-base font-medium'
+            type='submit'
+            style={{ backgroundColor: '#1D92FF' }}
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </Button>
         </form>
       </FormProvider>
-      <div className='relative'>
-        <div className='absolute inset-0 flex items-center'>
-          <span className='w-full border-t' />
-        </div>
-        
-      </div>
     </>
   );
 }

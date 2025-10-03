@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -327,9 +328,10 @@ export const columns = [
     cell: ({ row, table }) => {
       const application = row.original;
       const { onDeleteApplication } = table.options.meta || {};
+      const [open, setOpen] = React.useState(false);
 
       return (
-        <DropdownMenu>
+        <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
@@ -383,6 +385,7 @@ export const columns = [
               className="text-red-600"
               onSelect={(e) => {
                 e.preventDefault();
+                setOpen(false); // Close dropdown immediately
                 onDeleteApplication?.(application);
               }}
             >

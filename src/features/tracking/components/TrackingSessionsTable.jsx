@@ -23,7 +23,7 @@ import {
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Search, Download, Users, Filter } from 'lucide-react';
+import { RefreshCw, Search, Download, Users, Filter, CheckCircle, XCircle, Activity } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function TrackingSessionsTable({ columns }) {
   const dispatch = useDispatch();
@@ -139,24 +139,35 @@ export function TrackingSessionsTable({ columns }) {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Early return for critical errors
+  // Show empty state instead of network error for better UX
   if (!sessions && !sessionsLoading && sessionsError) {
     return (
       <div className="space-y-6">
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load tracking sessions: {sessionsError}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearErrorHandler}
-              className="ml-2"
-            >
-              Retry
-            </Button>
-          </AlertDescription>
-        </Alert>
+        <div className="flex items-center gap-2 justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <Users className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">No Sessions Available</h3>
+              <p className="text-muted-foreground mb-4">
+                There are currently no tracking sessions to display. Sessions will appear here once user activity is recorded.
+              </p>
+              <Button variant="outline" onClick={handleRefresh}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -188,53 +199,49 @@ export function TrackingSessionsTable({ columns }) {
       {sessions && sessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Sessions</p>
-                  <p className="text-2xl font-bold">{sessionsPagination?.total || 0}</p>
-                </div>
-                <Users className="h-4 w-4 text-blue-600" />
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{sessionsPagination?.total || 0}</div>
+              <p className="text-xs text-muted-foreground">All tracking sessions</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {sessions?.filter(s => s?.isCompleted).length || 0}
-                  </p>
-                </div>
-                <div className="h-4 w-4 rounded-full bg-green-600" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Completed</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {sessions?.filter(s => s?.isCompleted).length || 0}
               </div>
+              <p className="text-xs text-muted-foreground">Completed sessions</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">In Progress</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {sessions?.filter(s => !s?.isCompleted && !s?.dropOffStep).length || 0}
-                  </p>
-                </div>
-                <div className="h-4 w-4 rounded-full bg-yellow-600" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {sessions?.filter(s => !s?.isCompleted && !s?.dropOffStep).length || 0}
               </div>
+              <p className="text-xs text-muted-foreground">Active sessions</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Abandoned</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {sessions?.filter(s => !s?.isCompleted && s?.dropOffStep).length || 0}
-                  </p>
-                </div>
-                <div className="h-4 w-4 rounded-full bg-red-600" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Abandoned</CardTitle>
+              <XCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {sessions?.filter(s => !s?.isCompleted && s?.dropOffStep).length || 0}
               </div>
+              <p className="text-xs text-muted-foreground">Abandoned sessions</p>
             </CardContent>
           </Card>
         </div>
@@ -317,24 +324,6 @@ export function TrackingSessionsTable({ columns }) {
           </Button>
         </div>
       </div>
-
-      {/* Error Alert */}
-      {sessionsError && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Error loading sessions: {sessionsError}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearErrorHandler}
-              className="ml-2"
-            >
-              Try Again
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
 
       {/* Table */}
       <div className='rounded-lg border'>

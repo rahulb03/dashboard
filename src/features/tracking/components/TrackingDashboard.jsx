@@ -625,26 +625,17 @@ const CalculateStatsResult = ({ result, onClose }) => {
   );
 };
 
-const MetricCard = ({ title, value, change, icon: Icon, color = "default" }) => {
-  const colorClasses = {
-    default: "text-blue-600 bg-blue-100",
-    success: "text-green-600 bg-green-100", 
-    warning: "text-yellow-600 bg-yellow-100",
-    danger: "text-red-600 bg-red-100"
-  };
-
+const MetricCard = ({ title, value, change, icon: Icon }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <Icon className={`h-4 w-4 rounded p-0.5 ${colorClasses[color]}`} />
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
         {change && (
-          <p className={`text-xs ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-xs text-muted-foreground`}>
             {change >= 0 ? '↑' : '↓'} {Math.abs(change)}% from last period
           </p>
         )}
@@ -764,23 +755,36 @@ export default function TrackingDashboard() {
     dispatch(clearError());
   };
 
-  if (dashboardError) {
+  // Show empty state instead of network error for better UX
+  if (dashboardError && !dashboard) {
     return (
-      <div className="space-y-4">
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Error loading dashboard: {dashboardError}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearErrorHandler}
-              className="ml-2"
-            >
-              Try Again
-            </Button>
-          </AlertDescription>
-        </Alert>
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={dashboardLoading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${dashboardLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <Activity className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">No Dashboard Data Available</h3>
+              <p className="text-muted-foreground mb-4">
+                There is currently no tracking data to display. This could mean no user activity has been recorded yet.
+              </p>
+              <Button variant="outline" onClick={handleRefresh}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -863,25 +867,21 @@ export default function TrackingDashboard() {
             title="Active Sessions"
             value={metrics.activeSessions?.toLocaleString() || '0'}
             icon={Users}
-            color="success"
           />
           <MetricCard
             title="Today's Conversion"
             value={`${metrics.todayConversionRate || 0}%`}
             icon={Target}
-            color="default"
           />
           <MetricCard
             title="Weekly Conversion"
             value={`${metrics.weeklyConversionRate || 0}%`}
             icon={TrendingUp}
-            color="default"
           />
           <MetricCard
             title="Error Rate"
             value={`${metrics.errorRate || 0}%`}
             icon={metrics.errorRate > 5 ? XCircle : CheckCircle}
-            color={metrics.errorRate > 5 ? "danger" : "success"}
           />
         </div>
       )}

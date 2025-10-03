@@ -14,7 +14,7 @@ import { ArrowLeft, Edit, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
-import { createPaymentConfigThunk, updatePaymentConfigThunk, fetchPaymentConfigByIdThunk } from '@/redux/payments/paymentConfigThunks';
+import { createPaymentConfigThunk, updatePaymentConfigThunk, fetchPaymentConfigByIdThunk, fetchPaymentConfigsThunk } from '@/redux/payments/paymentConfigThunks';
 import * as z from 'zod';
 
 const formSchema = z.object({
@@ -30,9 +30,14 @@ const formSchema = z.object({
 export default function PaymentForm({ paymentId, mode, initialData, pageTitle }) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { currentPaymentConfig } = useSelector((state) => state.paymentConfig);
+  const { currentPaymentConfig, paymentConfigs } = useSelector((state) => state.paymentConfig);
   const [isLoading, setIsLoading] = useState(false);
   const [localPageTitle, setLocalPageTitle] = useState(pageTitle || 'Payment Configuration');
+  const [availableTypes, setAvailableTypes] = useState([
+    { label: 'Loan Fee', value: 'LOAN_FEE' },
+    { label: 'Membership', value: 'MEMBERSHIP' },
+    { label: 'Document Fee', value: 'DOCUMENT_FEE' }
+  ]);
   
   const isViewMode = mode === 'view';
   const isEditMode = mode === 'edit';
@@ -40,6 +45,11 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
   
   // Use initialData prop or fetch from Redux
   const paymentData = initialData || currentPaymentConfig;
+  
+  // Fetch all payment configs to check existing types
+  useEffect(() => {
+    dispatch(fetchPaymentConfigsThunk());
+  }, [dispatch]);
   
   // Fetch payment data if paymentId is provided and not 'new'
   useEffect(() => {
@@ -49,7 +59,7 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
       } else if (isEditMode) {
         setLocalPageTitle('Edit Payment Configuration');
       }
-      dispatch(fetchPaymentConfigByIdThunk({ paymentConfigId: paymentId }));
+      dispatch(fetchPaymentConfigByIdThunk({ paymentConfigId: paymentId, forceRefresh: true }));
     } else if (isNewMode) {
       setLocalPageTitle('Create New Payment Configuration');
     }
@@ -67,10 +77,79 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
     resolver: zodResolver(formSchema),
     defaultValues
   });
+  
+  // Reset form when payment data changes (fixes edit mode data loading)
+  useEffect(() => {
+    if (paymentData && !isNewMode) {
+      form.reset({
+        type: paymentData.type || '',
+        amount: paymentData.amount || undefined,
+        description: paymentData.description || '',
+        isActive: paymentData.isActive ?? true,
+        metadata: paymentData.metadata || {}
+      });
+    }
+  }, [paymentData, isNewMode, form]);
+  
+  // Update available types based on existing configurations
+  useEffect(() => {
+    if (!paymentConfigs || paymentConfigs.length === 0) {
+      // All types available if no configs exist
+      setAvailableTypes([
+        { label: 'Loan Fee', value: 'LOAN_FEE' },
+        { label: 'Membership', value: 'MEMBERSHIP' },
+        { label: 'Document Fee', value: 'DOCUMENT_FEE' }
+      ]);
+      return;
+    }
+    
+    // Get existing types, excluding current config if editing
+    const existingTypes = paymentConfigs
+      .filter(config => !paymentData || config.id !== paymentData.id)
+      .map(config => config.type);
+    
+    // Define all possible types
+    const allTypes = [
+      { label: 'Loan Fee', value: 'LOAN_FEE' },
+      { label: 'Membership', value: 'MEMBERSHIP' },
+      { label: 'Document Fee', value: 'DOCUMENT_FEE' }
+    ];
+    
+    // Filter out types that already exist
+    const available = allTypes.filter(type => !existingTypes.includes(type.value));
+    
+    // If editing, always include the current type
+    if (paymentData && paymentData.type) {
+      const currentType = allTypes.find(t => t.value === paymentData.type);
+      if (currentType && !available.find(t => t.value === currentType.value)) {
+        available.push(currentType);
+      }
+    }
+    
+    setAvailableTypes(available);
+  }, [paymentConfigs, paymentData]);
 
   async function onSubmit(values) {
     setIsLoading(true);
     try {
+      // Validate payment type uniqueness
+      const existingTypes = paymentConfigs
+        .filter(config => !paymentData || config.id !== paymentData.id)
+        .map(config => config.type);
+      
+      if (existingTypes.includes(values.type)) {
+        toast.error(`A payment configuration for ${values.type.replace('_', ' ')} already exists. Only one configuration per type is allowed.`);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Check if we're trying to create a 4th type
+      if (isNewMode && existingTypes.length >= 3) {
+        toast.error('Maximum of 3 payment types allowed. You cannot create more payment configurations.');
+        setIsLoading(false);
+        return;
+      }
+      
       if (paymentData && !isNewMode) {
         // Update existing payment configuration
         const result = await dispatch(updatePaymentConfigThunk({
@@ -85,7 +164,7 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
       }
       router.push('/dashboard/payment-configurations');
     } catch (error) {
-      toast.error(error.message || 'An error occurred');
+      toast.error(error.message || error || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -113,20 +192,24 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
       
       <Card className="mx-auto w-full">
         <CardContent className="pt-6">
+          {isNewMode && availableTypes.length === 0 && (
+            <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> All three payment types (Loan Fee, Membership, and Document Fee) already exist. 
+                You cannot create additional payment configurations. Please edit or delete an existing configuration if you need to make changes.
+              </p>
+            </div>
+          )}
           <Form form={form} onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormSelect
                 control={form.control}
                 name="type"
                 label="Payment Type"
-                placeholder="Select payment type"
+                placeholder={availableTypes.length === 0 ? "No types available" : "Select payment type"}
                 required={!isViewMode}
-                disabled={isViewMode}
-                options={[
-                  { label: 'Loan Fee', value: 'LOAN_FEE' },
-                  { label: 'Membership', value: 'MEMBERSHIP' },
-                  { label: 'Document Fee', value: 'DOCUMENT_FEE' }
-                ]}
+                disabled={isViewMode || availableTypes.length === 0}
+                options={availableTypes}
               />
 
               <FormInput

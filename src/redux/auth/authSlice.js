@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { REHYDRATE } from 'redux-persist';
-import { login, signup, getProfile, updateProfile, changePassword, logout } from './authThunks';
+import { login, signup, getProfile, updateProfile, updateProfilePhoto, changePassword, logout } from './authThunks';
 import { validateStoredAuth, clearStoredAuthData, storeAuthData, isTokenExpired } from '@/lib/auth-utils';
 
 const initialState = {
@@ -156,6 +156,18 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateProfilePhoto.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfilePhoto.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateProfilePhoto.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

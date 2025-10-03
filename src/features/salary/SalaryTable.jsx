@@ -23,7 +23,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, RefreshCw, Banknote } from 'lucide-react';
+import { Plus, Search, RefreshCw, Banknote, DollarSign, Briefcase, UserCheck, CheckSquare } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   selectSalaries,
   selectSalaryFetching,
@@ -189,31 +190,72 @@ export function SalaryTable({ columns }) {
         </div>
       </div>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="text-2xl font-bold">{filteredSalaries.length}</div>
-          <p className="text-xs text-muted-foreground">Total Configurations</p>
+      {/* Statistics Cards */}
+      {filteredSalaries && filteredSalaries.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Total Configurations Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Configurations</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{filteredSalaries.length}</div>
+              <p className="text-xs text-muted-foreground">
+                All salary configs
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Salaried Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Salaried</CardTitle>
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {filteredSalaries.filter(s => s.employmentType === 'salaried').length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Salaried employees
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Self-Employed Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Self-Employed</CardTitle>
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {filteredSalaries.filter(s => s.employmentType === 'self-employed').length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Self-employed configs
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Selected Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Selected</CardTitle>
+              <CheckSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {table.getFilteredSelectedRowModel().rows.length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Rows selected
+              </p>
+            </CardContent>
+          </Card>
         </div>
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="text-2xl font-bold">
-            {filteredSalaries.filter(s => s.employmentType === 'salaried').length}
-          </div>
-          <p className="text-xs text-muted-foreground">Salaried</p>
-        </div>
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="text-2xl font-bold">
-            {filteredSalaries.filter(s => s.employmentType === 'self-employed').length}
-          </div>
-          <p className="text-xs text-muted-foreground">Self-Employed</p>
-        </div>
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="text-2xl font-bold">
-            {table.getFilteredSelectedRowModel().rows.length}
-          </div>
-          <p className="text-xs text-muted-foreground">Selected</p>
-        </div>
-      </div>
+      )}
 
       {/* Custom Table with Salary icon for no results */}
       <div className='rounded-lg border'>

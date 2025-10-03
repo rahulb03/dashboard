@@ -24,7 +24,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Users, Shield } from 'lucide-react';
+import { Plus, Search, Users, Shield, CheckCircle, XCircle, Clock, Ban } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function MembershipTable({ columns }) {
   const dispatch = useDispatch();
@@ -43,6 +44,15 @@ export function MembershipTable({ columns }) {
   const [rowSelection, setRowSelection] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Calculate membership statistics
+  const membershipStats = {
+    total: memberships?.length || 0,
+    active: memberships?.filter(m => m.status === 'ACTIVE').length || 0,
+    cancelled: memberships?.filter(m => m.status === 'CANCELLED').length || 0,
+    expired: memberships?.filter(m => m.status === 'EXPIRED').length || 0,
+    suspended: memberships?.filter(m => m.status === 'SUSPENDED').length || 0,
+  };
 
   useEffect(() => {
     // Only fetch if we don't have memberships data
@@ -96,6 +106,81 @@ export function MembershipTable({ columns }) {
 
   return (
     <div className="space-y-4">
+      {/* Membership Statistics Cards */}
+      {memberships && memberships.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {/* Total Memberships Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Memberships</CardTitle>
+              <Shield className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{membershipStats.total}</div>
+              <p className="text-xs text-muted-foreground">
+                All memberships
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Active Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{membershipStats.active}</div>
+              <p className="text-xs text-muted-foreground">
+                Active memberships
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Cancelled Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Cancelled</CardTitle>
+              <XCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{membershipStats.cancelled}</div>
+              <p className="text-xs text-muted-foreground">
+                Cancelled memberships
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Expired Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Expired</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{membershipStats.expired}</div>
+              <p className="text-xs text-muted-foreground">
+                Expired memberships
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Suspended Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Suspended</CardTitle>
+              <Ban className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{membershipStats.suspended}</div>
+              <p className="text-xs text-muted-foreground">
+                Suspended memberships
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Header with filters and add button */}
       <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
@@ -120,7 +205,17 @@ export function MembershipTable({ columns }) {
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder="All Status">
+                {(() => {
+                  const value = table.getColumn("status")?.getFilterValue();
+                  if (!value) return "All Status";
+                  if (value === "ACTIVE") return "Active";
+                  if (value === "EXPIRED") return "Expired";
+                  if (value === "CANCELLED") return "Cancelled";
+                  if (value === "SUSPENDED") return "Suspended";
+                  return "All Status";
+                })()}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
@@ -128,23 +223,6 @@ export function MembershipTable({ columns }) {
               <SelectItem value="EXPIRED">Expired</SelectItem>
               <SelectItem value="CANCELLED">Cancelled</SelectItem>
               <SelectItem value="SUSPENDED">Suspended</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Active Filter */}
-          <Select 
-            value={(table.getColumn("isActive")?.getFilterValue()) ?? "all"}
-            onValueChange={(value) => 
-              table.getColumn("isActive")?.setFilterValue(value === "all" ? "" : value === "true")
-            }
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Active" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="true">Active</SelectItem>
-              <SelectItem value="false">Inactive</SelectItem>
             </SelectContent>
           </Select>
           
