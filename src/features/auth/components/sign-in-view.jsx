@@ -38,7 +38,7 @@ export default function SignInViewPage({ stars }) {
       </div>
 
       {/* Right Side - White Background with Form */}
-      <div className='flex h-full items-center justify-center p-4 lg:p-8 bg-white'>
+      <div className='flex h-full items-center justify-center p-4 lg:p-8 bg-white text-black'>
         <div className='flex w-full max-w-md flex-col items-center justify-center space-y-6'>
           {/* Mobile Logo */}
           <div className='lg:hidden'>
@@ -51,14 +51,14 @@ export default function SignInViewPage({ stars }) {
                 className='mr-2 h-10 w-10'
                 priority
               />
-              <span className='text-2xl font-bold' style={{ color: '#1D92FF' }}>One Gred Dashboard</span>
+              <span className='text-2xl font-bold text-[#1D92FF]' >One Gred Dashboard</span>
             </div>
           </div>
           
           {/* Desktop Title */}
           <div className='hidden lg:block'>
             <div className='flex items-center'>
-              <span className='text-2xl font-bold inline'>One Gred Dashboard</span>
+              <span className='text-2xl font-bold inline text-[#1D92FF]'>One Gred Dashboard</span>
             </div>
           </div>
           

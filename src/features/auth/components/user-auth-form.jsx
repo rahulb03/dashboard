@@ -31,8 +31,8 @@ export default function UserAuthForm() {
   const [loading, startTransition] = useTransition();
   const { login } = useAuth();
   const defaultValues = {
-    email: 'demo@gmail.com',
-    password: 'password123'
+    email: '',
+    password: ''
   };
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -64,7 +64,7 @@ export default function UserAuthForm() {
             label='Email Address'
             placeholder='name@example.com'
             disabled={loading}
-            className='text-base'
+            className='text-base [&_input]:border-gray-300 [&_input]:focus-visible:border-[#1D92FF]'
           />
           <FormInput
             control={form.control}
@@ -73,31 +73,8 @@ export default function UserAuthForm() {
             placeholder='Enter your password'
             type='password'
             disabled={loading}
-            className='text-base'
+            className='text-base [&_input]:border-gray-300 [&_input]:focus-visible:border-[#1D92FF]'
           />
-          
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-2'>
-              <input
-                type='checkbox'
-                id='remember'
-                className='h-4 w-4 rounded border-gray-300 text-[#1D92FF] focus:ring-[#1D92FF]'
-              />
-              <label
-                htmlFor='remember'
-                className='text-sm text-gray-600 cursor-pointer'
-              >
-                Remember me
-              </label>
-            </div>
-            <a
-              href='#'
-              className='text-sm font-medium hover:text-[#1D92FF] transition-colors'
-              style={{ color: '#1D92FF' }}
-            >
-              Forgot password?
-            </a>
-          </div>
 
           <Button
             disabled={loading}
