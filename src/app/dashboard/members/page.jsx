@@ -1,9 +1,7 @@
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import FormCardSkeleton from '@/components/form-card-skeleton';
 import MemberListingPage from '@/features/members/MemberListingPage';
-import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Dashboard: Members'

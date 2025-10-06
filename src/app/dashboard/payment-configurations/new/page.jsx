@@ -1,6 +1,4 @@
-import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
-import { Suspense } from 'react';
 import PaymentForm from '@/features/payments/components/payment-form';
 
 export const metadata = {

@@ -11,7 +11,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Loader2, Trash2 } from 'lucide-react';
-
 /**
  * Enhanced reusable delete confirmation modal
  * Consolidates all redundant delete modal implementations across management modules

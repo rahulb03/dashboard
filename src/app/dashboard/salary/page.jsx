@@ -2,8 +2,6 @@ import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import SalaryListingPage from '@/features/salary/SalaryListingPage';
-import { Suspense } from 'react';
-import FormCardSkeleton from '@/components/form-card-skeleton';
 
 export const metadata = {
   title: 'Dashboard: Salary Configurations'
@@ -21,9 +19,7 @@ export default function Page() {
         </div>
         <Separator />
        
-        <Suspense fallback={<FormCardSkeleton />}>
           <SalaryListingPage />
-        </Suspense>
       </div>
     </PageContainer>
   );

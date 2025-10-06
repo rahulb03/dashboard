@@ -8,8 +8,6 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
       <ProfileViewPage />
-    </Suspense>
   );
 }

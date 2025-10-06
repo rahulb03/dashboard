@@ -39,21 +39,7 @@ export const API_ENDPOINTS = {
     DOWNLOAD_DOCUMENT: (loanId) => `documents/application/${loanId}`
   },
 
-  BLOG: {
-    LIST: 'blogs',
-    CREATE: 'blogs',
-    GET_ONE: (id) => `blogs/${id}`,
-    UPDATE: (id) => `blogs/${id}`,
-    DELETE: (id) => `blogs/${id}`
-  },
-
-  FAQ: {
-    LIST: 'faq',
-    CREATE: 'faq',
-    GET_ONE: (id) => `faq/${id}`,
-    UPDATE: (id) => `faq/${id}`,
-    DELETE: (id) => `faq/${id}`
-  },
+ 
 
   MEMBER: {
     LIST: 'members',

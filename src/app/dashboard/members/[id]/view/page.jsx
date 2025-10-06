@@ -12,9 +12,7 @@ export default async function ViewMemberPage(props) {
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
-        <Suspense fallback={<FormCardSkeleton />}>
           <MemberForm memberId={params.id} mode="view" />
-        </Suspense>
       </div>
     </PageContainer>
   );
