@@ -158,15 +158,15 @@ export const trackingSessionsColumns = [
       return (
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-xs bg-blue-100 text-blue-800">
+            <AvatarFallback className="text-xs bg-primary/10 text-primary">
               {nameInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold">
               {fullName !== 'N/A' ? fullName : 'No Name Provided'}
             </span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {phoneNumber === 'N/A' ? 'No Phone Number' : phoneNumber}
             </span>
             {session?.adminInfo?.ipAddress && (
@@ -339,7 +339,7 @@ export const trackingSessionsColumns = [
             <div className="flex items-center space-x-2">
               <div className="w-8 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-blue-500 transition-all duration-300" 
+                  className="h-full bg-primary transition-all duration-300" 
                   style={{ width: `${Math.round(completionRate)}%` }}
                 />
               </div>
@@ -350,7 +350,7 @@ export const trackingSessionsColumns = [
             <span className="text-xs text-muted-foreground">v{flowVersion}</span>
           )}
           {dropOffStep && (
-            <span className="text-xs text-red-600">Drop: {dropOffStep}</span>
+            <span className="text-xs text-destructive">Drop: {dropOffStep}</span>
           )}
         </div>
       );

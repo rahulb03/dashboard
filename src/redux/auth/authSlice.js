@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { REHYDRATE } from 'redux-persist';
 import { login, signup, getProfile, updateProfile, updateProfilePhoto, changePassword, logout } from './authThunks';
-import { validateStoredAuth, clearStoredAuthData, storeAuthData, isTokenExpired } from '@/lib/auth-utils';
+import { validateStoredAuth, clearStoredAuthData, storeAuthData, isTokenExpired, isValidAdminRole } from '@/lib/auth-utils';
 
 const initialState = {
   user: null,
@@ -47,13 +47,22 @@ const authSlice = createSlice({
           const persistedTokenExpired = isTokenExpired(persistedAuth.token);
           
           if (!persistedTokenExpired) {
-            // Token is valid, restore auth state
-            state.token = persistedAuth.token;
-            state.user = persistedAuth.user;
-            state.isAuthenticated = true;
-            
-            // Ensure localStorage is synced
-            storeAuthData(persistedAuth.token, persistedAuth.user);
+            // Validate user role before restoring auth state
+            if (!isValidAdminRole(persistedAuth.user?.role)) {
+              // Invalid role, clear auth
+              state.token = null;
+              state.user = null;
+              state.isAuthenticated = false;
+              clearStoredAuthData();
+            } else {
+              // Token is valid and role is authorized, restore auth state
+              state.token = persistedAuth.token;
+              state.user = persistedAuth.user;
+              state.isAuthenticated = true;
+              
+              // Ensure localStorage is synced
+              storeAuthData(persistedAuth.token, persistedAuth.user);
+            }
           } else {
             // Token expired, clear auth
             state.token = null;
@@ -87,6 +96,18 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
+        
+        // Validate user role before allowing access
+        if (!isValidAdminRole(action.payload.user?.role)) {
+          state.isAuthenticated = false;
+          state.user = null;
+          state.token = null;
+          state.error = 'Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access this dashboard.';
+          clearStoredAuthData();
+          state.initialized = true;
+          return;
+        }
+        
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
@@ -106,6 +127,18 @@ const authSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
+        
+        // Validate user role before allowing access
+        if (!isValidAdminRole(action.payload.user?.role)) {
+          state.isAuthenticated = false;
+          state.user = null;
+          state.token = null;
+          state.error = 'Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access this dashboard.';
+          clearStoredAuthData();
+          state.initialized = true;
+          return;
+        }
+        
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;

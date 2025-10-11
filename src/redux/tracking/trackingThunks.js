@@ -451,11 +451,11 @@ export const fetchEnhancedFunnelThunk = createAsyncThunk(
 export const fetchTrendAnalysisThunk = createAsyncThunk(
   'tracking/fetchTrendAnalysis',
   async (
-    { period = 'daily', periods = 7, forceRefresh = false } = {},
+    { period = 'daily', periods = 7, startDate = null, endDate = null, forceRefresh = false } = {},
     { rejectWithValue }
   ) => {
     try {
-      const cacheKey = { period, periods };
+      const cacheKey = { period, periods, startDate, endDate };
 
       // Check cache first unless force refresh is requested
       if (!forceRefresh) {
@@ -465,21 +465,37 @@ export const fetchTrendAnalysisThunk = createAsyncThunk(
         }
       }
 
+      // Calculate date range if not provided
+      const calculatedEndDate = endDate || new Date().toISOString();
+      const calculatedStartDate = startDate || (() => {
+        const date = new Date();
+        date.setDate(date.getDate() - periods);
+        return date.toISOString();
+      })();
+
       const params = new URLSearchParams({
         period,
-        periods: periods.toString()
+        periods: periods.toString(),
+        ...(startDate && { startDate: calculatedStartDate }),
+        ...(endDate && { endDate: calculatedEndDate })
       });
+
+      console.log('🌐 API Request:', `${API_ENDPOINTS.TRACKING.TRENDS}?${params}`);
+      console.log('📅 Date range:', { start: calculatedStartDate, end: calculatedEndDate });
 
       const response = await axiosInstance.get(
         `${API_ENDPOINTS.TRACKING.TRENDS}?${params}`
       );
       const data = response.data;
 
+      console.log('📥 API Response received:', data);
+
       // Update cache with new data
       dataCache.set('trendAnalysis', data, cacheKey);
 
       return data;
     } catch (error) {
+      console.error('❌ Trend analysis fetch error:', error);
       const message =
         error?.response?.data?.message ||
         error.message ||

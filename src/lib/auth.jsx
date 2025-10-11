@@ -19,11 +19,22 @@ export function AuthProvider({ children }) {
 
   const loginUser = async (email, password) => {
     try {
-      await dispatch(login({ email, password })).unwrap();
+      const result = await dispatch(login({ email, password })).unwrap();
+      
+      // Check if login was successful but role validation failed
+      // This should be caught by the reducer, but check here too
+      if (!result || !result.token) {
+        return { success: false, error: 'Login failed. Please check your credentials.' };
+      }
+      
       router.push('/dashboard/overview');
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message || 'Login failed' };
+      // Check if it's a role validation error
+      if (error && typeof error === 'string' && error.includes('Access denied')) {
+        return { success: false, error: error };
+      }
+      return { success: false, error: error?.message || error || 'Login failed' };
     }
   };
 

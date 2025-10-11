@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter, usePathname } from 'next/navigation';
-import { validateStoredAuth } from '@/lib/auth-utils';
+import { validateStoredAuth, isValidAdminRole, clearStoredAuthData } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 // Loading component
 function AuthLoading() {
@@ -42,13 +43,27 @@ export default function AuthGuard({ children }) {
 
     // Get auth status from Redux or localStorage
     let isAuthenticated = false;
+    let userRole = null;
     
     if (reduxAuth.isAuthenticated && reduxAuth.user) {
       isAuthenticated = true;
+      userRole = reduxAuth.user.role;
     } else {
       // Check localStorage as fallback
       const localAuth = validateStoredAuth();
       isAuthenticated = localAuth.isAuthenticated;
+      userRole = localAuth.user?.role;
+    }
+    
+    // Validate role if authenticated and not on public route
+    if (isAuthenticated && !isRoutePublic) {
+      if (!isValidAdminRole(userRole)) {
+        // Invalid role detected, clear auth and redirect
+        clearStoredAuthData();
+        toast.error('Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access this dashboard.');
+        router.replace('/auth/sign-in');
+        return;
+      }
     }
 
     // Handle navigation

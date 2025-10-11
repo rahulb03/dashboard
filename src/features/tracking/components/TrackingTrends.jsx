@@ -346,8 +346,24 @@ export default function TrackingTrends() {
 
   useEffect(() => {
     // Fetch trends data on mount
+    console.log('🔍 Fetching trend analysis with params:', { period: trendPeriod, periods: trendPeriods });
+    console.log('📅 Current date:', new Date().toISOString());
     dispatch(fetchTrendAnalysisThunk({ period: trendPeriod, periods: trendPeriods }));
   }, [dispatch, trendPeriod, trendPeriods]);
+
+  // Debug: Log the trend data when it changes
+  useEffect(() => {
+    if (trendAnalysis) {
+      console.log('📊 Trend analysis data received:', trendAnalysis);
+      if (trendAnalysis.trends) {
+        const firstStepKey = Object.keys(trendAnalysis.trends)[0];
+        if (firstStepKey && trendAnalysis.trends[firstStepKey].length > 0) {
+          const dates = trendAnalysis.trends[firstStepKey].map(d => d.date);
+          console.log('📆 Date range in data:', { first: dates[0], last: dates[dates.length - 1] });
+        }
+      }
+    }
+  }, [trendAnalysis]);
 
   const handleRefreshTrends = () => {
     dispatch(fetchTrendAnalysisThunk({ period: trendPeriod, periods: trendPeriods, forceRefresh: true }));
@@ -367,13 +383,26 @@ export default function TrackingTrends() {
               <SelectItem value="weekly">Weekly</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={trendPeriods.toString()} onValueChange={(value) => setTrendPeriods(parseInt(value))}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="14">Last 14 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="60">Last 60 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefreshTrends}
             disabled={trendAnalysisLoading}
           >
-            <RefreshCw className={`h-4 w-4 ${trendAnalysisLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 mr-2 ${trendAnalysisLoading ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
         </div>
       </div>

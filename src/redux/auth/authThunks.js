@@ -18,8 +18,8 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
     
     if (!token || !user) throw new Error('Invalid login response');
     
-    // Persist to localStorage for cross-session persistence
-    storeAuthData(token, user);
+    // Note: Role validation will be handled in the reducer (authSlice.js)
+    // We just return the data here; localStorage will only be synced if role is valid
     
     return { token, user };
   } catch (error) {

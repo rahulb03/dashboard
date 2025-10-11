@@ -66,6 +66,7 @@ export function RecentSales() {
         status: app.applicationStatus || 'PENDING',
         amount: `₹${parseFloat(app.loanAmount || 0).toLocaleString('en-IN')}`,
         type: app.loanType || 'Personal Loan'
+        
       }));
   }, [loanApplications]);
   
@@ -88,7 +89,6 @@ export function RecentSales() {
               </Avatar>
               <div className='ml-4 space-y-1'>
                 <p className='text-sm leading-none font-medium'>{application.name}</p>
-                <p className='text-muted-foreground text-sm'>{application.type}</p>
               </div>
               <div className='ml-auto text-right'>
                 <div className='font-medium'>{application.amount}</div>

@@ -6,6 +6,15 @@
 // Check if we're in browser environment
 const isBrowser = typeof window !== 'undefined';
 
+// Allowed roles for admin frontend access
+export const ALLOWED_ADMIN_ROLES = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+
+// Check if user role is allowed to access admin frontend
+export function isValidAdminRole(role) {
+  if (!role) return false;
+  return ALLOWED_ADMIN_ROLES.includes(role.toUpperCase());
+}
+
 // Token expiration check (handles both JWT and plain string tokens)
 export function isTokenExpired(token) {
   if (!token) {
@@ -58,6 +67,14 @@ export function getStoredAuthData() {
     }
     
     const user = JSON.parse(userDetail);
+    
+    // Validate user role - only ADMIN, MANAGER, and EMPLOYEE can access admin frontend
+    if (!isValidAdminRole(user.role)) {
+      console.warn('Unauthorized role detected. Clearing authentication data.');
+      clearStoredAuthData();
+      return null;
+    }
+    
     return { token, user };
   } catch (error) {
     clearStoredAuthData();
@@ -101,6 +118,16 @@ export function validateStoredAuth() {
   const storedAuth = getStoredAuthData();
   
   if (storedAuth) {
+    // Double check role validation
+    if (!isValidAdminRole(storedAuth.user?.role)) {
+      clearStoredAuthData();
+      return {
+        user: null,
+        token: null,
+        isAuthenticated: false
+      };
+    }
+    
     return {
       user: storedAuth.user,
       token: storedAuth.token,
