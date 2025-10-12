@@ -217,7 +217,12 @@ const membershipSlice = createSlice({
               state.stats.statusDistribution[newStatus] += 1;
             }
           }
-          state.memberships[index] = action.payload;
+          // Create new array to ensure React detects the change
+          state.memberships = [
+            ...state.memberships.slice(0, index),
+            action.payload,
+            ...state.memberships.slice(index + 1)
+          ];
         }
         if (state.currentMembership?.id === action.payload.id) {
           state.currentMembership = action.payload;
@@ -254,12 +259,17 @@ const membershipSlice = createSlice({
               state.stats.statusDistribution[oldStatus] = Math.max(0, state.stats.statusDistribution[oldStatus] - 1);
             }
             
-            // Update to cancelled
-            state.memberships[index] = {
+            // Update to cancelled - create new array to ensure React detects the change
+            const cancelledMembership = {
               ...membershipToCancel,
               status: 'CANCELLED',
               isActive: false
             };
+            state.memberships = [
+              ...state.memberships.slice(0, index),
+              cancelledMembership,
+              ...state.memberships.slice(index + 1)
+            ];
             
             state.stats.overview.cancelled += 1;
             state.stats.statusDistribution.cancelled += 1;
@@ -318,7 +328,12 @@ const membershipSlice = createSlice({
               state.stats.statusDistribution[newStatus] += 1;
             }
           }
-          state.memberships[index] = action.payload;
+          // Create new array to ensure React detects the change
+          state.memberships = [
+            ...state.memberships.slice(0, index),
+            action.payload,
+            ...state.memberships.slice(index + 1)
+          ];
         }
         if (state.currentMembership?.userId === action.payload.userId) {
           state.currentMembership = action.payload;

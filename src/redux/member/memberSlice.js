@@ -160,7 +160,12 @@ const memberSlice = createSlice({
               state.stats[newRoleKey] += 1;
             }
           }
-          state.members[index] = action.payload;
+          // Create a new array to ensure React detects the change
+          state.members = [
+            ...state.members.slice(0, index),
+            action.payload,
+            ...state.members.slice(index + 1)
+          ];
         }
         if (state.currentMember?.id === action.payload.id) {
           state.currentMember = action.payload;
@@ -220,7 +225,12 @@ const memberSlice = createSlice({
               state.stats[newRoleKey] += 1;
             }
           }
-          state.members[index] = action.payload;
+          // Create a new array to ensure React detects the change
+          state.members = [
+            ...state.members.slice(0, index),
+            action.payload,
+            ...state.members.slice(index + 1)
+          ];
         }
         if (state.currentMember?.id === action.payload.id) {
           state.currentMember = action.payload;

@@ -44,11 +44,20 @@ export function PaymentConfigTable({ columns }) {
   const [rowSelection, setRowSelection] = useState({});
 
   useEffect(() => {
-    dispatch(fetchPaymentConfigsThunk({}));
+    // Always fetch on mount to ensure we have latest data after edits
+    dispatch(fetchPaymentConfigsThunk({ forceRefresh: false }));
   }, [dispatch]);
 
+  // Log when paymentConfigs changes to verify re-rendering
+  useEffect(() => {
+    console.log('💳 PaymentConfigs updated:', paymentConfigs?.length, 'configs');
+  }, [paymentConfigs]);
+
+  // Ensure React Table detects data changes by creating a stable reference
+  const tableData = paymentConfigs || [];
+
   const table = useReactTable({
-    data: paymentConfigs || [],
+    data: tableData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

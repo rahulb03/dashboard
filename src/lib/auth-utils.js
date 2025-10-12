@@ -1,10 +1,7 @@
 /**
- * Authentication persistence utilities
- * Handles token validation and cross-session persistence
+ * Authentication utilities for cookie-based auth
+ * Cookies are managed automatically by the browser with httpOnly flags
  */
-
-// Check if we're in browser environment
-const isBrowser = typeof window !== 'undefined';
 
 // Allowed roles for admin frontend access
 export const ALLOWED_ADMIN_ROLES = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
@@ -44,68 +41,25 @@ export function isTokenExpired(token) {
   }
 }
 
-// Get stored auth data from localStorage
+// Deprecated: No longer needed with cookie-based auth
+// Kept for backward compatibility but returns null
 export function getStoredAuthData() {
-  if (!isBrowser) {
-    return null;
-  }
-  
-  try {
-    const token = localStorage.getItem('token');
-    const userDetail = localStorage.getItem('userdetail');
-    
-    if (!token || !userDetail) {
-      return null;
-    }
-    
-    // Check if token is expired
-    const tokenExpired = isTokenExpired(token);
-    
-    if (tokenExpired) {
-      clearStoredAuthData();
-      return null;
-    }
-    
-    const user = JSON.parse(userDetail);
-    
-    // Validate user role - only ADMIN, MANAGER, and EMPLOYEE can access admin frontend
-    if (!isValidAdminRole(user.role)) {
-      console.warn('Unauthorized role detected. Clearing authentication data.');
-      clearStoredAuthData();
-      return null;
-    }
-    
-    return { token, user };
-  } catch (error) {
-    clearStoredAuthData();
-    return null;
-  }
+  console.warn('getStoredAuthData is deprecated. Auth is now cookie-based.');
+  return null;
 }
 
-// Store auth data to localStorage
+// Deprecated: No longer needed with cookie-based auth
+// Cookies are set by the server with httpOnly flag
 export function storeAuthData(token, user) {
-  if (!isBrowser || !token || !user) {
-    return;
-  }
-  
-  try {
-    localStorage.setItem('token', token);
-    localStorage.setItem('userdetail', JSON.stringify(user));
-  } catch (error) {
-    // Silent error handling
-  }
+  console.warn('storeAuthData is deprecated. Auth tokens are stored in httpOnly cookies by the server.');
+  // Do nothing - cookies are managed by the server
 }
 
-// Clear stored auth data
+// Deprecated: No longer needed with cookie-based auth
+// Cookies are cleared by the server during logout
 export function clearStoredAuthData() {
-  if (!isBrowser) return;
-  
-  try {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userdetail');
-  } catch (error) {
-    // Silent error handling
-  }
+  console.warn('clearStoredAuthData is deprecated. Cookies are cleared by the server during logout.');
+  // Do nothing - cookies are managed by the server
 }
 
 // Debug function to log current auth state
@@ -113,31 +67,15 @@ export function debugAuthState() {
   // Silent in production
 }
 
-// Validate stored auth data and return clean state
+// Validate stored auth - with cookies, we rely on the API to validate
+// This function is kept for compatibility but doesn't check localStorage
 export function validateStoredAuth() {
-  const storedAuth = getStoredAuthData();
-  
-  if (storedAuth) {
-    // Double check role validation
-    if (!isValidAdminRole(storedAuth.user?.role)) {
-      clearStoredAuthData();
-      return {
-        user: null,
-        token: null,
-        isAuthenticated: false
-      };
-    }
-    
-    return {
-      user: storedAuth.user,
-      token: storedAuth.token,
-      isAuthenticated: true
-    };
-  } else {
-    return {
-      user: null,
-      token: null,
-      isAuthenticated: false
-    };
-  }
+  // With cookie-based auth, we can't validate on the client side
+  // The server will validate the httpOnly cookie
+  // Return unauthenticated state - let the app fetch user profile
+  return {
+    user: null,
+    token: null,
+    isAuthenticated: false
+  };
 }

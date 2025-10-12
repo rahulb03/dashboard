@@ -8,7 +8,9 @@
     "url": "https://github.com/Kiranism"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
+    "dev:fast": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

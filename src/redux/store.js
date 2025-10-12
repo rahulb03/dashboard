@@ -25,7 +25,8 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage,
-  whitelist: ['auth'],
+  // SECURITY: Don't persist auth state - using httpOnly cookies instead
+  whitelist: [], // Empty - auth is managed by secure cookies
   debug: process.env.NODE_ENV === 'development',
   // Add transform to handle auth state properly
   transforms: [],

@@ -31,8 +31,8 @@ export default function AuthGuard({ children }) {
   const persistRehydrated = useSelector((state) => state._persist?.rehydrated);
 
   useEffect(() => {
-    // Wait for Redux persist to rehydrate
-    if (!persistRehydrated) {
+    // Wait for Redux persist to rehydrate AND auth initialization
+    if (!persistRehydrated || !reduxAuth.initialized) {
       return;
     }
 
@@ -41,19 +41,15 @@ export default function AuthGuard({ children }) {
       return pathname.startsWith(route);
     });
 
-    // Get auth status from Redux or localStorage
+    // Get auth status from Redux (cookies are validated by API)
     let isAuthenticated = false;
     let userRole = null;
     
     if (reduxAuth.isAuthenticated && reduxAuth.user) {
       isAuthenticated = true;
       userRole = reduxAuth.user.role;
-    } else {
-      // Check localStorage as fallback
-      const localAuth = validateStoredAuth();
-      isAuthenticated = localAuth.isAuthenticated;
-      userRole = localAuth.user?.role;
     }
+    // No fallback to localStorage - cookies are httpOnly and managed by server
     
     // Validate role if authenticated and not on public route
     if (isAuthenticated && !isRoutePublic) {
@@ -77,10 +73,10 @@ export default function AuthGuard({ children }) {
       // All good, allow access
       setAuthChecked(true);
     }
-  }, [persistRehydrated, pathname, reduxAuth.isAuthenticated, reduxAuth.user, router]);
+  }, [persistRehydrated, reduxAuth.initialized, pathname, reduxAuth.isAuthenticated, reduxAuth.user, router]);
 
-  // Show loading until auth is checked
-  if (!persistRehydrated || !authChecked) {
+  // Show loading until auth is initialized and checked
+  if (!persistRehydrated || !reduxAuth.initialized || !authChecked) {
     return <AuthLoading />;
   }
 

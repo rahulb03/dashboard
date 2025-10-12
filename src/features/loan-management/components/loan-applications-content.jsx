@@ -10,11 +10,17 @@ export default function LoanApplicationsContent() {
   const dispatch = useDispatch();
   const { loanApplications, loading } = useSelector((state) => state.loan);
   
-  // Simple fetch on mount - like salary configuration
+  // Fetch on mount - with cache invalidated by thunks, this will get fresh data
   useEffect(() => {
     console.log('📡 Fetching loan applications on mount');
+    // forceRefresh=false but cache is invalidated by update thunks, so we get fresh data
     dispatch(fetchLoanApplicationsThunk({ forceRefresh: false }));
   }, [dispatch]);
+
+  // Log when loanApplications changes to verify re-rendering
+  useEffect(() => {
+    console.log('💼 LoanApplications updated:', loanApplications?.length, 'applications');
+  }, [loanApplications]);
   
   const applications = loanApplications || [];
 

@@ -169,10 +169,14 @@ const salarySlice = createSlice({
         state.isUpdating = false;
         const updatedSalary = action.payload;
         
-        // Update in salaries list
+        // Update in salaries list - create new array to ensure React detects the change
         const index = state.salaries.findIndex(salary => salary.id === updatedSalary.id);
         if (index !== -1) {
-          state.salaries[index] = updatedSalary;
+          state.salaries = [
+            ...state.salaries.slice(0, index),
+            updatedSalary,
+            ...state.salaries.slice(index + 1)
+          ];
         }
         
         // Update current salary if it matches

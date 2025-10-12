@@ -175,16 +175,24 @@ const paymentSlice = createSlice({
         state.validationErrors = {};
       })
       .addCase(refundPaymentThunk.fulfilled, (state, action) => {
-        // Update payment in payments list
+        // Update payment in payments list - create new array to ensure React detects the change
         const paymentsIndex = state.payments.findIndex(payment => payment.id === action.payload.id);
         if (paymentsIndex !== -1) {
-          state.payments[paymentsIndex] = action.payload;
+          state.payments = [
+            ...state.payments.slice(0, paymentsIndex),
+            action.payload,
+            ...state.payments.slice(paymentsIndex + 1)
+          ];
         }
 
-        // Update payment in user payments list
+        // Update payment in user payments list - create new array to ensure React detects the change
         const userPaymentsIndex = state.userPayments.findIndex(payment => payment.id === action.payload.id);
         if (userPaymentsIndex !== -1) {
-          state.userPayments[userPaymentsIndex] = action.payload;
+          state.userPayments = [
+            ...state.userPayments.slice(0, userPaymentsIndex),
+            action.payload,
+            ...state.userPayments.slice(userPaymentsIndex + 1)
+          ];
         }
         
         // Update current payment if it's the same one

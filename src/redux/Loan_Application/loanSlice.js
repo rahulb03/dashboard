@@ -167,7 +167,12 @@ const loanSlice = createSlice({
               }
             }
           }
-          state.loanApplications[index] = action.payload
+          // Create new array to ensure React detects the change
+          state.loanApplications = [
+            ...state.loanApplications.slice(0, index),
+            action.payload,
+            ...state.loanApplications.slice(index + 1)
+          ]
         }
         if (state.currentLoanApplication?.id === action.payload.id) {
           state.currentLoanApplication = action.payload
@@ -245,8 +250,13 @@ const loanSlice = createSlice({
               state.stats[newApplicationStatus] += 1
             }
           }
-          // Only update the specific loan, preserving all other data
-          state.loanApplications[index] = { ...oldLoan, ...action.payload }
+          // Create new array to ensure React detects the change
+          const updatedLoan = { ...oldLoan, ...action.payload }
+          state.loanApplications = [
+            ...state.loanApplications.slice(0, index),
+            updatedLoan,
+            ...state.loanApplications.slice(index + 1)
+          ]
         }
         if (state.currentLoanApplication?.id === action.payload.id) {
           state.currentLoanApplication = { ...state.currentLoanApplication, ...action.payload }
@@ -269,7 +279,12 @@ const loanSlice = createSlice({
         )
         if (index !== -1) {
           // Payment status update doesn't affect loan status stats, so no stats recalculation needed
-          state.loanApplications[index] = action.payload
+          // Create new array to ensure React detects the change
+          state.loanApplications = [
+            ...state.loanApplications.slice(0, index),
+            action.payload,
+            ...state.loanApplications.slice(index + 1)
+          ]
         }
         if (state.currentLoanApplication?.id === action.payload.id) {
           state.currentLoanApplication = action.payload
@@ -341,7 +356,12 @@ const loanSlice = createSlice({
             updatedAt: new Date().toISOString()
           }
           
-          state.loanApplications[index] = updatedApplication
+          // Create new array to ensure React detects the change
+          state.loanApplications = [
+            ...state.loanApplications.slice(0, index),
+            updatedApplication,
+            ...state.loanApplications.slice(index + 1)
+          ]
           
           // Update current application if it's the same one
           if (state.currentLoanApplication?.id === action.payload.applicationId) {

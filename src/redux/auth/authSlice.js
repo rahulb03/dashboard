@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { REHYDRATE } from 'redux-persist';
 import { login, signup, getProfile, updateProfile, updateProfilePhoto, changePassword, logout } from './authThunks';
-import { validateStoredAuth, clearStoredAuthData, storeAuthData, isTokenExpired, isValidAdminRole } from '@/lib/auth-utils';
+import { isValidAdminRole } from '@/lib/auth-utils';
 
 const initialState = {
   user: null,
@@ -30,65 +30,22 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.initialized = true; // Keep as initialized after logout
-      
-      // Clear stored auth data
-      clearStoredAuthData();
+      // Cookies are cleared by the server
     },
   },
   extraReducers: (builder) => {
     builder
       // Handle rehydration from persisted state
       .addCase(REHYDRATE, (state, action) => {
-        // Get persisted state from Redux persist
-        const persistedAuth = action.payload?.auth;
-        
-        if (persistedAuth?.token && persistedAuth?.user && persistedAuth?.isAuthenticated) {
-          // Validate the persisted token
-          const persistedTokenExpired = isTokenExpired(persistedAuth.token);
-          
-          if (!persistedTokenExpired) {
-            // Validate user role before restoring auth state
-            if (!isValidAdminRole(persistedAuth.user?.role)) {
-              // Invalid role, clear auth
-              state.token = null;
-              state.user = null;
-              state.isAuthenticated = false;
-              clearStoredAuthData();
-            } else {
-              // Token is valid and role is authorized, restore auth state
-              state.token = persistedAuth.token;
-              state.user = persistedAuth.user;
-              state.isAuthenticated = true;
-              
-              // Ensure localStorage is synced
-              storeAuthData(persistedAuth.token, persistedAuth.user);
-            }
-          } else {
-            // Token expired, clear auth
-            state.token = null;
-            state.user = null;
-            state.isAuthenticated = false;
-            clearStoredAuthData();
-          }
-        } else {
-          // Check localStorage as fallback
-          const validAuth = validateStoredAuth();
-          if (validAuth.isAuthenticated) {
-            state.token = validAuth.token;
-            state.user = validAuth.user;
-            state.isAuthenticated = true;
-          } else {
-            // No valid auth found
-            state.token = null;
-            state.user = null;
-            state.isAuthenticated = false;
-          }
-        }
-        
+        // With cookie-based auth, we don't restore from persisted state
+        // The app will check authentication by calling getProfile
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
         state._persist = { ...state._persist, rehydrated: true };
         state.loading = false;
         state.error = null;
-        state.initialized = true;
+        state.initialized = false; // Will be set to true after getProfile
       })
       .addCase(login.pending, (state) => {
         state.loading = true;
@@ -103,19 +60,16 @@ const authSlice = createSlice({
           state.user = null;
           state.token = null;
           state.error = 'Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access this dashboard.';
-          clearStoredAuthData();
           state.initialized = true;
           return;
         }
         
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = null; // Token is in httpOnly cookie
         state.initialized = true;
         state.error = null;
-        
-        // Ensure localStorage is always synced
-        storeAuthData(action.payload.token, action.payload.user);
+        // No need to store in localStorage - cookies are managed by server
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -134,19 +88,16 @@ const authSlice = createSlice({
           state.user = null;
           state.token = null;
           state.error = 'Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access this dashboard.';
-          clearStoredAuthData();
           state.initialized = true;
           return;
         }
         
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = null; // Token is in httpOnly cookie
         state.initialized = true;
         state.error = null;
-        
-        // Ensure localStorage is always synced
-        storeAuthData(action.payload.token, action.payload.user);
+        // No need to store in localStorage - cookies are managed by server
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
@@ -158,9 +109,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
-        
-        // Clear stored auth data
-        clearStoredAuthData();
+        // Cookies are cleared by the server
       })
       .addCase(getProfile.pending, (state) => {
         state.loading = true;

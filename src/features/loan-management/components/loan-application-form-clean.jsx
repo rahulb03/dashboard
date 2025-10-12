@@ -11,7 +11,8 @@ import { Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   createLoanApplicationWithDocumentsThunk,
-  updateLoanApplicationWithDocumentsThunk
+  updateLoanApplicationWithDocumentsThunk,
+  fetchLoanApplicationsThunk
 } from '@/redux/Loan_Application/loanThunks';
 import DocumentUpload from './document-upload';
 
@@ -131,6 +132,9 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
           );
         }
         
+        // Refresh list to show updated data immediately - same as salary
+        dispatch(fetchLoanApplicationsThunk({ forceRefresh: true }));
+        
         // Navigate back to list after update
         console.log('🔄 Navigating back to applications list after update in 1.5s...');
         setTimeout(() => {
@@ -146,6 +150,9 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
         } else {
           toast.success(`✨ Created loan application for ${submitData.fullName || 'applicant'} successfully!`);
         }
+        
+        // Refresh list to show new data immediately - same as salary
+        dispatch(fetchLoanApplicationsThunk({ forceRefresh: true }));
         
         // Navigate back to list after creation
         console.log('🔄 Navigating back to applications list in 1.5s...');
@@ -498,7 +505,12 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                onClick={(e) => {
+                  if (isSubmitting) e.preventDefault();
+                }}
+              >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (

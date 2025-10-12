@@ -15,7 +15,7 @@ const META_THEME_COLORS = {
 };
 
 export const metadata = {
-  title: 'Next Shadcn',
+  title: 'One Gred Dashboard ',
   description: 'Basic dashboard with Next.js and Shadcn'
 };
 

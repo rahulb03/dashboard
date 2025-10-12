@@ -82,7 +82,8 @@ export const createLoanApplicationThunk = createAsyncThunk(
         loanData
       );
       const newLoan = response.data.data;
-      // Redux state handles the update now - no cache manipulation
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
       return newLoan;
     } catch (error) {
       return rejectWithValue(
@@ -102,7 +103,9 @@ export const updateLoanApplicationThunk = createAsyncThunk(
         loanData
       );
       const updatedLoan = response.data.data;
-      // Redux state handles the update now - no cache manipulation
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
+      dataCache.invalidate('loanApplication', { loanId: id });
       return updatedLoan;
     } catch (error) {
       return rejectWithValue(
@@ -118,7 +121,9 @@ export const deleteLoanApplicationThunk = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await axiosInstance.delete(API_ENDPOINTS.LOAN_APPLICATION.DELETE(id));
-      // Redux state handles the update now - no cache manipulation
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
+      dataCache.invalidate('loanApplication', { loanId: id });
       return id;
     } catch (error) {
       return rejectWithValue(
@@ -308,7 +313,9 @@ export const updateLoanStatusThunk = createAsyncThunk(
         { applicationStatus: status }
       );
       const updatedLoan = response.data.data;
-      // Redux state handles the update now - no cache manipulation
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
+      dataCache.invalidate('loanApplication', { loanId: id });
       return updatedLoan;
     } catch (error) {
       return rejectWithValue(
@@ -328,7 +335,9 @@ export const updatePaymentStatusThunk = createAsyncThunk(
         { paymentStatus }
       );
       const updatedLoan = response.data.data;
-      // Redux state handles the update now - no cache manipulation
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
+      dataCache.invalidate('loanApplication', { loanId: id });
       return updatedLoan;
     } catch (error) {
       return rejectWithValue(
@@ -379,6 +388,9 @@ export const createLoanApplicationWithDocumentsThunk = createAsyncThunk(
           }
         }
       );
+
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
 
       return response.data.data;
     } catch (error) {
@@ -445,6 +457,10 @@ export const updateLoanApplicationWithDocumentsThunk = createAsyncThunk(
           }
         }
       );
+
+      // Invalidate cache so next fetch gets fresh data
+      dataCache.invalidate('loanApplications');
+      dataCache.invalidate('loanApplication', { loanId: id });
 
       return response.data.data;
     } catch (error) {

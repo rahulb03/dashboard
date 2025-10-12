@@ -143,7 +143,12 @@ const paymentConfigSlice = createSlice({
               state.stats.inactive -= 1;
             }
           }
-          state.paymentConfigs[index] = action.payload;
+          // Create new array to ensure React detects the change
+          state.paymentConfigs = [
+            ...state.paymentConfigs.slice(0, index),
+            action.payload,
+            ...state.paymentConfigs.slice(index + 1)
+          ];
         }
         if (state.currentPaymentConfig?.id === action.payload.id) {
           state.currentPaymentConfig = action.payload;
@@ -203,7 +208,13 @@ const paymentConfigSlice = createSlice({
               state.stats.inactive += 1;
             }
           }
-          state.paymentConfigs[index] = { ...oldConfig, ...action.payload };
+          // Create new array to ensure React detects the change
+          const updatedConfig = { ...oldConfig, ...action.payload };
+          state.paymentConfigs = [
+            ...state.paymentConfigs.slice(0, index),
+            updatedConfig,
+            ...state.paymentConfigs.slice(index + 1)
+          ];
         }
         if (state.currentPaymentConfig?.id === action.payload.id) {
           state.currentPaymentConfig = { ...state.currentPaymentConfig, ...action.payload };

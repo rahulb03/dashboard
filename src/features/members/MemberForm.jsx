@@ -81,8 +81,6 @@ export default function MemberForm({ memberId, mode = 'edit' }) {
         }
         await dispatch(createMemberThunk(submitData)).unwrap();
         toast.success('Member created successfully');
-        // Refresh the members list to show the new member immediately
-        dispatch(fetchMembersThunk());
       } else {
         // For update, remove password if empty
         if (!submitData.password || submitData.password.trim() === '') {
@@ -93,8 +91,6 @@ export default function MemberForm({ memberId, mode = 'edit' }) {
           userData: submitData
         })).unwrap();
         toast.success('Member updated successfully');
-        // Refresh the members list to show the updated member immediately
-        dispatch(fetchMembersThunk());
       }
       
       router.push('/dashboard/members');
@@ -215,7 +211,12 @@ export default function MemberForm({ memberId, mode = 'edit' }) {
               
               
               {isEditMode && (
-                <Button type="submit" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  onClick={(e) => {
+                    if (isSubmitting) e.preventDefault();
+                  }}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -231,7 +232,12 @@ export default function MemberForm({ memberId, mode = 'edit' }) {
               )}
               
               {isCreateMode && (
-                <Button type="submit" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  onClick={(e) => {
+                    if (isSubmitting) e.preventDefault();
+                  }}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -1,7 +1,0 @@
-﻿To see all data properly in Excel after opening the CSV file:
-1. Select all cells (Ctrl+A)
-2. Go to Home tab > Format > AutoFit Column Width
-
-OR
-
-Double-click any column divider between column headers to auto-fit all columns

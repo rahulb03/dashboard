@@ -57,12 +57,39 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.slingacademy.com",
+        hostname: "api.onegred.com",
         port: "",
       },
     ],
   },
   transpilePackages: ["geist"],
+  // Improve HMR (Hot Module Replacement)
+  reactStrictMode: true,
+  // Optimize for development
+  webpack: (config, { dev, isServer }) => {
+    if (dev) {
+      // Aggressive file watching for Windows
+      config.watchOptions = {
+        poll: 1000, // Poll every second for file changes
+        aggregateTimeout: 300, // Wait 300ms before rebuilding
+        ignored: ['**/node_modules', '**/.next'],
+      };
+      
+      // Enable better HMR
+      config.infrastructureLogging = {
+        level: 'error',
+      };
+      
+      // Ensure HMR works properly
+      if (!isServer) {
+        config.optimization = {
+          ...config.optimization,
+          moduleIds: 'named',
+        };
+      }
+    }
+    return config;
+  },
 };
 
 import { withSentryConfig } from "@sentry/nextjs";

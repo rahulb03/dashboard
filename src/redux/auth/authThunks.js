@@ -1,37 +1,33 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosInstance, unauthenticatedAxios } from '@/lib/axios';
 import { API_ENDPOINTS } from '@/config/constant';
-import { storeAuthData, clearStoredAuthData } from '@/lib/auth-utils';
 import { mockAuthService } from '@/lib/mock-auth';
 import dataCache from '@/utils/DataCacheManager';
 
 const extractResponse = (data) => {
-  const token = data?.data?.token || data?.token;
+  // With cookie-based auth, token is not returned in response
   const user = data?.data?.user || data?.user || data?.data || data;
-  return { token, user };
+  return { user };
 };
 
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
     const response = await unauthenticatedAxios.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
-    const { token, user } = extractResponse(response.data.data);
+    const { user } = extractResponse(response.data);
     
-    if (!token || !user) throw new Error('Invalid login response');
+    if (!user) throw new Error('Invalid login response');
     
-    // Note: Role validation will be handled in the reducer (authSlice.js)
-    // We just return the data here; localStorage will only be synced if role is valid
-    
-    return { token, user };
+    // Cookie is automatically set by the server with httpOnly flag
+    return { user };
   } catch (error) {
     // Try mock auth as fallback in development
     if (process.env.NODE_ENV === 'development') {
       try {
         const mockResponse = await mockAuthService.login(email, password);
-        const { token, user } = extractResponse(mockResponse.data);
+        const { user } = extractResponse(mockResponse.data);
         
-        if (token && user) {
-          storeAuthData(token, user);
-          return { token, user };
+        if (user) {
+          return { user };
         }
       } catch (mockError) {
         // Silent fallback failure
@@ -46,23 +42,20 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 export const signup = createAsyncThunk('auth/signup', async (userData, { rejectWithValue }) => {
   try {
     const response = await unauthenticatedAxios.post(API_ENDPOINTS.AUTH.SIGN_UP, userData);
-    const { token, user } = extractResponse(response.data);
-    if (!token || !user) throw new Error('Invalid signup response');
+    const { user } = extractResponse(response.data);
+    if (!user) throw new Error('Invalid signup response');
     
-    // Persist to localStorage for cross-session persistence
-    storeAuthData(token, user);
-    
-    return { token, user };
+    // Cookie is automatically set by the server with httpOnly flag
+    return { user };
   } catch (error) {
     // Try mock auth as fallback in development
     if (process.env.NODE_ENV === 'development') {
       try {
         const mockResponse = await mockAuthService.signup(userData);
-        const { token, user } = extractResponse(mockResponse.data);
+        const { user } = extractResponse(mockResponse.data);
         
-        if (token && user) {
-          storeAuthData(token, user);
-          return { token, user };
+        if (user) {
+          return { user };
         }
       } catch (mockError) {
         // Silent fallback failure
@@ -168,12 +161,10 @@ export const updateProfilePhoto = createAsyncThunk('auth/updateProfilePhoto', as
 export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await axiosInstance.get(API_ENDPOINTS.AUTH.LOGOUT);
+    // Cookie is automatically cleared by the server
   } catch (error) {
     // Don't reject, just proceed with client-side logout
   } finally {
-    // Always clear stored auth data on logout
-    clearStoredAuthData();
-    
     // Clear user profile cache
     dataCache.invalidate('userProfile', { userId: 'current' });
   }

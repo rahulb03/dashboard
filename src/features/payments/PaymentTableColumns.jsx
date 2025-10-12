@@ -16,14 +16,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ConfirmDeleteModal } from '@/components/modal/confirm-delete-modal';
 import { 
   IconDotsVertical, 
-  IconEye, 
-  IconTrash,
-  IconRefresh
+  IconTrash
 } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { deletePaymentThunk, refundPaymentThunk } from '@/redux/payments/paymentThunks';
+import { deletePaymentThunk } from '@/redux/payments/paymentThunks';
 import { toast } from 'sonner';
 
 const columnHelper = createColumnHelper();
@@ -93,7 +91,6 @@ const PaymentTypeBadge = ({ type }) => {
 const CellAction = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [refundLoading, setRefundLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -110,20 +107,12 @@ const CellAction = ({ data }) => {
     }
   };
 
-  const handleRefund = async () => {
-    setRefundLoading(true);
-    try {
-      await dispatch(refundPaymentThunk(data.id)).unwrap();
-      toast.success('Payment refunded successfully');
-    } catch (error) {
-      toast.error(error.message || 'Failed to refund payment');
-    } finally {
-      setRefundLoading(false);
-    }
-  };
-
   const canDelete = data.status === 'CREATED' || data.status === 'FAILED';
-  const canRefund = data.status === 'SUCCESS' && !data.refundedAt;
+
+  // Don't show actions dropdown if no actions are available
+  if (!canDelete) {
+    return null;
+  }
 
   return (
     <>
@@ -147,20 +136,9 @@ const CellAction = ({ data }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => router.push(`/dashboard/payments/${data.id}/view`)}>
-              <IconEye className='mr-2 h-4 w-4' /> View Details
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              <IconTrash className='mr-2 h-4 w-4' /> Delete
             </DropdownMenuItem>
-            {canRefund && (
-              <DropdownMenuItem onClick={handleRefund} disabled={refundLoading}>
-                <IconRefresh className='mr-2 h-4 w-4' />
-                {refundLoading ? 'Refunding...' : 'Refund'}
-              </DropdownMenuItem>
-            )}
-            {canDelete && (
-              <DropdownMenuItem onClick={() => setOpen(true)}>
-                <IconTrash className='mr-2 h-4 w-4' /> Delete
-              </DropdownMenuItem>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

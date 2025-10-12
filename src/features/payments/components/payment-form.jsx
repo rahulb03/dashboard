@@ -157,10 +157,14 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
           paymentConfigData: values
         })).unwrap();
         toast.success('Payment configuration updated successfully!');
+        // Refresh list to show updated data immediately - same as salary
+        dispatch(fetchPaymentConfigsThunk({ forceRefresh: true }));
       } else {
         // Create new payment configuration
         const result = await dispatch(createPaymentConfigThunk(values)).unwrap();
         toast.success('Payment configuration created successfully!');
+        // Refresh list to show new data immediately - same as salary
+        dispatch(fetchPaymentConfigsThunk({ forceRefresh: true }));
       }
       router.push('/dashboard/payment-configurations');
     } catch (error) {
@@ -249,7 +253,14 @@ export default function PaymentForm({ paymentId, mode, initialData, pageTitle })
             />
 
             {!isViewMode && (
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                onClick={(e) => {
+                  if (isLoading) e.preventDefault();
+                }}
+                className="relative"
+              >
+                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {isLoading ? 'Saving...' : (paymentData && !isNewMode ? 'Update Payment Configuration' : 'Create Payment Configuration')}
               </Button>
             )}
