@@ -79,7 +79,7 @@ const calculateSessionDuration = (startedAt) => {
  */
 async function getOptimizedFunnelAnalytics(dateRange = '7d', startDate = null, endDate = null) {
   try {
-    console.log(`📊 Generating optimized funnel analytics for ${dateRange}`);
+    // console.log(`📊 Generating optimized funnel analytics for ${dateRange}`);
 
     // Determine date range
     let dateFilter = {};
@@ -320,7 +320,7 @@ function getTimeBasedAnalysis(sessions) {
  */
 async function getTrendingAnalysis(period = 'daily', periods = 7) {
   try {
-    console.log(`📈 Generating trending analysis: ${period} for ${periods} periods`);
+    // console.log(`📈 Generating trending analysis: ${period} for ${periods} periods`);
 
     const now = new Date();
     const trends = [];
@@ -431,7 +431,7 @@ async function calculateDailyFunnelStats(targetDate = null) {
     const startOfDay = new Date(date.setHours(0, 0, 0, 0));
     const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
-    console.log(`🧮 Calculating daily stats for ${startOfDay.toISOString().split('T')[0]}`);
+    // console.log(`🧮 Calculating daily stats for ${startOfDay.toISOString().split('T')[0]}`);
 
     // Get all sessions for the day
     const sessions = await prisma.userFlowTracking.findMany({
@@ -489,7 +489,7 @@ async function calculateDailyFunnelStats(targetDate = null) {
       percentage: (count / sessions.length) * 100
     }));
 
-    console.log(`✅ Daily stats calculated: ${stats.totalSessions} sessions, ${stats.conversionRate.toFixed(2)}% conversion`);
+    // console.log(`✅ Daily stats calculated: ${stats.totalSessions} sessions, ${stats.conversionRate.toFixed(2)}% conversion`);
 
     return {
       success: true,
@@ -514,7 +514,7 @@ async function calculateDailyFunnelStats(targetDate = null) {
  */
 async function getStatsSummary(period = '7d') {
   try {
-    console.log(`📊 Generating stats summary for ${period}`);
+    // console.log(`📊 Generating stats summary for ${period}`);
 
     // Get date range
     let dateFilter = {};

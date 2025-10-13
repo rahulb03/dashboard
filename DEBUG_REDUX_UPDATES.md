@@ -39,7 +39,7 @@ Open Redux DevTools and check if the state actually updates after the save opera
 Add this to your component:
 ```javascript
 useEffect(() => {
-  console.log('Component re-rendered with data:', data);
+  // console.log('Component re-rendered with data:', data);
 }, [data]);
 ```
 

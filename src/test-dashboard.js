@@ -50,13 +50,13 @@ function testDashboardCalculations() {
   const pendingApplications = loanApplications.filter(app => app.applicationStatus === 'PENDING').length;
   const totalRevenue = loanApplications.reduce((sum, loan) => sum + parseFloat(loan.loanAmount), 0);
   
-  console.log('🧪 Dashboard Test Results:');
-  console.log('- Total Users:', totalUsers);
-  console.log('- Active Members:', activeMembers);
-  console.log('- Total Loans:', totalLoans);
-  console.log('- Completed Applications:', completedApplications);
-  console.log('- Pending Applications:', pendingApplications);
-  console.log('- Total Revenue:', `$${totalRevenue.toLocaleString()}`);
+  // console.log('🧪 Dashboard Test Results:');
+  // console.log('- Total Users:', totalUsers);
+  // console.log('- Active Members:', activeMembers);
+  // console.log('- Total Loans:', totalLoans);
+  // console.log('- Completed Applications:', completedApplications);
+  // console.log('- Pending Applications:', pendingApplications);
+  // console.log('- Total Revenue:', `$${totalRevenue.toLocaleString()}`);
   
   // Test recent activities generation
   const activities = loanApplications.map(loan => {
@@ -71,7 +71,7 @@ function testDashboardCalculations() {
     };
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   
-  console.log('🔄 Recent Activities:', activities.length, 'items');
+  // console.log('🔄 Recent Activities:', activities.length, 'items');
   
   return {
     totalUsers,

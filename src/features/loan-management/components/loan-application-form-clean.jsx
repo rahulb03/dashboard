@@ -84,12 +84,12 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
       // React Hook Form valueAsNumber already converts to numbers
       const submitData = { ...values };
       
-      console.log('🔢 Raw values from form:', values);
-      console.log('🔢 Data types from form:', {
-        monthlySalary: typeof values.monthlySalary,
-        cibilScore: typeof values.cibilScore,
-        loanAmount: typeof values.loanAmount
-      });
+      // console.log('🔢 Raw values from form:', values);
+      // console.log('🔢 Data types from form:', {
+      //   monthlySalary: typeof values.monthlySalary,
+      //   cibilScore: typeof values.cibilScore,
+      //   loanAmount: typeof values.loanAmount
+      // });
       
       
       // Clean up data - remove empty/undefined/NaN values
@@ -103,12 +103,12 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
         }
       });
       
-      console.log('🚀 Final submitData with proper types:', submitData);
-      console.log('🔢 Final data types:', {
-        monthlySalary: submitData.monthlySalary ? typeof submitData.monthlySalary : 'not included',
-        cibilScore: submitData.cibilScore ? typeof submitData.cibilScore : 'not included', 
-        loanAmount: submitData.loanAmount ? typeof submitData.loanAmount : 'not included'
-      });
+      // console.log('🚀 Final submitData with proper types:', submitData);
+      // console.log('🔢 Final data types:', {
+      //   monthlySalary: submitData.monthlySalary ? typeof submitData.monthlySalary : 'not included',
+      //   cibilScore: submitData.cibilScore ? typeof submitData.cibilScore : 'not included', 
+      //   loanAmount: submitData.loanAmount ? typeof submitData.loanAmount : 'not included'
+      // });
       
       const hasNewDocuments = documents && documents.length > 0;
 
@@ -136,9 +136,9 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
         dispatch(fetchLoanApplicationsThunk({ forceRefresh: true }));
         
         // Navigate back to list after update
-        console.log('🔄 Navigating back to applications list after update in 1.5s...');
+        // console.log('🔄 Navigating back to applications list after update in 1.5s...');
         setTimeout(() => {
-          console.log('➡️ Executing navigation now');
+          // console.log('➡️ Executing navigation now');
           router.push('/dashboard/loans/applications');
         }, 1500);
       } else {
@@ -155,9 +155,9 @@ export default function LoanApplicationFormClean({ initialData, pageTitle }) {
         dispatch(fetchLoanApplicationsThunk({ forceRefresh: true }));
         
         // Navigate back to list after creation
-        console.log('🔄 Navigating back to applications list in 1.5s...');
+        // console.log('🔄 Navigating back to applications list in 1.5s...');
         setTimeout(() => {
-          console.log('➡️ Executing navigation now');
+          // console.log('➡️ Executing navigation now');
           router.push('/dashboard/loans/applications');
         }, 1500);
       }

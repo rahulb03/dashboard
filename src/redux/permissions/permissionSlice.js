@@ -123,13 +123,13 @@ const permissionSlice = createSlice({
         state.loading.users = false;
         
         // Debug: Log what payload we're getting
-        console.log('🚀 Redux Slice Users Fulfilled:', {
-          actionPayload: action.payload,
-          isArray: Array.isArray(action.payload),
-          payloadLength: action.payload?.length,
-          payloadType: typeof action.payload,
-          firstItem: action.payload?.[0]
-        });
+        // console.log('🚀 Redux Slice Users Fulfilled:', {
+        //   actionPayload: action.payload,
+        //   isArray: Array.isArray(action.payload),
+        //   payloadLength: action.payload?.length,
+        //   payloadType: typeof action.payload,
+        //   firstItem: action.payload?.[0]
+        // });
         
         // The thunk now returns the users array directly
         if (Array.isArray(action.payload)) {
@@ -161,12 +161,12 @@ const permissionSlice = createSlice({
         state.loading.permissions = false;
         
         // Debug: Log what payload we're getting for permissions
-        console.log('🚀 Redux Slice Permissions Fulfilled:', {
-          actionPayload: action.payload,
-          hasCategories: action.payload?.categories ? true : false,
-          categoriesLength: action.payload?.categories?.length,
-          totalPermissions: action.payload?.totalPermissions
-        });
+        // console.log('🚀 Redux Slice Permissions Fulfilled:', {
+        //   actionPayload: action.payload,
+        //   hasCategories: action.payload?.categories ? true : false,
+        //   categoriesLength: action.payload?.categories?.length,
+        //   totalPermissions: action.payload?.totalPermissions
+        // });
         
         state.availablePermissions = action.payload;
         

@@ -98,12 +98,12 @@ export default function LoanApplicationsDataTable({
   const handleDeleteApplication = useCallback(async () => {
     if (!selectedApplication || isDeleting) return;
     
-    console.log('🗑️ Starting delete for application:', selectedApplication.id);
+    // console.log('🗑️ Starting delete for application:', selectedApplication.id);
     setIsDeleting(true);
     
     try {
       await dispatch(deleteLoanApplicationThunk(selectedApplication.id)).unwrap();
-      console.log('✅ Delete successful');
+      // console.log('✅ Delete successful');
       
       // Close modal and clear state
       setIsDeleteDialogOpen(false);
@@ -114,7 +114,7 @@ export default function LoanApplicationsDataTable({
         title: 'Success',
         description: 'Application deleted successfully',
       });
-      console.log('✅ Delete handler completed - NO navigation should happen');
+      // console.log('✅ Delete handler completed - NO navigation should happen');
     } catch (error) {
       console.error('❌ Delete error:', error);
       toast({

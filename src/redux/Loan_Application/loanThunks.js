@@ -140,15 +140,15 @@ export const viewDocumentThunk = createAsyncThunk(
     { documentId, applicationId, documentName, documentPath },
     { rejectWithValue }
   ) => {
-    console.log('🔍 View thunk called with:', {
-      documentId,
-      applicationId,
-      documentName,
-      documentPath
-    });
+    // console.log('🔍 View thunk called with:', {
+    //   documentId,
+    //   applicationId,
+    //   documentName,
+    //   documentPath
+    // });
 
     if (!applicationId) {
-      console.error('❌ View thunk: Missing applicationId');
+      // console.error('❌ View thunk: Missing applicationId');
       return rejectWithValue('Application ID is required');
     }
 
@@ -158,15 +158,15 @@ export const viewDocumentThunk = createAsyncThunk(
       if (documentPath) {
         // Extract filename from path - this will be the actual saved filename with timestamp
         fileName = documentPath.split(/[\\/]/).pop(); // Handle both Windows and Unix path separators
-        console.log('📁 Using filename from path:', fileName);
+        // console.log('📁 Using filename from path:', fileName);
       } else if (documentName) {
         // Fallback to document name if no path available
         fileName = documentName;
-        console.log('📝 Using document name as fallback:', fileName);
+        // console.log('📝 Using document name as fallback:', fileName);
       } else {
-        console.error(
-          '❌ Cannot determine filename - no path or name provided'
-        );
+        // console.error(
+        //   '❌ Cannot determine filename - no path or name provided'
+        // );
         return rejectWithValue('Cannot determine document filename');
       }
 
@@ -174,15 +174,15 @@ export const viewDocumentThunk = createAsyncThunk(
       const encodedFileName = encodeURIComponent(fileName);
 
       // Construct direct file URL: localhost:3000/uploads/documents/applicationid/filename
-      const fileUrl = `http://localhost:3000/uploads/documents/${applicationId}/${encodedFileName}`;
-      console.log('🔗 Direct file view URL:', fileUrl);
-      console.log('📝 Original filename:', fileName);
-      console.log('📝 Encoded filename:', encodedFileName);
+      const fileUrl = `https://api.onegred.com/uploads/documents/${applicationId}/${encodedFileName}`;
+      // console.log('🔗 Direct file view URL:', fileUrl);
+      // console.log('📝 Original filename:', fileName);
+      // console.log('📝 Encoded filename:', encodedFileName);
 
       // Open document directly in new tab for viewing
       window.open(fileUrl, '_blank');
 
-      console.log('✅ Document opened in new tab for viewing:', fileName);
+      // console.log('✅ Document opened in new tab for viewing:', fileName);
 
       return {
         url: fileUrl,
@@ -190,7 +190,7 @@ export const viewDocumentThunk = createAsyncThunk(
         applicationId
       };
     } catch (error) {
-      console.error('❌ View document error:', error);
+      // console.error('❌ View document error:', error);
       return rejectWithValue(error.message || 'Failed to view document');
     }
   }
@@ -203,55 +203,55 @@ export const downloadDocumentThunk = createAsyncThunk(
     { documentId, applicationId, documentName, documentPath },
     { rejectWithValue }
   ) => {
-    console.log('🚀 Download thunk called with:', {
-      documentId,
-      applicationId,
-      documentName,
-      documentPath
-    });
+    // console.log('🚀 Download thunk called with:', {
+    //   documentId,
+    //   applicationId,
+    //   documentName,
+    //   documentPath
+    // });
 
     // Validate required parameters
     if (!applicationId) {
-      console.error('❌ Download thunk: Missing applicationId');
+      // console.error('❌ Download thunk: Missing applicationId');
       return rejectWithValue('Application ID is required');
     }
 
     if (!documentName && !documentPath) {
-      console.error('❌ Download thunk: Missing document name or path');
+      // console.error('❌ Download thunk: Missing document name or path');
       return rejectWithValue('Document name or path is required');
     }
 
-    try {
-      // Extract filename from path (which contains the actual saved filename with timestamp)
-      let fileName;
-      if (documentPath) {
-        // Extract filename from path - this will be the actual saved filename with timestamp
-        fileName = documentPath.split(/[\\/]/).pop(); // Handle both Windows and Unix path separators
-        console.log('📁 Using filename from path:', fileName);
-      } else if (documentName) {
-        // Fallback to document name if no path available
-        fileName = documentName;
-        console.log('📝 Using document name as fallback:', fileName);
-      } else {
-        console.error(
-          '❌ Cannot determine filename - no path or name provided'
-        );
-        return rejectWithValue('Cannot determine document filename');
-      }
-
-      // URL encode the filename to handle spaces and special characters
-      const encodedFileName = encodeURIComponent(fileName);
-
-      // Construct direct file URL: localhost:3000/uploads/documents/applicationid/filename
-      const fileUrl = `http://localhost:3000/uploads/documents/${applicationId}/${encodedFileName}`;
-      console.log('🔗 Direct file URL:', fileUrl);
-      console.log('📝 Original filename:', fileName);
-      console.log('📝 Encoded filename:', encodedFileName);
-
-      // Try to download using fetch and blob (more reliable)
       try {
-        console.log('📦 Attempting fetch-based download...');
-        const response = await fetch(fileUrl);
+        // Extract filename from path (which contains the actual saved filename with timestamp)
+        let fileName;
+        if (documentPath) {
+          // Extract filename from path - this will be the actual saved filename with timestamp
+          fileName = documentPath.split(/[\\/]/).pop(); // Handle both Windows and Unix path separators
+          // console.log('📁 Using filename from path:', fileName);
+        } else if (documentName) {
+          // Fallback to document name if no path available
+          fileName = documentName;
+          // console.log('📝 Using document name as fallback:', fileName);
+        } else {
+          // console.error(
+          //   '❌ Cannot determine filename - no path or name provided'
+          // );
+          return rejectWithValue('Cannot determine document filename');
+        }
+
+        // URL encode the filename to handle spaces and special characters
+        const encodedFileName = encodeURIComponent(fileName);
+
+        // Construct direct file URL: localhost:3000/uploads/documents/applicationid/filename
+        const fileUrl = `https://api.onegred.com/uploads/documents/${applicationId}/${encodedFileName}`;
+        // console.log('🔗 Direct file URL:', fileUrl);
+        // console.log('📝 Original filename:', fileName);
+        // console.log('📝 Encoded filename:', encodedFileName);
+
+        // Try to download using fetch and blob (more reliable)
+        try {
+          // console.log('📦 Attempting fetch-based download...');
+          const response = await fetch(fileUrl);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -271,12 +271,12 @@ export const downloadDocumentThunk = createAsyncThunk(
         // Clean up blob URL
         window.URL.revokeObjectURL(blobUrl);
 
-        console.log('✅ Document downloaded successfully via fetch:', fileName);
+        // console.log('✅ Document downloaded successfully via fetch:', fileName);
       } catch (fetchError) {
-        console.log(
-          '⚠️ Fetch download failed, trying direct link method:',
-          fetchError.message
-        );
+        // console.log(
+        //   '⚠️ Fetch download failed, trying direct link method:',
+        //   fetchError.message
+        // );
 
         // Fallback to direct link method
         const link = document.createElement('a');
@@ -289,15 +289,15 @@ export const downloadDocumentThunk = createAsyncThunk(
         link.click();
         document.body.removeChild(link);
 
-        console.log(
-          '✅ Document download triggered via direct link:',
-          fileName
-        );
+        // console.log(
+        //   '✅ Document download triggered via direct link:',
+        //   fileName
+        // );
       }
 
       return { documentId, documentName: fileName };
     } catch (error) {
-      console.error('❌ Download error:', error);
+      // console.error('❌ Download error:', error);
       return rejectWithValue(error.message || 'Failed to download document');
     }
   }
@@ -373,11 +373,11 @@ export const createLoanApplicationWithDocumentsThunk = createAsyncThunk(
         formData.append('documentTypes', type);
       });
 
-      console.log('📤 Creating loan application with documents:', {
-        loanDataKeys: Object.keys(loanData),
-        documentCount: documents.length,
-        documentTypes
-      });
+      // console.log('📤 Creating loan application with documents:', {
+      //   loanDataKeys: Object.keys(loanData),
+      //   documentCount: documents.length,
+      //   documentTypes
+      // });
 
       const response = await axiosInstance.post(
         API_ENDPOINTS.LOAN_APPLICATION.CREATE_WITH_DOCUMENTS(),
@@ -394,7 +394,7 @@ export const createLoanApplicationWithDocumentsThunk = createAsyncThunk(
 
       return response.data.data;
     } catch (error) {
-      console.error('❌ Create with documents error:', error);
+      // console.error('❌ Create with documents error:', error);
       return rejectWithValue(
         error.response?.data?.message ||
           error.response?.data?.data?.non_field_message ||
@@ -441,12 +441,12 @@ export const updateLoanApplicationWithDocumentsThunk = createAsyncThunk(
         });
       }
 
-      console.log('📤 Updating loan application with documents:', {
-        id,
-        loanDataKeys: Object.keys(loanData),
-        documentCount: documents?.length || 0,
-        replaceExistingDocuments
-      });
+      // console.log('📤 Updating loan application with documents:', {
+      //   id,
+      //   loanDataKeys: Object.keys(loanData),
+      //   documentCount: documents?.length || 0,
+      //   replaceExistingDocuments
+      // });
 
       const response = await axiosInstance.put(
         API_ENDPOINTS.LOAN_APPLICATION.UPDATE_WITH_DOCUMENTS(id),
@@ -464,7 +464,7 @@ export const updateLoanApplicationWithDocumentsThunk = createAsyncThunk(
 
       return response.data.data;
     } catch (error) {
-      console.error('❌ Update with documents error:', error);
+      // console.error('❌ Update with documents error:', error);
       return rejectWithValue(
         error.response?.data?.message ||
           error.response?.data?.data?.non_field_message ||

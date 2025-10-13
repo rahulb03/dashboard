@@ -22,7 +22,7 @@ const {
  */
 const getAdminDashboardAnalytics = async (req, res) => {
   try {
-    console.log(`📊 Admin dashboard analytics requested by: ${req.user.name}`);
+    // console.log(`📊 Admin dashboard analytics requested by: ${req.user.name}`);
     
     const { enhanced = 'false' } = req.query;
     const includeAdvanced = enhanced === 'true';
@@ -269,11 +269,11 @@ const getAdminDashboardAnalytics = async (req, res) => {
       }
     };
 
-    console.log(`✅ Admin dashboard generated successfully`);
+    // console.log(`✅ Admin dashboard generated successfully`);
     return res.status(200).json(dashboard);
 
   } catch (error) {
-    console.error("❌ Get admin dashboard analytics error:", error);
+    // console.error("❌ Get admin dashboard analytics error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to generate admin dashboard analytics",
@@ -288,7 +288,7 @@ const getAdminDashboardAnalytics = async (req, res) => {
  */
 const getAdminAllSessions = async (req, res) => {
   try {
-    console.log(`📋 Admin sessions request by: ${req.user.name}`);
+    // console.log(`📋 Admin sessions request by: ${req.user.name}`);
     
     const {
       limit = 50, // Reduced default for admin interface
@@ -415,11 +415,11 @@ const getAdminAllSessions = async (req, res) => {
       }
     };
 
-    console.log(`✅ Admin retrieved ${sessions.length}/${totalCount} sessions`);
+    // console.log(`✅ Admin retrieved ${sessions.length}/${totalCount} sessions`);
     return res.status(200).json(response);
 
   } catch (error) {
-    console.error("❌ Get admin all sessions error:", error);
+    // console.error("❌ Get admin all sessions error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to retrieve sessions",
@@ -436,7 +436,7 @@ const getAdminSessionDetails = async (req, res) => {
   try {
     const { sessionId } = req.params;
     
-    console.log(`🔍 Admin getting session details for: ${sessionId} by ${req.user.name}`);
+    // console.log(`🔍 Admin getting session details for: ${sessionId} by ${req.user.name}`);
 
     const session = await prisma.UserFlowTracking.findUnique({
       where: { sessionId },
@@ -501,7 +501,7 @@ const getAdminSessionDetails = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Get admin session details error:", error);
+    // console.error("❌ Get admin session details error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to get session details",
@@ -516,7 +516,7 @@ const getAdminSessionDetails = async (req, res) => {
  */
 const getRealTimePerformance = async (req, res) => {
   try {
-    console.log(`⚡ Real-time performance requested by: ${req.user.name}`);
+    // console.log(`⚡ Real-time performance requested by: ${req.user.name}`);
 
     const now = new Date();
     const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
@@ -684,11 +684,11 @@ const getRealTimePerformance = async (req, res) => {
       }
     };
 
-    console.log(`✅ Real-time performance data generated with ${alerts.length} alerts`);
+    // console.log(`✅ Real-time performance data generated with ${alerts.length} alerts`);
     return res.status(200).json(realTimeMetrics);
 
   } catch (error) {
-    console.error("❌ Get real-time performance error:", error);
+    // console.error("❌ Get real-time performance error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to get real-time performance metrics",
@@ -711,7 +711,7 @@ const getCohortAnalysis = async (req, res) => {
       periods = 8 
     } = req.query;
 
-    console.log(`📈 Cohort analysis requested: ${cohortType} ${metric} by ${req.user.name}`);
+    // console.log(`📈 Cohort analysis requested: ${cohortType} ${metric} by ${req.user.name}`);
 
     // Determine date range
     let analysisStartDate, analysisEndDate;
@@ -886,11 +886,11 @@ const getCohortAnalysis = async (req, res) => {
       }
     };
 
-    console.log(`✅ Cohort analysis completed: ${cohorts.length} cohorts analyzed`);
+    // console.log(`✅ Cohort analysis completed: ${cohorts.length} cohorts analyzed`);
     return res.status(200).json(response);
 
   } catch (error) {
-    console.error("❌ Get cohort analysis error:", error);
+    // console.error("❌ Get cohort analysis error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to generate cohort analysis",
@@ -911,7 +911,7 @@ const getSmartAlerts = async (req, res) => {
       includeResolved = 'false' 
     } = req.query;
 
-    console.log(`🚨 Smart alerts requested for ${timeframe} by ${req.user.name}`);
+    // console.log(`🚨 Smart alerts requested for ${timeframe} by ${req.user.name}`);
 
     const now = new Date();
     let comparisonStart, currentStart;
@@ -1175,11 +1175,11 @@ const getSmartAlerts = async (req, res) => {
       }
     };
 
-    console.log(`✅ Smart alerts generated: ${filteredAlerts.length} alerts found`);
+    // console.log(`✅ Smart alerts generated: ${filteredAlerts.length} alerts found`);
     return res.status(200).json(response);
 
   } catch (error) {
-    console.error("❌ Get smart alerts error:", error);
+    // console.error("❌ Get smart alerts error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to generate smart alerts",
@@ -1201,7 +1201,7 @@ const getUserSegmentPerformance = async (req, res) => {
       endDate
     } = req.query;
 
-    console.log(`📊 User segment performance requested: ${segmentType} for ${timeRange} by ${req.user.name}`);
+    // console.log(`📊 User segment performance requested: ${segmentType} for ${timeRange} by ${req.user.name}`);
 
     // Determine date range
     let dateFilter = {};
@@ -1446,11 +1446,11 @@ const getUserSegmentPerformance = async (req, res) => {
       }
     };
 
-    console.log(`✅ User segment analysis completed: ${segments.length} segments analyzed`);
+    // console.log(`✅ User segment analysis completed: ${segments.length} segments analyzed`);
     return res.status(200).json(response);
 
   } catch (error) {
-    console.error("❌ Get user segment performance error:", error);
+    // console.error("❌ Get user segment performance error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to generate segment performance analysis",
@@ -1590,7 +1590,7 @@ router.get('/funnel-optimized',
         }
       });
     } catch (error) {
-      console.error('❌ Admin optimized funnel analytics error:', error);
+      // console.error('❌ Admin optimized funnel analytics error:', error);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate optimized analytics',
@@ -1624,7 +1624,7 @@ router.get('/trends',
         }
       });
     } catch (error) {
-      console.error('❌ Admin trending analysis error:', error);
+      // console.error('❌ Admin trending analysis error:', error);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate trending analysis',
@@ -1679,7 +1679,7 @@ router.post('/calculate-stats',
       const { date } = req.body;
       const targetDate = date ? new Date(date) : null;
       
-      console.log(`📊 Daily stats calculation triggered by ADMIN: ${req.user.name}`);
+      // console.log(`📊 Daily stats calculation triggered by ADMIN: ${req.user.name}`);
       
       const result = await analyticsService.calculateDailyFunnelStats(targetDate);
       
@@ -1694,7 +1694,7 @@ router.post('/calculate-stats',
         }
       });
     } catch (error) {
-      console.error('❌ Admin calculate daily stats error:', error);
+      // console.error('❌ Admin calculate daily stats error:', error);
       return res.status(500).json({
         success: false,
         message: 'Failed to calculate daily stats',
@@ -1740,7 +1740,7 @@ router.get('/health',
 
       return res.status(200).json(healthStatus);
     } catch (error) {
-      console.error('❌ Admin health check error:', error);
+      // console.error('❌ Admin health check error:', error);
       return res.status(503).json({
         success: false,
         message: "Tracking service health check failed",
@@ -1778,7 +1778,7 @@ router.get('/stats-summary',
         }
       });
     } catch (error) {
-      console.error('❌ Admin stats summary error:', error);
+      // console.error('❌ Admin stats summary error:', error);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate stats summary',

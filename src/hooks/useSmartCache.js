@@ -108,7 +108,7 @@ export const useSmartCache = () => {
         if (cached.cached) continue;
 
         try {
-          console.log(`🚀 Preloading ${dataType}...`);
+          // console.log(`🚀 Preloading ${dataType}...`);
           await smartFetch(dataType, params, { priority });
           preloadedData.current.add(cacheKey);
         } catch (error) {

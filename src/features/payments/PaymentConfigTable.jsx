@@ -50,7 +50,7 @@ export function PaymentConfigTable({ columns }) {
 
   // Log when paymentConfigs changes to verify re-rendering
   useEffect(() => {
-    console.log('💳 PaymentConfigs updated:', paymentConfigs?.length, 'configs');
+    // console.log('💳 PaymentConfigs updated:', paymentConfigs?.length, 'configs');
   }, [paymentConfigs]);
 
   // Ensure React Table detects data changes by creating a stable reference

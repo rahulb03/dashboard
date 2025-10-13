@@ -59,10 +59,10 @@ export function MembershipTable({ columns }) {
   useEffect(() => {
     // Only fetch if we don't have memberships data
     if (!memberships || memberships.length === 0) {
-      console.log('📡 Fetching memberships on mount');
+      // console.log('📡 Fetching memberships on mount');
       dispatch(fetchMembershipsThunk({}));
     } else {
-      console.log('✅ Already have', memberships.length, 'memberships - skipping fetch');
+      // console.log('✅ Already have', memberships.length, 'memberships - skipping fetch');
     }
   }, [dispatch]);
 

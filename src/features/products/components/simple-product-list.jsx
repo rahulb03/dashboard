@@ -1,7 +1,7 @@
 'use client';
 
 export function SimpleProductList({ data = [], totalItems = 0 }) {
-  console.log('SimpleProductList received:', { dataLength: data.length, totalItems });
+  // console.log('SimpleProductList received:', { dataLength: data.length, totalItems });
   
   if (!Array.isArray(data) || data.length === 0) {
     return (

@@ -323,7 +323,7 @@ export function SalaryTable({ columns }) {
             onClick={() => {
               // Handle bulk delete
               const selectedIds = table.getFilteredSelectedRowModel().rows.map(row => row.original.id);
-              console.log('Bulk delete:', selectedIds);
+              // console.log('Bulk delete:', selectedIds);
               // You can dispatch bulk delete action here
             }}
           >

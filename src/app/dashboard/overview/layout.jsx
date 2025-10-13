@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import PageContainer from '@/components/layout/page-container';
 import { Badge } from '@/components/ui/badge';
+import { DashboardCardSkeleton } from '@/components/dashboard-skeleton';
 import {
   Card,
   CardHeader,
@@ -46,13 +47,13 @@ export default function OverViewLayout({
   
   // Debug logging
   React.useEffect(() => {
-    console.log('🔍 Dashboard Data Debug:');
-    console.log('Loans:', loans?.length || 0, 'items');
-    console.log('Members:', members?.length || 0, 'items');
-    console.log('Payments:', payments?.length || 0, 'items');
-    console.log('Tracking Sessions:', trackingSessions?.length || 0, 'items');
-    console.log('Tracking Stats:', trackingStats);
-    console.log('Loading states:', { loansLoading, membersLoading, paymentsLoading, trackingLoading });
+    // console.log('🔍 Dashboard Data Debug:');
+    // console.log('Loans:', loans?.length || 0, 'items');
+    // console.log('Members:', members?.length || 0, 'items');
+    // console.log('Payments:', payments?.length || 0, 'items');
+    // console.log('Tracking Sessions:', trackingSessions?.length || 0, 'items');
+    // console.log('Tracking Stats:', trackingStats);
+    // console.log('Loading states:', { loansLoading, membersLoading, paymentsLoading, trackingLoading });
   }, [loans, members, payments, trackingSessions, trackingStats, loansLoading, membersLoading, paymentsLoading, trackingLoading]);
 
   // Minimal dashboard statistics with fallback data
@@ -89,28 +90,28 @@ export default function OverViewLayout({
       stats.totalRevenue = payments
         .filter(p => p.status === 'COMPLETED' || p.status === 'SUCCESS')
         .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
-      console.log('💰 Revenue calculated:', stats.totalRevenue);
+      // console.log('💰 Revenue calculated:', stats.totalRevenue);
     } else {
       stats.totalRevenue = fallbackData.totalRevenue;
-      console.log('💰 Using fallback revenue:', stats.totalRevenue);
+      // console.log('💰 Using fallback revenue:', stats.totalRevenue);
     }
     
     // Calculate total members
     if (members?.length > 0) {
       stats.totalMembers = members.length;
-      console.log('👥 Members count:', stats.totalMembers);
+      // console.log('👥 Members count:', stats.totalMembers);
     } else {
       stats.totalMembers = fallbackData.totalMembers;
-      console.log('👥 Using fallback members:', stats.totalMembers);
+      // console.log('👥 Using fallback members:', stats.totalMembers);
     }
     
     // Calculate total loan applications (changed from active loans)
     if (loans?.length > 0) {
       stats.activeLoans = loans.length; // Show all applications instead of just active
-      console.log('📋 Total applications:', stats.activeLoans);
+      // console.log('📋 Total applications:', stats.activeLoans);
     } else {
       stats.activeLoans = fallbackData.activeLoans;
-      console.log('📋 Using fallback applications:', stats.activeLoans);
+      // console.log('📋 Using fallback applications:', stats.activeLoans);
     }
     
     // Calculate tracking sessions and analytics
@@ -121,26 +122,29 @@ export default function OverViewLayout({
       const completedSessions = trackingSessions.filter(s => s.isCompleted).length;
       stats.completionRate = completedSessions > 0 ? (completedSessions / trackingSessions.length) * 100 : 0;
       
-      console.log('📊 Sessions count:', stats.totalSessions);
-      console.log('📈 Completion rate:', stats.completionRate.toFixed(1) + '%');
+      // console.log('📊 Sessions count:', stats.totalSessions);
+      // console.log('📈 Completion rate:', stats.completionRate.toFixed(1) + '%');
     } else {
       stats.totalSessions = fallbackData.totalSessions;
       stats.completionRate = fallbackData.completionRate;
-      console.log('📊 Using fallback sessions:', stats.totalSessions);
-      console.log('📈 Using fallback completion rate:', stats.completionRate.toFixed(1) + '%');
+      // console.log('📊 Using fallback sessions:', stats.totalSessions);
+      // console.log('📈 Using fallback completion rate:', stats.completionRate.toFixed(1) + '%');
     }
     
     // Use stats from API if available
     if (trackingStats?.overallCompletionRate) {
       stats.completionRate = trackingStats.overallCompletionRate;
-      console.log('📈 API Completion rate:', stats.completionRate);
+      // console.log('📈 API Completion rate:', stats.completionRate);
     }
     
-    console.log('📊 Final dashboard stats:', stats);
+    // console.log('📊 Final dashboard stats:', stats);
     return stats;
   }, [loans, members, payments, trackingSessions, trackingStats]);
 
   const isLoading = loansLoading || membersLoading || paymentsLoading || trackingLoading;
+  
+  // Check if this is initial load (no data yet)
+  const isInitialLoad = isLoading && loans.length === 0 && members.length === 0 && payments.length === 0;
   
   // Loading state with specific details
   const loadingDetails = {
@@ -150,7 +154,7 @@ export default function OverViewLayout({
     tracking: trackingLoading
   };
   
-  console.log('🔄 Loading details:', loadingDetails);
+  // console.log('🔄 Loading details:', loadingDetails);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -182,8 +186,19 @@ export default function OverViewLayout({
         </div>
 
         <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4">
-          {/* Total Users Card */}
-          <Card className="@container/card">
+          {isInitialLoad ? (
+            // Show skeleton loaders during initial load
+            <>
+              <DashboardCardSkeleton />
+              <DashboardCardSkeleton />
+              <DashboardCardSkeleton />
+              <DashboardCardSkeleton />
+            </>
+          ) : (
+            // Show actual cards once data starts loading
+            <>
+              {/* Total Users Card */}
+              <Card className="@container/card">
             <CardHeader>
               <CardDescription className="flex items-center gap-2">
                 <IconUsers className="h-4 w-4" />
@@ -304,7 +319,9 @@ export default function OverViewLayout({
                 User session tracking
               </div>
             </CardFooter>
-          </Card>
+              </Card>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">

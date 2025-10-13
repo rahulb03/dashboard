@@ -24,13 +24,13 @@ export function ClientProductTable({
     pageSize: 10,
   });
 
-  console.log('ClientProductTable Debug:', {
-    dataLength: data.length,
-    dataType: typeof data,
-    isArray: Array.isArray(data),
-    firstItem: data[0],
-    columnsLength: columns.length
-  });
+  // console.log('ClientProductTable Debug:', {
+  //   dataLength: data.length,
+  //   dataType: typeof data,
+  //   isArray: Array.isArray(data),
+  //   firstItem: data[0],
+  //   columnsLength: columns.length
+  // });
 
   const table = useReactTable({
     data,
@@ -57,12 +57,12 @@ export function ClientProductTable({
     manualFiltering: false,
   });
 
-  console.log('ClientTable State:', {
-    rowCount: table.getRowModel().rows.length,
-    totalRows: table.getRowCount(),
-    pageIndex: table.getState().pagination.pageIndex,
-    pageSize: table.getState().pagination.pageSize
-  });
+  // console.log('ClientTable State:', {
+  //   rowCount: table.getRowModel().rows.length,
+  //   totalRows: table.getRowCount(),
+  //   pageIndex: table.getState().pagination.pageIndex,
+  //   pageSize: table.getState().pagination.pageSize
+  // });
 
   return (
     <div className="space-y-4">

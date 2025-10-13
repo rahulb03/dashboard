@@ -12,14 +12,14 @@ export default function LoanApplicationsContent() {
   
   // Fetch on mount - with cache invalidated by thunks, this will get fresh data
   useEffect(() => {
-    console.log('📡 Fetching loan applications on mount');
+    // console.log('📡 Fetching loan applications on mount');
     // forceRefresh=false but cache is invalidated by update thunks, so we get fresh data
     dispatch(fetchLoanApplicationsThunk({ forceRefresh: false }));
   }, [dispatch]);
 
   // Log when loanApplications changes to verify re-rendering
   useEffect(() => {
-    console.log('💼 LoanApplications updated:', loanApplications?.length, 'applications');
+    // console.log('💼 LoanApplications updated:', loanApplications?.length, 'applications');
   }, [loanApplications]);
   
   const applications = loanApplications || [];
@@ -29,11 +29,11 @@ export default function LoanApplicationsContent() {
     const baseUrl = window.location.origin;
     
     // Debug: Log document structure
-    console.log('📄 Export Debug:', {
-      totalApps: data.length,
-      firstAppDocs: data[0]?.documents,
-      sampleDoc: data[0]?.documents?.[0]
-    });
+    // console.log('📄 Export Debug:', {
+    //   totalApps: data.length,
+    //   firstAppDocs: data[0]?.documents,
+    //   sampleDoc: data[0]?.documents?.[0]
+    // });
     
     // Prepare data for Excel export with document links
     const excelData = data.map(app => {
@@ -154,7 +154,7 @@ export default function LoanApplicationsContent() {
       }
     });
     
-    console.log('🔗 Documents to export:', documentsData.length);
+    // console.log('🔗 Documents to export:', documentsData.length);
     
     // Create Documents worksheet if there are any documents
     let documentsWorksheet = null;
@@ -216,7 +216,7 @@ export default function LoanApplicationsContent() {
 
   const handleRefresh = useCallback(() => {
     // Force refresh when user explicitly clicks refresh
-    console.log('🔄 Force refreshing loan applications');
+    // console.log('🔄 Force refreshing loan applications');
     dispatch(fetchLoanApplicationsThunk({ forceRefresh: true }));
   }, [dispatch]);
 

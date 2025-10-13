@@ -152,7 +152,7 @@ class DataCacheManager {
       this._recordCacheHit(key, true);
 
       if (this.debugMode) {
-        console.log(`🎯 Cache HIT: ${key}`);
+        // conso/le.log(`🎯 Cache HIT: ${key}`);
       }
 
       return {
@@ -165,7 +165,7 @@ class DataCacheManager {
     this._recordCacheHit(key, false);
 
     if (this.debugMode) {
-      console.log(`❌ Cache MISS: ${key}`);
+      // console.log(`❌ Cache MISS: ${key}`);
     }
 
     return {
@@ -189,11 +189,11 @@ class DataCacheManager {
     this.loadingStates.set(key, false);
     this.accessOrder.set(key, Date.now());
 
-    if (this.debugMode) {
-      console.log(`💾 Cache SET: ${key}`, {
-        dataSize: JSON.stringify(data).length
-      });
-    }
+    // if (this.debugMode) {
+    //   console.log(`💾 Cache SET: ${key}`, {
+    //     dataSize: JSON.stringify(data).length
+    //   });
+    // }
 
     // Notify subscribers of data update
     this.notifySubscribers(key, data);
@@ -363,9 +363,9 @@ class DataCacheManager {
       this.accessOrder.delete(key);
     });
 
-    if (this.debugMode) {
-      console.log(`🗑️ Invalidated ${keysToDelete.length} entries with prefix: ${prefix}`);
-    }
+    // if (this.debugMode) {
+    //   console.log(`🗑️ Invalidated ${keysToDelete.length} entries with prefix: ${prefix}`);
+    // }
 
     return keysToDelete.length;
   }
@@ -395,7 +395,7 @@ class DataCacheManager {
     // Check if request is already in flight (deduplication)
     if (this.pendingRequests.has(key)) {
       if (this.debugMode) {
-        console.log(`⏳ Request deduplication: ${key}`);
+        // console.log(`⏳ Request deduplication: ${key}`);
       }
       return this.pendingRequests.get(key);
     }
@@ -634,7 +634,7 @@ class DataCacheManager {
       });
 
       if (this.debugMode) {
-        console.log(`📚 Hydrated ${hydratedCount} cache entries from storage`);
+        // console.log(`📚 Hydrated ${hydratedCount} cache entries from storage`);
       }
     } catch (error) {
       console.warn('Failed to hydrate cache from storage:', error);
@@ -680,7 +680,7 @@ class DataCacheManager {
       localStorage.setItem(this.persistenceKey, JSON.stringify(toStore));
 
       if (this.debugMode) {
-        console.log(`💾 Persisted ${persistedCount} cache entries to storage`);
+        // console.log(`💾 Persisted ${persistedCount} cache entries to storage`);
       }
     } catch (error) {
       console.warn('Failed to persist cache to storage:', error);
@@ -711,7 +711,7 @@ class DataCacheManager {
       () => {
         const cleaned = this.cleanup();
         if (this.debugMode && cleaned > 0) {
-          console.log(`🧹 Periodic cleanup removed ${cleaned} expired entries`);
+          // console.log(`🧹 Periodic cleanup removed ${cleaned} expired entries`);
         }
       },
       10 * 60 * 1000
@@ -925,23 +925,23 @@ class DataCacheManager {
   visualizeCacheState() {
     const stats = this.getDetailedStats();
     console.group('🚀 Data Cache Manager Stats');
-    console.log('📊 Performance:', {
-      'Hit Rate': `${stats.cacheHitRate.toFixed(2)}%`,
-      'Avg Response Time': `${stats.averageResponseTime}ms`,
-      'Total Requests': stats.totalRequests,
-      Errors: stats.errors
-    });
-    console.log('💾 Memory:', {
-      'Cache Size': stats.cacheSize,
-      'Memory Usage': stats.memoryUsage,
-      'Loading States': stats.loadingStates,
-      'Pending Requests': stats.pendingRequests
-    });
-    console.log('📈 By Type:', stats.entriesByType);
-    console.log('🧠 Intelligence:', {
-      'User Patterns': stats.userPatterns,
-      'Warming Queue': stats.warmingQueueSize
-    });
+    // console.log('📊 Performance:', {
+    //   'Hit Rate': `${stats.cacheHitRate.toFixed(2)}%`,
+    //   'Avg Response Time': `${stats.averageResponseTime}ms`,
+    //   'Total Requests': stats.totalRequests,
+    //   Errors: stats.errors
+    // });
+    // console.log('💾 Memory:', {
+    //   'Cache Size': stats.cacheSize,
+    //   'Memory Usage': stats.memoryUsage,
+    //   'Loading States': stats.loadingStates,
+    //   'Pending Requests': stats.pendingRequests
+    // });
+    // console.log('📈 By Type:', stats.entriesByType);
+    // console.log('🧠 Intelligence:', {
+    //   'User Patterns': stats.userPatterns,
+    //   'Warming Queue': stats.warmingQueueSize
+    // });
     console.groupEnd();
   }
 
@@ -982,17 +982,17 @@ if (typeof window !== 'undefined') {
 
   // Add cache performance monitor command
   window.dataCacheMonitor = () => {
-    console.log('📈 Starting cache performance monitor...');
+    // console.log('📈 Starting cache performance monitor...');
     const interval = setInterval(() => {
       const stats = dataCache.getDetailedStats();
-      console.log(
-        `Cache: ${stats.cacheHitRate.toFixed(1)}% hit rate, ${stats.averageResponseTime}ms avg response, ${stats.cacheSize} entries`
-      );
+      // console.log(
+      //   `Cache: ${stats.cacheHitRate.toFixed(1)}% hit rate, ${stats.averageResponseTime}ms avg response, ${stats.cacheSize} entries`
+      // );
     }, 5000);
 
     return () => {
       clearInterval(interval);
-      console.log('📈 Cache performance monitor stopped');
+      // console.log('📈 Cache performance monitor stopped');
     };
   };
 }

@@ -149,7 +149,7 @@ export const fetchAllDashboardDataThunk = createAsyncThunk(
   'dashboard/fetchAllData',
   async ({ forceRefresh = false } = {}, { dispatch, rejectWithValue }) => {
     try {
-      console.log('🚀 Fetching all dashboard data');
+      // console.log('🚀 Fetching all dashboard data');
       
       // Fetch all dashboard data in parallel
       const results = await Promise.allSettled([
@@ -167,7 +167,7 @@ export const fetchAllDashboardDataThunk = createAsyncThunk(
         // Don't reject completely, partial data is better than no data
       }
       
-      console.log('✅ Dashboard data fetch completed');
+      // console.log('✅ Dashboard data fetch completed');
       
       return {
         success: results.length - failures.length,
@@ -186,7 +186,7 @@ export const refreshDashboardComponentThunk = createAsyncThunk(
   'dashboard/refreshComponent',
   async ({ component }, { dispatch, rejectWithValue }) => {
     try {
-      console.log(`🔄 Refreshing dashboard component: ${component}`);
+      // console.log(`🔄 Refreshing dashboard component: ${component}`);
       
       switch (component) {
         case 'overview':

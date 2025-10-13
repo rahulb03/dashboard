@@ -51,7 +51,7 @@ function PaymentConfigComponent() {
     dispatch(createPaymentConfigThunk(newConfig))
       .unwrap()
       .then((result) => {
-        console.log('Created:', result);
+        // console.log('Created:', result);
       })
       .catch((error) => {
         console.error('Create failed:', error);

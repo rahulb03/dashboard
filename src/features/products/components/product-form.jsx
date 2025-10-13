@@ -47,7 +47,7 @@ export default function ProductForm({ initialData, pageTitle }) {
   });
 
   function onSubmit(values) {
-    console.log(values);
+    // console.log(values);
     router.push('/dashboard/product');
   }
 

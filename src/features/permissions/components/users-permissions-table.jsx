@@ -159,7 +159,7 @@ export default function UsersPermissionsTable({
         <div 
           className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 p-2 rounded transition-colors"
           onClick={() => {
-            console.log('🎯 Selecting user from name cell:', user.name);
+            // console.log('🎯 Selecting user from name cell:', user.name);
             dispatch(setSelectedUser(user));
           }}
         >
@@ -313,16 +313,16 @@ export default function UsersPermissionsTable({
   });
 
   // Debug the table state
-  console.log('🔍 React Table Debug:', {
-    dataLength: finalUsers.length,
-    tableRows: table.getRowModel().rows.length,
-    firstDataItem: finalUsers[0],
-    visibleRows: table.getRowModel().rows.slice(0, 3).map(row => row.original),
-    columnCount: table.getAllColumns().length,
-    paginationState: table.getState().pagination,
-    columnFilters: table.getState().columnFilters,
-    allColumns: table.getAllColumns().map(col => ({ id: col.id, accessorKey: col.columnDef.accessorKey }))
-  });
+  // console.log('🔍 React Table Debug:', {
+  //   dataLength: finalUsers.length,
+  //   tableRows: table.getRowModel().rows.length,
+  //   firstDataItem: finalUsers[0],
+  //   visibleRows: table.getRowModel().rows.slice(0, 3).map(row => row.original),
+  //   columnCount: table.getAllColumns().length,
+  //   paginationState: table.getState().pagination,
+  //   columnFilters: table.getState().columnFilters,
+  //   allColumns: table.getAllColumns().map(col => ({ id: col.id, accessorKey: col.columnDef.accessorKey }))
+  // });
 
   return (
     <div className="space-y-4">

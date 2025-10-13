@@ -4,9 +4,9 @@ import Header from '@/components/layout/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { cookies } from 'next/headers';
 
-export const metadata= {
-  title: 'Next Shadcn Dashboard Starter',
-  description: 'Basic dashboard with Next.js and Shadcn'
+export const metadata = {
+  title: 'One Gred Dashboard',
+  description: 'One Gred Dashboard'
 };
 
 export default async function DashboardLayout({

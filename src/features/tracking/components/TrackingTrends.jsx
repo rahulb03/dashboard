@@ -346,20 +346,20 @@ export default function TrackingTrends() {
 
   useEffect(() => {
     // Fetch trends data on mount
-    console.log('🔍 Fetching trend analysis with params:', { period: trendPeriod, periods: trendPeriods });
-    console.log('📅 Current date:', new Date().toISOString());
+    // console.log('🔍 Fetching trend analysis with params:', { period: trendPeriod, periods: trendPeriods });
+    // console.log('📅 Current date:', new Date().toISOString());
     dispatch(fetchTrendAnalysisThunk({ period: trendPeriod, periods: trendPeriods }));
   }, [dispatch, trendPeriod, trendPeriods]);
 
   // Debug: Log the trend data when it changes
   useEffect(() => {
     if (trendAnalysis) {
-      console.log('📊 Trend analysis data received:', trendAnalysis);
+      // console.log('📊 Trend analysis data received:', trendAnalysis);
       if (trendAnalysis.trends) {
         const firstStepKey = Object.keys(trendAnalysis.trends)[0];
         if (firstStepKey && trendAnalysis.trends[firstStepKey].length > 0) {
           const dates = trendAnalysis.trends[firstStepKey].map(d => d.date);
-          console.log('📆 Date range in data:', { first: dates[0], last: dates[dates.length - 1] });
+          // console.log('📆 Date range in data:', { first: dates[0], last: dates[dates.length - 1] });
         }
       }
     }

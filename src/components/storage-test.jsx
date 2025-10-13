@@ -6,7 +6,7 @@ export function StorageTest() {
   
   const runStorageTest = () => {
     try {
-      console.log('🧪 Starting localStorage test...');
+      // console.log('🧪 Starting localStorage test...');
       
       // Test basic localStorage functionality
       const testKey = 'storage_test_' + Date.now();

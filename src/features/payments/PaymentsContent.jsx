@@ -12,12 +12,12 @@ export default function PaymentsContent() {
   const { payments, loading } = useSelector((state) => state.payments);
   
   useEffect(() => {
-    console.log('📡 Fetching payments on mount');
+    // console.log('📡 Fetching payments on mount');
     dispatch(fetchPaymentsThunk({}));
   }, [dispatch]);
 
   const handleExport = (data) => {
-    console.log('📊 Exporting payments data:', data.length);
+    // console.log('📊 Exporting payments data:', data.length);
     
     // Prepare data for Excel export
     const excelData = data.map(payment => {
@@ -95,11 +95,11 @@ export default function PaymentsContent() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    console.log('✅ Export completed');
+    // console.log('✅ Export completed');
   };
 
   const handleRefresh = useCallback(() => {
-    console.log('🔄 Refreshing payments');
+    // console.log('🔄 Refreshing payments');
     dispatch(fetchPaymentsThunk({}));
   }, [dispatch]);
 

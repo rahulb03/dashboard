@@ -19,7 +19,7 @@ export const useSimpleCache = () => {
     if (!forceRefresh) {
       const cached = dataCache.get(cacheType, cacheKey);
       if (cached.cached) {
-        console.log(`📦 Cache HIT for ${cacheType}:${JSON.stringify(cacheKey)}`);
+        // console.log(`📦 Cache HIT for ${cacheType}:${JSON.stringify(cacheKey)}`);
         return cached.data;
       }
     }
@@ -31,7 +31,7 @@ export const useSimpleCache = () => {
       // Dispatch the thunk
       const result = await dispatch(thunkFunction({ ...params, forceRefresh }));
       
-      console.log(`🌐 Cache MISS for ${cacheType}:${JSON.stringify(cacheKey)} - fetched fresh data`);
+      // console.log(`🌐 Cache MISS for ${cacheType}:${JSON.stringify(cacheKey)} - fetched fresh data`);
       return result.payload;
     } catch (error) {
       console.error(`Smart fetch failed for ${cacheType}:`, error);

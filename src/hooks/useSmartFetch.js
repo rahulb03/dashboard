@@ -51,7 +51,7 @@ export const useSmartFetch = () => {
       if (cacheValidator && !forceRefresh) {
         const shouldFetch = cacheValidator();
         if (!shouldFetch) {
-          console.log('Cache validation passed, skipping fetch');
+          // console.log('Cache validation passed, skipping fetch');
           return;
         }
       }

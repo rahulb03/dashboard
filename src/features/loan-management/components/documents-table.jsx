@@ -130,13 +130,13 @@ export default function DocumentsTable({ applications = [], loading = false }) {
 
   // Handle document view
   const handleViewDocument = async (doc, applicationId) => {
-    console.log('🔍 Viewing document:', { 
-      documentId: doc.id, 
-      applicationId: applicationId, 
-      documentName: doc.name,
-      documentPath: doc.path,
-      fullDoc: doc 
-    });
+    // console.log('🔍 Viewing document:', { 
+    //   documentId: doc.id, 
+    //   applicationId: applicationId, 
+    //   documentName: doc.name,
+    //   documentPath: doc.path,
+    //   fullDoc: doc 
+    // });
     try {
       await dispatch(viewDocumentThunk({
         documentId: doc.id,
@@ -147,7 +147,7 @@ export default function DocumentsTable({ applications = [], loading = false }) {
       
       // Document opens in new tab automatically from the thunk
       // No need to show modal or handle the result here
-      console.log('✅ Document opened in new tab');
+      // console.log('✅ Document opened in new tab');
       
     } catch (error) {
       console.error('❌ View document error:', error);
@@ -161,13 +161,13 @@ export default function DocumentsTable({ applications = [], loading = false }) {
 
   // Handle document download
   const handleDownloadDocument = async (doc, applicationId) => {
-    console.log('⬇️ Downloading document:', { 
-      documentId: doc.id, 
-      applicationId: applicationId, 
-      documentName: doc.name,
-      documentPath: doc.path,
-      fullDoc: doc 
-    });
+    // console.log('⬇️ Downloading document:', { 
+    //   documentId: doc.id, 
+    //   applicationId: applicationId, 
+    //   documentName: doc.name,
+    //   documentPath: doc.path,
+    //   fullDoc: doc 
+    // });
     
     // Validate required parameters
     if (!doc.id) {
@@ -201,7 +201,7 @@ export default function DocumentsTable({ applications = [], loading = false }) {
         documentPath: doc.path || doc.filePath || doc.url // This contains the full path with timestamped filename
       })).unwrap();
       
-      console.log('✅ Download document result:', result);
+      // console.log('✅ Download document result:', result);
       
       toast({
         title: 'Success',

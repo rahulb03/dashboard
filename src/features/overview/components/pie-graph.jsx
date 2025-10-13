@@ -75,17 +75,17 @@ export function PieGraph() {
   
   // Build chart data from funnel analytics or session data
   const chartData = React.useMemo(() => {
-    console.log('🥧 PieGraph - API Data Debug:');
-    console.log('funnelAnalytics:', funnelAnalytics);
-    console.log('dashboard:', dashboard);
-    console.log('sessionsData:', sessionsData);
-    console.log('trackingSessions:', trackingSessions?.length || 0);
+    // console.log('🥧 PieGraph - API Data Debug:');
+    // console.log('funnelAnalytics:', funnelAnalytics);
+    // console.log('dashboard:', dashboard);
+    // console.log('sessionsData:', sessionsData);
+    // console.log('trackingSessions:', trackingSessions?.length || 0);
     
     // Try to use API session data first
     const apiSessions = sessionsData?.data || trackingSessions;
     
     if (Array.isArray(apiSessions) && apiSessions.length > 0) {
-      console.log('📊 Using API session data:', apiSessions.length, 'sessions');
+      // console.log('📊 Using API session data:', apiSessions.length, 'sessions');
       
       // Group sessions by completion status
       const grouped = { completed: 0, inprogress: 0, abandoned: 0, failed: 0 };
@@ -114,7 +114,7 @@ export function PieGraph() {
     
     // Try to use dashboard summary data
     if (dashboard?.sessionStats) {
-      console.log('📈 Using dashboard session stats:', dashboard.sessionStats);
+      // console.log('📈 Using dashboard session stats:', dashboard.sessionStats);
       
       const stats = dashboard.sessionStats;
       const completed = stats.thisWeek?.completed || stats.today?.completed || 0;
@@ -130,7 +130,7 @@ export function PieGraph() {
     }
 
     // Fallback to generated mock data
-    console.log('🔍 No API data, using generated mock data');
+    // console.log('🔍 No API data, using generated mock data');
     return mockChartData;
   }, [funnelAnalytics, trackingSessions, sessionsData, dashboard]);
   

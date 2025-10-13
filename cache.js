@@ -171,7 +171,7 @@ const refundPayment = async (req, res) => {
             }
           });
           
-          console.log(`Updated loan application ${payment.loanApplicationId} payment status back to pending due to refund`);
+          // console.log(`Updated loan application ${payment.loanApplicationId} payment status back to pending due to refund`);
         }
 
         return updatedPayment

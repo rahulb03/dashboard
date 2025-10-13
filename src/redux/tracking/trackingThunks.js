@@ -480,15 +480,15 @@ export const fetchTrendAnalysisThunk = createAsyncThunk(
         ...(endDate && { endDate: calculatedEndDate })
       });
 
-      console.log('🌐 API Request:', `${API_ENDPOINTS.TRACKING.TRENDS}?${params}`);
-      console.log('📅 Date range:', { start: calculatedStartDate, end: calculatedEndDate });
+      // console.log('🌐 API Request:', `${API_ENDPOINTS.TRACKING.TRENDS}?${params}`);
+      // console.log('📅 Date range:', { start: calculatedStartDate, end: calculatedEndDate });
 
       const response = await axiosInstance.get(
         `${API_ENDPOINTS.TRACKING.TRENDS}?${params}`
       );
       const data = response.data;
 
-      console.log('📥 API Response received:', data);
+      // console.log('📥 API Response received:', data);
 
       // Update cache with new data
       dataCache.set('trendAnalysis', data, cacheKey);

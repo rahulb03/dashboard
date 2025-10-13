@@ -113,7 +113,7 @@ All other modules (Members, Salary, Payments, Memberships) should also work now 
 ### Check 1: Verify Cache is Invalidated
 Add logging to see if cache invalidation is being called:
 ```javascript
-console.log('🗑️ Invalidating cache');
+// console.log('🗑️ Invalidating cache');
 dataCache.invalidate('loanApplications');
 ```
 

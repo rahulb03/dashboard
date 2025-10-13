@@ -366,10 +366,10 @@ const UniversalTrendVisualization = ({ trendData }) => {
 };
 
 const UniversalFunnelVisualization = ({ funnelData }) => {
-  console.log('🔍 Funnel Data Received:', funnelData);
+  // console.log('🔍 Funnel Data Received:', funnelData);
   
   if (!funnelData) {
-    console.log('❌ No funnel data provided');
+    // console.log('❌ No funnel data provided');
     return (
       <div className="text-center py-8 text-muted-foreground">
         <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -384,29 +384,29 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
   
   // Handle the actual API response format
   if (funnelData.funnel && Array.isArray(funnelData.funnel)) {
-    console.log('✅ Found funnel array with', funnelData.funnel.length, 'steps');
+    // console.log('✅ Found funnel array with', funnelData.funnel.length, 'steps');
     stepData = funnelData.funnel;
   } else if (funnelData.trends) {
-    console.log('✅ Found trends data');
+    // console.log('✅ Found trends data');
     stepData = funnelData.trends;
   } else if (funnelData.data?.trends) {
-    console.log('✅ Found nested trends data');
+    // console.log('✅ Found nested trends data');
     stepData = funnelData.data.trends;
   } else if (funnelData.steps) {
-    console.log('✅ Found steps data');
+    // console.log('✅ Found steps data');
     stepData = funnelData.steps;
   } else if (Array.isArray(funnelData)) {
-    console.log('✅ Found array data');
+    // console.log('✅ Found array data');
     stepData = funnelData;
   } else {
-    console.log('✅ Using raw data');
+    // console.log('✅ Using raw data');
     stepData = funnelData;
   }
   
-  console.log('📊 Extracted Step Data:', stepData);
+  // console.log('📊 Extracted Step Data:', stepData);
   
   if (!stepData || (typeof stepData !== 'object' && !Array.isArray(stepData))) {
-    console.log('❌ Invalid step data type');
+    // console.log('❌ Invalid step data type');
     return (
       <div className="text-center py-8 text-muted-foreground">
         <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50 text-yellow-500" />
@@ -420,7 +420,7 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
   let stepInsights = [];
   
   if (Array.isArray(stepData)) {
-    console.log('🔄 Processing array format with', stepData.length, 'steps');
+    // console.log('🔄 Processing array format with', stepData.length, 'steps');
     // Handle your actual API format - array of step objects
     stepInsights = stepData.map((step, index) => {
       const stepName = step.stepName || step.name || step.step || `Step ${index + 1}`;
@@ -450,11 +450,11 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
     // stepInsights = stepInsights.filter(step => step.totalEntries > 0 || step.totalCompletions > 0);
     
   } else if (typeof stepData === 'object') {
-    console.log('🔄 Processing object format');
+    // console.log('🔄 Processing object format');
     // Handle object format - each key is a step name
     stepInsights = Object.entries(stepData)
       .map(([stepName, stepDataItem]) => {
-        console.log(`Processing step: ${stepName}`, stepDataItem);
+        // console.log(`Processing step: ${stepName}`, stepDataItem);
         
         // Handle different data structures
         let latestData;
@@ -465,7 +465,7 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
           // If it's an object, use it directly
           latestData = stepDataItem;
         } else {
-          console.log(`⚠️ Unexpected step data format for ${stepName}:`, typeof stepDataItem);
+          // console.log(`⚠️ Unexpected step data format for ${stepName}:`, typeof stepDataItem);
           return null;
         }
         
@@ -518,14 +518,14 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
     return (b.totalEntries + b.totalCompletions) - (a.totalEntries + a.totalCompletions);
   });
   
-  console.log('📋 Final Step Insights:', stepInsights);
+  // console.log('📋 Final Step Insights:', stepInsights);
   
   if (stepInsights.length === 0) {
-    console.log('⚠️ No valid step insights found. Raw funnel data:', funnelData);
+    // console.log('⚠️ No valid step insights found. Raw funnel data:', funnelData);
     
     // Show all steps even if they have zero activity for better visibility
     if (Array.isArray(stepData) && stepData.length > 0) {
-      console.log('🔄 Creating insights for all steps including zero-activity ones');
+      // console.log('🔄 Creating insights for all steps including zero-activity ones');
       stepInsights = stepData.map((step, index) => {
         const stepName = step.stepName || step.name || step.step || `Step ${index + 1}`;
         const totalEntries = step.totalEntries || 0;
@@ -552,7 +552,7 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
       const totalConversions = funnelData.completedUsers || stepInsights.reduce((sum, step) => sum + step.totalCompletions, 0);
       const overallConversion = funnelData.overallConversion || 0;
       
-      console.log('📊 All Steps Metrics:', { totalSteps: stepInsights.length, totalUsers, totalConversions, overallConversion });
+      // console.log('📊 All Steps Metrics:', { totalSteps: stepInsights.length, totalUsers, totalConversions, overallConversion });
     } else {
       return (
         <div className="text-center py-8">
@@ -588,14 +588,14 @@ const UniversalFunnelVisualization = ({ funnelData }) => {
   const overallConversion = funnelData.overallConversion || 
                            (totalUsers > 0 ? (totalConversions / totalUsers) * 100 : 0);
   
-  console.log('📊 Final Metrics:', {
-    totalSteps: stepInsights.length,
-    totalUsers,
-    totalConversions,
-    overallConversion: overallConversion.toFixed(1) + '%',
-    stepsWithActivity: stepInsights.filter(s => s.totalEntries > 0 || s.totalCompletions > 0).length,
-    dateRange: funnelData.dateRange
-  });
+  // console.log('📊 Final Metrics:', {
+  //   totalSteps: stepInsights.length,
+  //   totalUsers,
+  //   totalConversions,
+  //   overallConversion: overallConversion.toFixed(1) + '%',
+  //   stepsWithActivity: stepInsights.filter(s => s.totalEntries > 0 || s.totalCompletions > 0).length,
+  //   dateRange: funnelData.dateRange
+  // });
   
   const [selectedFunnelRows, setSelectedFunnelRows] = useState(new Set());
   

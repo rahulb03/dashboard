@@ -92,7 +92,7 @@ export function AreaGraph() {
 
   // Build pie chart data - ALWAYS use generated 16-step data to prevent API filtering
   const { chartData, totalUsers, totalCompleted, totalDroppedOff } = React.useMemo(() => {
-    console.log('🔍 AreaGraph - Using FIXED 16-step funnel data');
+    // console.log('🔍 AreaGraph - Using FIXED 16-step funnel data');
     
     // ALWAYS use generated data to ensure all 16 steps are shown
     const freshData = generate16StepFunnelData();
@@ -104,7 +104,7 @@ export function AreaGraph() {
       dropRate: step.dropRate
     }));
     
-    console.log('📊 Generated funnel steps:', funnelSteps.length, 'steps');
+    // console.log('📊 Generated funnel steps:', funnelSteps.length, 'steps');
     
     // Calculate totals for pie chart
     const totalUsers = 1000; // Fixed starting point
@@ -129,7 +129,7 @@ export function AreaGraph() {
       };
     }); // REMOVED FILTER - Show ALL steps
     
-    console.log('🥧 Pie chart data:', stepDropOffs.length, 'slices');
+    // console.log('🥧 Pie chart data:', stepDropOffs.length, 'slices');
     
     return {
       chartData: stepDropOffs,

@@ -32,15 +32,15 @@ export const fetchUsersWithPermissions = createAsyncThunk(
       const apiData = response.data.data;
 
       // Debug: Log the exact API response structure
-      console.log('🔍 API Response Debug:', {
-        fullResponse: response.data,
-        extractedData: apiData,
-        dataType: typeof apiData,
-        isArray: Array.isArray(apiData),
-        hasUsers: apiData?.users ? true : false,
-        usersLength: apiData?.users?.length,
-        dataKeys: apiData ? Object.keys(apiData) : 'no keys'
-      });
+      // console.log('🔍 API Response Debug:', {
+      //   fullResponse: response.data,
+      //   extractedData: apiData,
+      //   dataType: typeof apiData,
+      //   isArray: Array.isArray(apiData),
+      //   hasUsers: apiData?.users ? true : false,
+      //   usersLength: apiData?.users?.length,
+      //   dataKeys: apiData ? Object.keys(apiData) : 'no keys'
+      // });
 
       // Extract the users array from the nested structure
       // API returns: { data: { users: [...], total: n, filters: {...} } }
@@ -81,14 +81,14 @@ export const fetchAvailablePermissions = createAsyncThunk(
       const data = response.data.data;
 
       // Debug: Log the exact API response structure for permissions
-      console.log('🔍 Permissions API Response Debug:', {
-        fullResponse: response.data,
-        extractedData: data,
-        dataType: typeof data,
-        hasCategories: data?.categories ? true : false,
-        categoriesLength: data?.categories?.length,
-        totalPermissions: data?.totalPermissions
-      });
+      // console.log('🔍 Permissions API Response Debug:', {
+      //   fullResponse: response.data,
+      //   extractedData: data,
+      //   dataType: typeof data,
+      //   hasCategories: data?.categories ? true : false,
+      //   categoriesLength: data?.categories?.length,
+      //   totalPermissions: data?.totalPermissions
+      // });
 
       // Update cache with new data
       dataCache.set('permissions', data, cacheKey);

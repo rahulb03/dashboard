@@ -135,7 +135,7 @@ This document outlines the complete caching system implemented to prevent unnece
 ```javascript
 import cacheOptimizer from '@/utils/CacheOptimizer';
 const stats = cacheOptimizer.getCacheStats();
-console.log(stats);
+// console.log(stats);
 ```
 
 ### Cache Logs
@@ -159,12 +159,12 @@ export const fetchDataThunk = createAsyncThunk(
       if (!forceRefresh) {
         const cached = dataCache.get('dataType', cacheKey);
         if (cached.cached) {
-          console.log('📦 Using cached data');
+          // console.log('📦 Using cached data');
           return cached.data;
         }
       }
       
-      console.log('🌐 Fetching fresh data');
+      // console.log('🌐 Fetching fresh data');
       const response = await axiosInstance.get(API_ENDPOINT);
       const data = response.data.data;
       

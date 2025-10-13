@@ -35,13 +35,13 @@ class CacheOptimizer {
   shouldFetchData(pageType, dataKey, forceRefresh = false, params = {}) {
     // Always fetch if force refresh is requested
     if (forceRefresh) {
-      console.log(`🔄 Force refresh requested for ${pageType}:${dataKey}`);
+      // console.log(`🔄 Force refresh requested for ${pageType}:${dataKey}`);
       return true;
     }
 
     // Always fetch for excluded pages
     if (this.excludedPages.includes(pageType)) {
-      console.log(`📄 Page ${pageType} is excluded from caching`);
+      // console.log(`📄 Page ${pageType} is excluded from caching`);
       return true;
     }
 
@@ -49,10 +49,10 @@ class CacheOptimizer {
     if (dataCache) {
       const cached = dataCache.get(dataKey, params);
       if (cached.cached) {
-        console.log(`📦 DataCache HIT for ${dataKey}`);
+        // console.log(`📦 DataCache HIT for ${dataKey}`);
         return false;
       } else {
-        console.log(`🆕 DataCache MISS for ${dataKey}`);
+        // console.log(`🆕 DataCache MISS for ${dataKey}`);
         return true;
       }
     }
@@ -62,7 +62,7 @@ class CacheOptimizer {
     const lastFetched = this.globalTimestamps.get(cacheKey);
     
     if (!lastFetched) {
-      console.log(`🆕 No cache found for ${cacheKey}, fetching fresh data`);
+      // console.log(`🆕 No cache found for ${cacheKey}, fetching fresh data`);
       return true;
     }
 
@@ -70,11 +70,11 @@ class CacheOptimizer {
     const cacheAge = Date.now() - lastFetched;
     
     if (cacheAge > ttl) {
-      console.log(`⏰ Cache expired for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s, ttl: ${Math.round(ttl / 1000)}s)`);
+      // console.log(`⏰ Cache expired for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s, ttl: ${Math.round(ttl / 1000)}s)`);
       return true;
     }
 
-    console.log(`📦 Using cached data for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s)`);
+    // console.log(`📦 Using cached data for ${cacheKey} (age: ${Math.round(cacheAge / 1000)}s)`);
     return false;
   }
 
@@ -86,7 +86,7 @@ class CacheOptimizer {
   markDataFetched(pageType, dataKey) {
     const cacheKey = `${pageType}:${dataKey}`;
     this.globalTimestamps.set(cacheKey, Date.now());
-    console.log(`✅ Marked ${cacheKey} as fetched`);
+    // console.log(`✅ Marked ${cacheKey} as fetched`);
   }
 
   /**
@@ -98,7 +98,7 @@ class CacheOptimizer {
     if (dataKey) {
       const cacheKey = `${pageType}:${dataKey}`;
       this.globalTimestamps.delete(cacheKey);
-      console.log(`🗑️ Invalidated cache for ${cacheKey}`);
+      // console.log(`🗑️ Invalidated cache for ${cacheKey}`);
     } else {
       // Invalidate all cache entries for this page type
       const keysToDelete = [];
@@ -108,9 +108,9 @@ class CacheOptimizer {
         }
       }
       keysToDelete.forEach((key) => this.globalTimestamps.delete(key));
-      console.log(
-        `🗑️ Invalidated all cache for ${pageType} (${keysToDelete.length} entries)`
-      );
+      // console.log(
+      //   `🗑️ Invalidated all cache for ${pageType} (${keysToDelete.length} entries)`
+      // );
     }
   }
 
@@ -153,7 +153,7 @@ class CacheOptimizer {
     const count = this.globalTimestamps.size;
     this.globalTimestamps.clear();
     this.pageCache.clear();
-    console.log(`🧹 Cleared all cache (${count} entries)`);
+    // console.log(`🧹 Cleared all cache (${count} entries)`);
   }
 
   /**
@@ -175,7 +175,7 @@ class CacheOptimizer {
     keysToDelete.forEach((key) => this.globalTimestamps.delete(key));
 
     if (keysToDelete.length > 0) {
-      console.log(`🧹 Cleaned ${keysToDelete.length} expired cache entries`);
+      // console.log(`🧹 Cleaned ${keysToDelete.length} expired cache entries`);
     }
   }
 
@@ -186,7 +186,7 @@ class CacheOptimizer {
    */
   setCustomTTL(pageType, ttl) {
     this.cacheTTL[pageType] = ttl;
-    console.log(`⚙️ Set custom TTL for ${pageType}: ${ttl}ms`);
+    // console.log(`⚙️ Set custom TTL for ${pageType}: ${ttl}ms`);
   }
 }
 
