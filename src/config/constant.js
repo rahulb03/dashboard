@@ -1,5 +1,5 @@
-export const API_BASE_URL = 'http://localhost:3000/api/admin/';
-export const IMAGE_URL = 'http://localhost:3000/';
+export const API_BASE_URL = 'https://api.onegred.com/api/admin/';
+export const IMAGE_URL = 'https://api.onegred.com/';
 
 
 export const WEBSITE_NAME = 'One Gred Dashboard';

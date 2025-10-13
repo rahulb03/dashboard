@@ -12,22 +12,22 @@ const extractResponse = (data) => {
 
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
-    console.log('🔐 Login attempt:', { email });
+  //  console.log('🔐 Login attempt:', { email });
     const response = await unauthenticatedAxios.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
-    console.log('📥 Login response:', response.data);
+  //  console.log('📥 Login response:', response.data);
     
     const { user } = extractResponse(response.data);
-    console.log('👤 Extracted user:', user);
+ //   console.log('👤 Extracted user:', user);
     
     if (!user) {
-      console.error('❌ No user found in response:', response.data);
+    //  console.error('❌ No user found in response:', response.data);
       throw new Error('Invalid login response');
     }
     
     // ROLE VALIDATION: Only allow ADMIN, MANAGER, and EMPLOYEE
     const allowedRoles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
     const userRole = user.role || user.userRole || user.type;
-    console.log('🔍 User role:', userRole);
+  //  console.log('🔍 User role:', userRole);
     
     if (!allowedRoles.includes(userRole)) {
       console.error('❌ Invalid role:', userRole);
@@ -37,7 +37,7 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
     }
     
     // Cookie is automatically set by the server with httpOnly flag
-    console.log('✅ Login successful, returning user');
+   // console.log('✅ Login successful, returning user');
     return { user };
   } catch (error) {
     // Try mock auth as fallback in development
