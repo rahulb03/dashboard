@@ -331,7 +331,6 @@ export default function OverViewLayout({
         </div>
         {children}
       </div>
-      <DebugData />
     </PageContainer>
   );
 }

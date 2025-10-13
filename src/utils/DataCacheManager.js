@@ -46,18 +46,19 @@ class DataCacheManager {
     this.sessionId = this._generateSessionId();
 
     // Cache expiration times (in milliseconds)
+    // IMPORTANT: Short TTLs for admin dashboard to ensure fresh data after deletions/updates
     this.cacheExpiry = {
-      users: 5 * 60 * 1000, // 5 minutes
-      members: 5 * 60 * 1000, // 5 minutes
-      permissions: 10 * 60 * 1000, // 10 minutes (permissions change less frequently)
-      categories: 30 * 60 * 1000, // 30 minutes
-      roles: 30 * 60 * 1000, // 30 minutes
-      settings: 60 * 60 * 1000, // 1 hour
-      history: 2 * 60 * 1000, // 2 minutes
-      salary: 5 * 60 * 1000, // 5 minutes
-      salaries: 5 * 60 * 1000, // 5 minutes
-      salariesByEmploymentType: 3 * 60 * 1000, // 3 minutes
-      searchSalaries: 2 * 60 * 1000, // 2 minutes (search results cache shorter)
+      users: 2 * 60 * 1000, // 2 minutes (reduced for admin freshness)
+      members: 2 * 60 * 1000, // 2 minutes (reduced for admin freshness)
+      permissions: 5 * 60 * 1000, // 5 minutes (reduced for admin changes)
+      categories: 10 * 60 * 1000, // 10 minutes (reduced)
+      roles: 10 * 60 * 1000, // 10 minutes (reduced)
+      settings: 30 * 60 * 1000, // 30 minutes (reduced)
+      history: 1 * 60 * 1000, // 1 minute (very short for real-time feel)
+      salary: 2 * 60 * 1000, // 2 minutes (reduced)
+      salaries: 2 * 60 * 1000, // 2 minutes (reduced)
+      salariesByEmploymentType: 2 * 60 * 1000, // 2 minutes (reduced)
+      searchSalaries: 1 * 60 * 1000, // 1 minute (search results cache very short)
       // Tracking cache expiry times
       tracking: 2 * 60 * 1000, // 2 minutes (tracking data changes frequently)
       trackingSessions: 1 * 60 * 1000, // 1 minute (sessions are dynamic)
@@ -74,15 +75,17 @@ class DataCacheManager {
       paymentConfig: 5 * 60 * 1000, // 5 minutes (individual payment configs)
       paymentConfigs: 3 * 60 * 1000, // 3 minutes (payment config lists)
       activePaymentConfigs: 5 * 60 * 1000, // 5 minutes (active configs don't change often)
-      // Membership cache expiry times
-      membership: 5 * 60 * 1000, // 5 minutes (individual memberships)
-      memberships: 3 * 60 * 1000, // 3 minutes (membership lists)
-      userMembership: 5 * 60 * 1000, // 5 minutes (user's own membership)
-      membershipStats: 10 * 60 * 1000, // 10 minutes (membership statistics)
-      // Payment cache expiry times
-      payment: 3 * 60 * 1000, // 3 minutes (individual payments)
-      payments: 2 * 60 * 1000, // 2 minutes (payment lists)
-      userPayments: 3 * 60 * 1000, // 3 minutes (user payment history)
+      // Membership cache expiry times - CRITICAL: Short TTLs for real-time admin data
+      membership: 1 * 60 * 1000, // 1 minute (individual memberships - very short for delete visibility)
+      memberships: 1 * 60 * 1000, // 1 minute (membership lists - very short for delete visibility)
+      userMembership: 2 * 60 * 1000, // 2 minutes (user's own membership)
+      membershipStats: 2 * 60 * 1000, // 2 minutes (membership statistics - update after deletions)
+      searchMemberships: 30 * 1000, // 30 seconds (search results very short)
+      // Payment cache expiry times - CRITICAL: Short TTLs for real-time admin data
+      payment: 1 * 60 * 1000, // 1 minute (individual payments - very short for delete visibility)
+      payments: 1 * 60 * 1000, // 1 minute (payment lists - very short for delete visibility)
+      userPayments: 2 * 60 * 1000, // 2 minutes (user payment history)
+      searchPayments: 30 * 1000, // 30 seconds (search results very short)
       
       // New Tracking System cache expiry times
       newTrackingOverview: 5 * 60 * 1000, // 5 minutes (overview data)
