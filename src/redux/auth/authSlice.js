@@ -128,6 +128,7 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
+        state.initialized = true; // Mark as initialized even on failure
       })
       .addCase(updateProfile.pending, (state) => {
         state.loading = true;

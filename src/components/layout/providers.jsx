@@ -6,15 +6,38 @@ import { store, persistor } from '@/redux/store';
 import { ActiveThemeProvider } from '../active-theme';
 import { AuthProvider } from '@/lib/auth';
 import AuthGuard from '../auth/auth-guard';
+import { usePathname } from 'next/navigation';
 
 // Loading component for PersistGate
 function PersistLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      <p className="ml-2 text-sm text-muted-foreground">Loading your session...</p>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex items-center space-x-2">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
     </div>
   );
+}
+
+// Wrapper to conditionally apply AuthGuard
+function ConditionalAuthGuard({ children }) {
+  const pathname = usePathname();
+  
+  // Public routes that don't need AuthGuard
+  const publicRoutes = ['/', '/auth/sign-in', '/auth/sign-up', '/auth/forgot-password', '/auth/reset-password'];
+  const isPublicRoute = publicRoutes.some(route => {
+    if (route === '/') return pathname === route;
+    return pathname.startsWith(route);
+  });
+  
+  // Skip AuthGuard for public routes to prevent flash
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
+  
+  // Apply AuthGuard for protected routes (dashboard, etc.)
+  return <AuthGuard>{children}</AuthGuard>;
 }
 
 export default function Providers({
@@ -26,9 +49,9 @@ export default function Providers({
       <PersistGate loading={<PersistLoading />} persistor={persistor}>
         <ActiveThemeProvider initialTheme={activeThemeValue}>
           <AuthProvider>
-            <AuthGuard>
+            <ConditionalAuthGuard>
               {children}
-            </AuthGuard>
+            </ConditionalAuthGuard>
           </AuthProvider>
         </ActiveThemeProvider>
       </PersistGate>

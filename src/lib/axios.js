@@ -44,6 +44,7 @@ export const axiosInstance = attachInterceptors(
   axios.create({
     baseURL: API_BASE_URL,
     withCredentials: true, // Enable cookies
+    timeout: 10000, // 10 second timeout
     headers: {
       'Content-Type': 'application/json',
       Accept: '*/*',
@@ -55,6 +56,7 @@ export const uploadAxiosInstance = attachInterceptors(
   axios.create({
     baseURL: API_BASE_URL,
     withCredentials: true, // Enable cookies
+    timeout: 30000, // 30 second timeout for uploads
     headers: {
       'Content-Type': 'multipart/form-data',
       Accept: 'application/json',
@@ -65,6 +67,7 @@ export const uploadAxiosInstance = attachInterceptors(
 export const unauthenticatedAxios = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true, // Enable cookies for login/signup
+  timeout: 10000, // 10 second timeout
   headers: {
     'Content-Type': 'application/json',
     Accept: '*/*',

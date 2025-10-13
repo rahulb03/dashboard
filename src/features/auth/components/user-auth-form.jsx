@@ -18,6 +18,7 @@ import * as z from 'zod';
 import GithubSignInButton from './github-auth-button';
 import { FormInput } from '@/components/forms/form-input';
 import { useAuth } from '@/lib/auth';
+import Link from 'next/link';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
@@ -86,6 +87,15 @@ export default function UserAuthForm() {
           </Button>
         </form>
       </FormProvider>
+      
+      <div className='text-center mt-4'>
+        <p className='text-sm text-gray-500'>
+          Don't have an account?{' '}
+          <Link href='/auth/sign-up' className='text-[#1D92FF] hover:underline underline-offset-4 font-medium'>
+            Sign up
+          </Link>
+        </p>
+      </div>
     </>
   );
 }

@@ -19,17 +19,21 @@ export function AuthProvider({ children }) {
 
   const loginUser = async (email, password) => {
     try {
+      console.log('🔐 Auth.jsx: Login attempt');
       const result = await dispatch(login({ email, password })).unwrap();
+      console.log('✅ Auth.jsx: Login result:', result);
       
-      // Check if login was successful but role validation failed
-      // This should be caught by the reducer, but check here too
-      if (!result || !result.token) {
+      // With cookie-based auth, we only check for user (token is in httpOnly cookie)
+      if (!result || !result.user) {
+        console.error('❌ Auth.jsx: No user in result');
         return { success: false, error: 'Login failed. Please check your credentials.' };
       }
       
+      console.log('✅ Auth.jsx: Login successful, redirecting to dashboard');
       router.push('/dashboard/overview');
       return { success: true };
     } catch (error) {
+      console.error('❌ Auth.jsx: Login error:', error);
       // Check if it's a role validation error
       if (error && typeof error === 'string' && error.includes('Access denied')) {
         return { success: false, error: error };

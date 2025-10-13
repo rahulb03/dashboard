@@ -22,11 +22,8 @@ import Link from 'next/link';
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
   email: z.string().email({ message: 'Enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-  confirmPassword: z.string().min(1, { message: 'Please confirm your password' })
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  mobile: z.string().min(10, { message: 'Enter a valid mobile number' }).regex(/^[0-9]+$/, { message: 'Mobile number must contain only digits' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' })
 });
 
 export default function UserSignupForm() {
@@ -38,8 +35,8 @@ export default function UserSignupForm() {
   const defaultValues = {
     name: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    mobile: '',
+    password: ''
   };
   
   const form = useForm({
@@ -50,9 +47,7 @@ export default function UserSignupForm() {
   const onSubmit = async (data) => {
     startTransition(async () => {
       try {
-        // Remove confirmPassword before sending to API
-        const { confirmPassword, ...userData } = data;
-        const result = await register(userData);
+        const result = await register(data);
         
         if (result.success) {
           toast.success('Account created successfully!');
@@ -68,51 +63,57 @@ export default function UserSignupForm() {
   return (
     <>
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-4'>
-        <FormInput
-          control={form.control}
-          name='name'
-          label='Full Name'
-          placeholder='Enter your full name...'
-          disabled={loading}
-        />
-        <FormInput
-          control={form.control}
-          name='email'
-          label='Email'
-          placeholder='Enter your email...'
-          disabled={loading}
-        />
-        <FormInput
-          control={form.control}
-          name='password'
-          label='Password'
-          placeholder='Create a password...'
-          type='password'
-          disabled={loading}
-        />
-        <FormInput
-          control={form.control}
-          name='confirmPassword'
-          label='Confirm Password'
-          placeholder='Confirm your password...'
-          type='password'
-          disabled={loading}
-        />
-        <Button
-          disabled={loading}
-          className='mt-4 w-full'
-          type='submit'
-        >
-          {loading ? 'Creating Account...' : 'Create Account'}
-        </Button>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+          <FormInput
+            control={form.control}
+            name='name'
+            label='Full Name'
+            placeholder='John Doe'
+            disabled={loading}
+            className='text-base [&_input]:border-gray-300 [&_input]:focus-visible:border-[#1D92FF]'
+          />
+          <FormInput
+            control={form.control}
+            name='email'
+            label='Email Address'
+            placeholder='name@example.com'
+            disabled={loading}
+            className='text-base [&_input]:border-gray-300 [&_input]:focus-visible:border-[#1D92FF]'
+          />
+          <FormInput
+            control={form.control}
+            name='mobile'
+            label='Mobile Number'
+            placeholder='9876543210'
+            type='tel'
+            disabled={loading}
+            className='text-base [&_input]:border-gray-300 [&_input]:focus-visible:border-[#1D92FF]'
+          />
+          <FormInput
+            control={form.control}
+            name='password'
+            label='Password'
+            placeholder='Create a password'
+            type='password'
+            disabled={loading}
+            className='text-base [&_input]:border-gray-300 [&_input]:focus-visible:border-[#1D92FF]'
+          />
+
+          <Button
+            disabled={loading}
+            className='mt-6 w-full h-11 text-base font-medium'
+            type='submit'
+            style={{ backgroundColor: '#1D92FF' }}
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </Button>
         </form>
       </FormProvider>
       
-      <div className='text-center'>
-        <p className='text-sm text-muted-foreground'>
+      <div className='text-center mt-4'>
+        <p className='text-sm text-gray-500'>
           Already have an account?{' '}
-          <Link href='/auth/sign-in' className='hover:text-primary underline underline-offset-4'>
+          <Link href='/auth/sign-in' className='text-[#1D92FF] hover:underline underline-offset-4 font-medium'>
             Sign in
           </Link>
         </p>

@@ -12,22 +12,32 @@ const extractResponse = (data) => {
 
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
+    console.log('🔐 Login attempt:', { email });
     const response = await unauthenticatedAxios.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
-    const { user } = extractResponse(response.data);
+    console.log('📥 Login response:', response.data);
     
-    if (!user) throw new Error('Invalid login response');
+    const { user } = extractResponse(response.data);
+    console.log('👤 Extracted user:', user);
+    
+    if (!user) {
+      console.error('❌ No user found in response:', response.data);
+      throw new Error('Invalid login response');
+    }
     
     // ROLE VALIDATION: Only allow ADMIN, MANAGER, and EMPLOYEE
     const allowedRoles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
     const userRole = user.role || user.userRole || user.type;
+    console.log('🔍 User role:', userRole);
     
     if (!allowedRoles.includes(userRole)) {
+      console.error('❌ Invalid role:', userRole);
       return rejectWithValue(
         `Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can sign in to the dashboard. Your role: ${userRole || 'USER'}`
       );
     }
     
     // Cookie is automatically set by the server with httpOnly flag
+    console.log('✅ Login successful, returning user');
     return { user };
   } catch (error) {
     // Try mock auth as fallback in development
