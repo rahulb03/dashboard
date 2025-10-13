@@ -17,6 +17,16 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
     
     if (!user) throw new Error('Invalid login response');
     
+    // ROLE VALIDATION: Only allow ADMIN, MANAGER, and EMPLOYEE
+    const allowedRoles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+    const userRole = user.role || user.userRole || user.type;
+    
+    if (!allowedRoles.includes(userRole)) {
+      return rejectWithValue(
+        `Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can sign in to the dashboard. Your role: ${userRole || 'USER'}`
+      );
+    }
+    
     // Cookie is automatically set by the server with httpOnly flag
     return { user };
   } catch (error) {
@@ -27,6 +37,16 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
         const { user } = extractResponse(mockResponse.data);
         
         if (user) {
+          // ROLE VALIDATION for mock auth too
+          const allowedRoles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+          const userRole = user.role || user.userRole || user.type;
+          
+          if (!allowedRoles.includes(userRole)) {
+            return rejectWithValue(
+              `Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can sign in to the dashboard. Your role: ${userRole || 'USER'}`
+            );
+          }
+          
           return { user };
         }
       } catch (mockError) {
@@ -83,6 +103,16 @@ export const getProfile = createAsyncThunk('auth/getProfile', async ({ forceRefr
     const { user } = extractResponse(response.data.data);
     if (!user) throw new Error('No user data found');
     
+    // ROLE VALIDATION: Check if user has allowed role
+    const allowedRoles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+    const userRole = user.role || user.userRole || user.type;
+    
+    if (!allowedRoles.includes(userRole)) {
+      throw new Error(
+        `Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access the dashboard. Your role: ${userRole || 'USER'}`
+      );
+    }
+    
     // Update cache with new data
     dataCache.set('userProfile', user, cacheKey);
     
@@ -95,6 +125,16 @@ export const getProfile = createAsyncThunk('auth/getProfile', async ({ forceRefr
         const user = mockResponse.data;
         
         if (user) {
+          // ROLE VALIDATION for mock profile too
+          const allowedRoles = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+          const userRole = user.role || user.userRole || user.type;
+          
+          if (!allowedRoles.includes(userRole)) {
+            throw new Error(
+              `Access denied. Only ADMIN, MANAGER, and EMPLOYEE roles can access the dashboard. Your role: ${userRole || 'USER'}`
+            );
+          }
+          
           dataCache.set('userProfile', user, { userId: 'current' });
           return user;
         }
