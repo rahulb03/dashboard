@@ -5,7 +5,7 @@
 When exporting sessions, the API call was returning 0 sessions due to passing `phoneNumber=null` as a string in the URL:
 
 ```
-http://localhost:3000/api/admin/tracking/sessions?offset=0&includeSteps=false&status=all&dateRange=7d&phoneNumber=null
+https://api.onegred.com/api/admin/tracking/sessions?offset=0&includeSteps=false&status=all&dateRange=7d&phoneNumber=null
 ```
 
 The backend was treating `"null"` as a literal string filter, which matched no sessions.
