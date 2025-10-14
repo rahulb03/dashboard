@@ -174,7 +174,7 @@ export const viewDocumentThunk = createAsyncThunk(
       const encodedFileName = encodeURIComponent(fileName);
 
       // Construct direct file URL: localhost:3000/uploads/documents/applicationid/filename
-      const fileUrl = `https://api.onegred.com/uploads/documents/${applicationId}/${encodedFileName}`;
+      const fileUrl = `http://localhost:3000/uploads/documents/${applicationId}/${encodedFileName}`;
       // console.log('🔗 Direct file view URL:', fileUrl);
       // console.log('📝 Original filename:', fileName);
       // console.log('📝 Encoded filename:', encodedFileName);
@@ -243,7 +243,7 @@ export const downloadDocumentThunk = createAsyncThunk(
         const encodedFileName = encodeURIComponent(fileName);
 
         // Construct direct file URL: localhost:3000/uploads/documents/applicationid/filename
-        const fileUrl = `https://api.onegred.com/uploads/documents/${applicationId}/${encodedFileName}`;
+        const fileUrl = `http://localhost:3000/uploads/documents/${applicationId}/${encodedFileName}`;
         // console.log('🔗 Direct file URL:', fileUrl);
         // console.log('📝 Original filename:', fileName);
         // console.log('📝 Encoded filename:', encodedFileName);

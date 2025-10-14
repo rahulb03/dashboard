@@ -321,10 +321,18 @@ export const exportSessionsThunk = createAsyncThunk(
   async ({ filters = {} } = {}, { rejectWithValue }) => {
     try {
       // First fetch all sessions with current filters
+      // Only include non-null, non-empty filter values
+      const cleanFilters = {};
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== '' && value !== 'null') {
+          cleanFilters[key] = value;
+        }
+      });
+      
       const params = new URLSearchParams({
         offset: '0',
-        includeSteps: 'true', // Include step details for export
-        ...filters
+        includeSteps: 'false', // Don't include step details for faster export
+        ...cleanFilters
       });
 
       const response = await axiosInstance.get(
@@ -339,10 +347,10 @@ export const exportSessionsThunk = createAsyncThunk(
       // Convert to CSV format
       const headers = [
         'Session ID',
+        'Full Name',
         'Phone Number',
         'Started At',
         'Completed',
-        'Duration (s)',
         'Current Step',
         'Drop Off Step',
         'Completion Rate (%)',
@@ -355,15 +363,15 @@ export const exportSessionsThunk = createAsyncThunk(
         ...sessions.map((session) =>
           [
             session.sessionId || '',
+            session.fullName || 'Not provided',
             session.adminInfo?.fullPhoneNumber || session.phoneNumber || '',
-            new Date(session.startedAt).toISOString(),
+            session.startedAt ? new Date(session.startedAt).toISOString() : '',
             session.isCompleted ? 'Yes' : 'No',
-            session.totalDuration || '',
             session.currentStep || '',
             session.dropOffStep || '',
-            session.completionRate || '',
-            session.adminInfo?.deviceInfo?.device || '',
-            session.adminInfo?.ipAddress || ''
+            session.completionRate ? Math.round(session.completionRate) : '',
+            session.adminInfo?.deviceInfo?.device || session.device || '',
+            session.adminInfo?.ipAddress || session.ipAddress || ''
           ]
             .map((field) => `"${field}"`)
             .join(',')

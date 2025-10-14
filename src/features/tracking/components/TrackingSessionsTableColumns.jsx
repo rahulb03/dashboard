@@ -59,14 +59,13 @@ const CellAction = ({ data }) => {
     const sessionData = {
       sessionId: data.sessionId,
       fullName: data?.fullName || 'Not provided',
-      phoneNumber: data?.adminInfo?.fullPhoneNumber || data?.phoneNumber,
-      startedAt: data.startedAt,
-      currentStep: data.currentStep,
-      isCompleted: data.isCompleted,
-      totalDuration: data.totalDuration,
-      completionRate: data?.completionRate,
-      device: data?.adminInfo?.deviceInfo?.device,
-      ipAddress: data?.adminInfo?.ipAddress
+      phoneNumber: data?.adminInfo?.fullPhoneNumber || data?.phoneNumber || 'N/A',
+      startedAt: data.startedAt || 'N/A',
+      currentStep: data.currentStep || 'N/A',
+      isCompleted: data.isCompleted ? 'Yes' : 'No',
+      completionRate: data?.completionRate ? Math.round(data.completionRate) : 'N/A',
+      device: data?.adminInfo?.deviceInfo?.device || data?.device || 'Unknown',
+      ipAddress: data?.adminInfo?.ipAddress || data?.ipAddress || 'N/A'
     };
     
     const csvContent = Object.entries(sessionData).map(([key, value]) => `${key},${value}`).join('\n');
@@ -270,28 +269,6 @@ export const trackingSessionsColumns = [
         </div>
       );
     },
-  }),
-
-  // Duration
-  columnHelper.accessor('totalDuration', {
-    id: 'duration',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Duration" />
-    ),
-    cell: ({ row }) => {
-      const duration = row.getValue('totalDuration');
-      if (!duration) return <span className="text-muted-foreground">-</span>;
-      
-      const minutes = Math.floor(duration / 60);
-      const seconds = duration % 60;
-      
-      return (
-        <span className="text-sm font-mono">
-          {minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}
-        </span>
-      );
-    },
-    enableSorting: true,
   }),
 
   // Started At
