@@ -78,20 +78,6 @@ export const signup = createAsyncThunk('auth/signup', async (userData, { rejectW
     // Cookie is automatically set by the server with httpOnly flag
     return { user };
   } catch (error) {
-    // Try mock auth as fallback in development
-    if (process.env.NODE_ENV === 'development') {
-      try {
-        const mockResponse = await mockAuthService.signup(userData);
-        const { user } = extractResponse(mockResponse.data);
-        
-        if (user) {
-          return { user };
-        }
-      } catch (mockError) {
-        // Silent fallback failure
-      }
-    }
-    
     const message = error?.response?.data?.message || error.message || 'Signup failed';
     return rejectWithValue(message);
   }

@@ -44,11 +44,20 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      await dispatch(signup(userData)).unwrap();
+      const result = await dispatch(signup(userData)).unwrap();
+      
+      // Only redirect and return success if we have a valid user
+      if (!result || !result.user) {
+        console.error('❌ Auth.jsx: No user in signup result');
+        return { success: false, error: 'Registration failed. Please try again.' };
+      }
+      
+      // Signup successful, redirect to dashboard
       router.push('/dashboard/overview');
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message || 'Registration failed' };
+      console.error('❌ Auth.jsx: Signup error:', error);
+      return { success: false, error: error.message || error || 'Registration failed' };
     }
   };
 
